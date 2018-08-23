@@ -1,0 +1,507 @@
+fileFormatVersion: 2
+guid: b6a0379933caf43e88c93d27ded22f48
+timeCreated: 1529434871
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: CockpitTrim
+    100002: Elevator
+    100004: EngCowling1
+    100006: EngCowling2
+    100008: Engine
+    100010: EngineRods
+    100012: Fuselage
+    100014: GearBrace
+    100016: //RootNode
+    100018: L_TopAileron
+    100020: LAileronPushrod
+    100022: LBotAileron
+    100024: LGear
+    100026: LGearBkt
+    100028: LGearStrut
+    100030: LWheel
+    100032: LWheelAxle
+    100034: Prop
+    100036: PropCone
+    100038: R_TopAileron
+    100040: RAileronPushrod
+    100042: RBotAileron
+    100044: RGear
+    100046: RGearBkt
+    100048: RGearStrut
+    100050: Rudder
+    100052: RWheel
+    100054: RWheelAxle
+    100056: SpanWires
+    100058: TailBkt1
+    100060: TailBkt2
+    100062: TailBkt3
+    100064: TailHoriz
+    100066: TailWheelSpring
+    100068: TopWing
+    100070: TWheel
+    100072: WindshieldFrame
+    100074: WindshieldGlass
+    100076: WingStruts
+    400000: CockpitTrim
+    400002: Elevator
+    400004: EngCowling1
+    400006: EngCowling2
+    400008: Engine
+    400010: EngineRods
+    400012: Fuselage
+    400014: GearBrace
+    400016: //RootNode
+    400018: L_TopAileron
+    400020: LAileronPushrod
+    400022: LBotAileron
+    400024: LGear
+    400026: LGearBkt
+    400028: LGearStrut
+    400030: LWheel
+    400032: LWheelAxle
+    400034: Prop
+    400036: PropCone
+    400038: R_TopAileron
+    400040: RAileronPushrod
+    400042: RBotAileron
+    400044: RGear
+    400046: RGearBkt
+    400048: RGearStrut
+    400050: Rudder
+    400052: RWheel
+    400054: RWheelAxle
+    400056: SpanWires
+    400058: TailBkt1
+    400060: TailBkt2
+    400062: TailBkt3
+    400064: TailHoriz
+    400066: TailWheelSpring
+    400068: TopWing
+    400070: TWheel
+    400072: WindshieldFrame
+    400074: WindshieldGlass
+    400076: WingStruts
+    2100000: CockpitTrimMat
+    2100002: ElevatorMat
+    2100004: EngCowling1Mat
+    2100006: EngCowling2Mat
+    2100008: EngineMat
+    2100010: EngineRodsMat
+    2100012: FuselageMat
+    2100014: GearBraceMat
+    2100016: L_TopAileronMat
+    2100018: LAileronPushrodMat
+    2100020: LBotAileronMat
+    2100022: LGearMat
+    2100024: LGearBktMat
+    2100026: LGearStrutMat
+    2100028: LWheelMat
+    2100030: LWheelAxleMat
+    2100032: PropMat
+    2100034: PropConeMat
+    2100036: R_TopAileronMat
+    2100038: RAileronPushrodMat
+    2100040: RBotAileronMat
+    2100042: RGearMat
+    2100044: RGearBktMat
+    2100046: RGearStrutMat
+    2100048: RudderMat
+    2100050: RWheelMat
+    2100052: RWheelAxleMat
+    2100054: SpanWiresMat
+    2100056: TailBkt1Mat
+    2100058: TailBkt2Mat
+    2100060: TailBkt3Mat
+    2100062: TailHorizMat
+    2100064: TailWheelSpringMat
+    2100066: TopWingMat
+    2100068: TWheelMat
+    2100070: WindshieldFrameMat
+    2100072: WindshieldGlassMat
+    2100074: WingStrutsMat
+    2300000: CockpitTrim
+    2300002: Elevator
+    2300004: EngCowling1
+    2300006: EngCowling2
+    2300008: Engine
+    2300010: EngineRods
+    2300012: Fuselage
+    2300014: GearBrace
+    2300016: L_TopAileron
+    2300018: LAileronPushrod
+    2300020: LBotAileron
+    2300022: LGear
+    2300024: LGearBkt
+    2300026: LGearStrut
+    2300028: LWheel
+    2300030: LWheelAxle
+    2300032: Prop
+    2300034: PropCone
+    2300036: R_TopAileron
+    2300038: RAileronPushrod
+    2300040: RBotAileron
+    2300042: RGear
+    2300044: RGearBkt
+    2300046: RGearStrut
+    2300048: Rudder
+    2300050: RWheel
+    2300052: RWheelAxle
+    2300054: SpanWires
+    2300056: TailBkt1
+    2300058: TailBkt2
+    2300060: TailBkt3
+    2300062: TailHoriz
+    2300064: TailWheelSpring
+    2300066: TopWing
+    2300068: TWheel
+    2300070: WindshieldFrame
+    2300072: WindshieldGlass
+    2300074: WingStruts
+    3300000: CockpitTrim
+    3300002: Elevator
+    3300004: EngCowling1
+    3300006: EngCowling2
+    3300008: Engine
+    3300010: EngineRods
+    3300012: Fuselage
+    3300014: GearBrace
+    3300016: L_TopAileron
+    3300018: LAileronPushrod
+    3300020: LBotAileron
+    3300022: LGear
+    3300024: LGearBkt
+    3300026: LGearStrut
+    3300028: LWheel
+    3300030: LWheelAxle
+    3300032: Prop
+    3300034: PropCone
+    3300036: R_TopAileron
+    3300038: RAileronPushrod
+    3300040: RBotAileron
+    3300042: RGear
+    3300044: RGearBkt
+    3300046: RGearStrut
+    3300048: Rudder
+    3300050: RWheel
+    3300052: RWheelAxle
+    3300054: SpanWires
+    3300056: TailBkt1
+    3300058: TailBkt2
+    3300060: TailBkt3
+    3300062: TailHoriz
+    3300064: TailWheelSpring
+    3300066: TopWing
+    3300068: TWheel
+    3300070: WindshieldFrame
+    3300072: WindshieldGlass
+    3300074: WingStruts
+    4300000: CockpitTrim
+    4300002: Elevator
+    4300004: EngCowling1
+    4300006: EngCowling2
+    4300008: Engine
+    4300010: EngineRods
+    4300012: Fuselage
+    4300014: GearBrace
+    4300016: L_TopAileron
+    4300018: LAileronPushrod
+    4300020: LBotAileron
+    4300022: LGear
+    4300024: LGearBkt
+    4300026: LGearStrut
+    4300028: LWheel
+    4300030: LWheelAxle
+    4300032: Prop
+    4300034: PropCone
+    4300036: R_TopAileron
+    4300038: RAileronPushrod
+    4300040: RBotAileron
+    4300042: RGear
+    4300044: RGearBkt
+    4300046: RGearStrut
+    4300048: Rudder
+    4300050: RWheel
+    4300052: RWheelAxle
+    4300054: SpanWires
+    4300056: TailBkt1
+    4300058: TailBkt2
+    4300060: TailBkt3
+    4300062: TailHoriz
+    4300064: TailWheelSpring
+    4300066: TopWing
+    4300068: TWheel
+    4300070: WindshieldFrame
+    4300072: WindshieldGlass
+    4300074: WingStruts
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CockpitTrimMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ElevatorMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EngCowling1Mat
+    second: {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EngCowling2Mat
+    second: {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EngineMat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: EngineRodsMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FuselageMat
+    second: {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GearBraceMat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LAileronPushrodMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LBotAileronMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LGearBktMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LGearMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LGearStrutMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LWheelAxleMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: LWheelMat
+    second: {fileID: 2100004, guid: 9e3f5c93c23254e519d97721b91393f1, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: L_TopAileronMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PropConeMat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PropMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RAileronPushrodMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RBotAileronMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RGearBktMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RGearMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RGearStrutMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RWheelAxleMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RWheelMat
+    second: {fileID: 2100004, guid: 9e3f5c93c23254e519d97721b91393f1, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: R_TopAileronMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: RudderMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SpanWiresMat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TWheelMat
+    second: {fileID: 2100004, guid: 9e3f5c93c23254e519d97721b91393f1, type: 3}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TailBkt1Mat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TailBkt2Mat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TailBkt3Mat
+    second: {fileID: 2100000, guid: 7ad593c6439664e47bf09b3d52175111, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TailHorizMat
+    second: {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TailWheelSpringMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: TopWingMat
+    second: {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WindshieldFrameMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WindshieldGlassMat
+    second: {fileID: 2100000, guid: 88f8965c85d1d408db75048a36854712, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: WingStrutsMat
+    second: {fileID: 2100000, guid: a7af30dc60ebd4f12b14a8c6d71eac61, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

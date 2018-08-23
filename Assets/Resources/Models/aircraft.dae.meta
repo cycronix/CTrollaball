@@ -1,0 +1,306 @@
+fileFormatVersion: 2
+guid: 9e3f5c93c23254e519d97721b91393f1
+timeCreated: 1529253387
+licenseType: Free
+ModelImporter:
+  serializedVersion: 22
+  fileIDToRecycleName:
+    100000: Air_Airliner_Commercial
+    100002: Air_Airliner_Commercial1
+    100004: //RootNode
+    100006: Component_2_1
+    100008: Component_2_2
+    100010: Component_2_3
+    100012: engine
+    100014: engine 1
+    100016: engine1
+    100018: engine2
+    100020: Group1
+    100022: Group2
+    100024: mesh1
+    100026: mesh10
+    100028: mesh11
+    100030: mesh12
+    100032: mesh13
+    100034: mesh14
+    100036: mesh15
+    100038: mesh16
+    100040: mesh17
+    100042: mesh18
+    100044: mesh19
+    100046: mesh2
+    100048: mesh20
+    100050: mesh20 1
+    100052: mesh21
+    100054: mesh21 1
+    100056: mesh22
+    100058: mesh22 1
+    100060: mesh23
+    100062: mesh23 1
+    100064: mesh24
+    100066: mesh24 1
+    100068: mesh25
+    100070: mesh25 1
+    100072: mesh26
+    100074: mesh27
+    100076: mesh28
+    100078: mesh29
+    100080: mesh3
+    100082: mesh30
+    100084: mesh31
+    100086: mesh32
+    100088: mesh33
+    100090: mesh34
+    100092: mesh35
+    100094: mesh36
+    100096: mesh37
+    100098: mesh38
+    100100: mesh39
+    100102: mesh4
+    100104: mesh40
+    100106: mesh41
+    100108: mesh42
+    100110: mesh43
+    100112: mesh44
+    100114: mesh45
+    100116: mesh46
+    100118: mesh47
+    100120: mesh48
+    100122: mesh49
+    100124: mesh5
+    100126: mesh6
+    100128: mesh7
+    100130: mesh8
+    100132: mesh9
+    100134: tail
+    100136: tail1
+    100138: tail12
+    100140: tail2
+    100142: wheel1
+    100144: wheel2
+    100146: wheel3
+    100148: wheel4
+    100150: wheel_2_1
+    100152: wheel_2_2
+    100154: wing
+    100156: wing1
+    100158: wing12
+    100160: wing2
+    400000: Air_Airliner_Commercial
+    400002: Air_Airliner_Commercial1
+    400004: //RootNode
+    400006: Component_2_1
+    400008: Component_2_2
+    400010: Component_2_3
+    400012: engine
+    400014: engine 1
+    400016: engine1
+    400018: engine2
+    400020: Group1
+    400022: Group2
+    400024: mesh1
+    400026: mesh10
+    400028: mesh11
+    400030: mesh12
+    400032: mesh13
+    400034: mesh14
+    400036: mesh15
+    400038: mesh16
+    400040: mesh17
+    400042: mesh18
+    400044: mesh19
+    400046: mesh2
+    400048: mesh20
+    400050: mesh20 1
+    400052: mesh21
+    400054: mesh21 1
+    400056: mesh22
+    400058: mesh22 1
+    400060: mesh23
+    400062: mesh23 1
+    400064: mesh24
+    400066: mesh24 1
+    400068: mesh25
+    400070: mesh25 1
+    400072: mesh26
+    400074: mesh27
+    400076: mesh28
+    400078: mesh29
+    400080: mesh3
+    400082: mesh30
+    400084: mesh31
+    400086: mesh32
+    400088: mesh33
+    400090: mesh34
+    400092: mesh35
+    400094: mesh36
+    400096: mesh37
+    400098: mesh38
+    400100: mesh39
+    400102: mesh4
+    400104: mesh40
+    400106: mesh41
+    400108: mesh42
+    400110: mesh43
+    400112: mesh44
+    400114: mesh45
+    400116: mesh46
+    400118: mesh47
+    400120: mesh48
+    400122: mesh49
+    400124: mesh5
+    400126: mesh6
+    400128: mesh7
+    400130: mesh8
+    400132: mesh9
+    400134: tail
+    400136: tail1
+    400138: tail12
+    400140: tail2
+    400142: wheel1
+    400144: wheel2
+    400146: wheel3
+    400148: wheel4
+    400150: wheel_2_1
+    400152: wheel_2_2
+    400154: wing
+    400156: wing1
+    400158: wing12
+    400160: wing2
+    2100000: FrontColor
+    2100002: BackColor
+    2100004: __Charcoal_1
+    2300000: mesh1
+    2300002: mesh10
+    2300004: mesh12
+    2300006: mesh14
+    2300008: mesh17
+    2300010: mesh20
+    2300012: mesh20 1
+    2300014: mesh26
+    2300016: mesh29
+    2300018: mesh3
+    2300020: mesh32
+    2300022: mesh35
+    2300024: mesh38
+    2300026: mesh41
+    2300028: mesh44
+    2300030: mesh47
+    2300032: mesh6
+    2300034: mesh8
+    3300000: mesh1
+    3300002: mesh10
+    3300004: mesh12
+    3300006: mesh14
+    3300008: mesh17
+    3300010: mesh20
+    3300012: mesh20 1
+    3300014: mesh26
+    3300016: mesh29
+    3300018: mesh3
+    3300020: mesh32
+    3300022: mesh35
+    3300024: mesh38
+    3300026: mesh41
+    3300028: mesh44
+    3300030: mesh47
+    3300032: mesh6
+    3300034: mesh8
+    4300000: mesh1
+    4300002: mesh3
+    4300004: mesh6
+    4300006: mesh8
+    4300008: mesh10
+    4300010: mesh12
+    4300012: mesh14
+    4300014: mesh17
+    4300016: mesh20
+    4300018: mesh26
+    4300020: mesh29
+    4300022: mesh32
+    4300024: mesh35
+    4300026: mesh38
+    4300028: mesh41
+    4300030: mesh44
+    4300032: mesh47
+    9500000: //RootNode
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
