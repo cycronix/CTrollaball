@@ -1,0 +1,64 @@
+Object Hierarchy:
+
+	GameWorld
+		/Walls
+		/Ground
+		
+	CTunity
+		CTunity.cs
+		CTtimecontrol.cs
+
+	GameOptions
+		/Setup
+			CTsetup.cs
+
+		/RunTime
+			replayControl
+				ToggleReplay.cs
+				
+			menuControl
+				ToggleMenu.cs
+		
+			vidcapControl
+				ScreenCap.cs
+			
+			pickupDispenser
+				objectDispenser.cs
+			
+	Players
+		PickupScore.cs
+	
+		Ball, Biplane, Primplane
+			PlayerController.cs
+			CTtrackset.cs
+			CTplayer.cs
+			ToggleTarget.cs
+		
+		Ball
+			ToggleGhost.cs
+		
+		Ghost
+			CTplayer.cs
+		
+		Pickup
+			Rotator.cs
+			CTplayer.cs
+	
+Script Cross-References:
+
+	CTunity referenced by:
+		CTplayer
+		CTsetup
+		CTtimecontrol
+		PickupScore
+		ScreenCap
+		ToggleGhost
+		ToggleTarget
+		ToggleReplay
+		objectDispenser
+		CTrackset
+
+	CTplayer referenced by:	
+		CTunity
+		PlayerController
+		Rotator
