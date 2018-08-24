@@ -21,6 +21,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 //-------------------------------------------------------------------------------------------------------
+/// <summary>
+/// Core logic for CT/Unity interface
+/// </summary>
+/// 
+
 public class CTunity : MonoBehaviour
 {
 	#region Globals
