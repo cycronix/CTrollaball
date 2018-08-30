@@ -27,6 +27,7 @@ GameObject:
   - component: {fileID: 114673410978050064}
   - component: {fileID: 114454322215590626}
   - component: {fileID: 114907897013995858}
+  - component: {fileID: 114596576984395210}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -137,6 +138,18 @@ MonoBehaviour:
   maxSpeed: 10
   liftForce: 0
   isVehicle: 0
+--- !u!114 &114596576984395210
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1351338773054246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 715888bd8a8224cb5a5e0c9d2c24352b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  doubleClickTime: 0.5
 --- !u!114 &114673410978050064
 MonoBehaviour:
   m_ObjectHideFlags: 1
