@@ -5366,7 +5366,7 @@ MonoBehaviour:
   replayTime: 0
   debugText: {fileID: 411027160}
   PlayerList: []
-  trackEnabled: 0
+  trackEnabled: 1
 --- !u!1 &1713389157
 GameObject:
   m_ObjectHideFlags: 0
