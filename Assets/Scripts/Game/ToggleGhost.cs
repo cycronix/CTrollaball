@@ -40,12 +40,11 @@ public class ToggleGhost : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void OnMouseDown()
 	{
-		if (ctunity!=null && (ctunity.observerFlag || ctunity.showMenu)) return;     // observers don't get ghost-followers
-//		Debug.Log("clickTime: " + clickTime + ", dt: " + (clickTime - nowTime()));
+		if (ctunity == null) return;   // not launched yet
+		if (ctunity.observerFlag || ctunity.showMenu) return;     // observers don't get ghost-followers
       
 		if (clickTime > 0F)
 		{
-//			Debug.Log("TOGGLE GHOST! " + ctunity.Ghost);
 			ctunity.Ghost = !ctunity.Ghost;
             if (ctunity.Ghost) ctunity.newPlayer(ctunity.Player, "Ghost", true);
             else ctunity.clearPlayer(ctunity.Player + "g");

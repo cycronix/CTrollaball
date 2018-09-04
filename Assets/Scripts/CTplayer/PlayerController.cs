@@ -38,13 +38,16 @@ public class PlayerController : MonoBehaviour {
 		ctplayer = GetComponent<CTclient>();
 		rb = GetComponent<Rigidbody>();
 		baseRotation = transform.rotation;          // for relative rotation setting
+
+		// launch player-owned game objects
+		GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(gameObject.name); 
 	}
-		
+
 	//----------------------------------------------------------------------------------------------------------------
 	// push player around using forces; let in-game physics decide where it goes
-    
-//	void Update() 
-		void FixedUpdate()
+
+	//	void Update() 
+	void FixedUpdate()
         {
 
 		if (!ctplayer.isLocalControl())	return;                 // notta unless under local-control

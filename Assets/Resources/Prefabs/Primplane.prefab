@@ -428,7 +428,7 @@ Animator:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1934507086637184}
-  m_Enabled: 1
+  m_Enabled: 0
   m_Avatar: {fileID: 9000000, guid: b4d09402aa4604faaaa66f8dbbf0711a, type: 3}
   m_Controller: {fileID: 0}
   m_CullingMode: 0
@@ -491,7 +491,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTrack: 1
   smoothReplay: 1
-  TrackSpeed: 0.4
+  TrackSpeed: 2
   RotateSpeed: 2
   OverShoot: 0.5
   prefab: Player

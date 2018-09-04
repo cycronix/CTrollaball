@@ -2838,7 +2838,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTrack: 1
   smoothReplay: 1
-  TrackSpeed: 0.4
+  TrackSpeed: 2
   RotateSpeed: 2
   OverShoot: 0.5
   prefab: Player

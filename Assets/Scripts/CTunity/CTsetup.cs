@@ -26,7 +26,7 @@ using System.Text.RegularExpressions;
 //using System.Threading;
 using UnityEngine.SceneManagement;
 
-// Config Menu for CloudTurbine chart displays
+// Config Menu for CTrollaball
 // Matt Miller, Cycronix, 6-16-2017
 
 //----------------------------------------------------------------------------------------------------------------
@@ -67,7 +67,6 @@ public class CTsetup: MonoBehaviour
 	{
 		if (ctunity != null)
 		{
-
 			ctunity.showMenu = true;        // on startup, async ctunity my not yet be defined
 
 			//        StartCoroutine("getSourceList");
@@ -81,6 +80,8 @@ public class CTsetup: MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
+    // glean server/session status from menu fields
+
 	void updateServer()
     {
 		ctunity.clearWorld(ctunity.Player);  // clean slate?
@@ -103,13 +104,13 @@ public class CTsetup: MonoBehaviour
         }
 
         ctunity.doSyncClock();
-        
     }
 
     //----------------------------------------------------------------------------------------------------------------
+    // Play!
+
     void submitButton()
     {
-
         updateServer();
 
         Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
@@ -156,17 +157,13 @@ public class CTsetup: MonoBehaviour
             ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
             ctunity.ctplayer.setAsync(true);
 
-//            if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-//            ctunity.ctvideo = new CTlib.CThttp("ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-//            ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
-//            ctunity.ctvideo.setAsync(true);
-
             ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
-            if (ctunity.Ghost) ctunity.newPlayer(ctunity.Player, "Ghost", true);
-            else ctunity.clearPlayer(ctunity.Player + "g");
+            if (ctunity.Ghost) 
+				    ctunity.newPlayer(ctunity.Player, "Ghost", true);
+            else    ctunity.clearPlayer(ctunity.Player + "g");
 
-			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
+//			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
         }
 
         //      CTroute();      // register CTweb routing connection
@@ -197,6 +194,7 @@ public class CTsetup: MonoBehaviour
 //        ctunity.showMenu = gameObject.activeSelf;
     }
 
+    // out-of-service code follows...
 	/* 
 	//----------------------------------------------------------------------------------------------------------------
     // get source list

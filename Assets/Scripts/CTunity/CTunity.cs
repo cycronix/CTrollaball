@@ -335,7 +335,7 @@ public class CTunity : MonoBehaviour
 	}
 
     //-------------------------------------------------------------------------------------------------------
-    // clone new player...
+    // clone new player or player-owned object...
 
 	public void newPlayer(String playerName, String model, Boolean ghost)
     {

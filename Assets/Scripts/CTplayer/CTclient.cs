@@ -19,6 +19,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+//----------------------------------------------------------------------------------------------------------------
+
 public class CTclient : MonoBehaviour
 {
 	public Boolean smoothTrack = false;
@@ -35,21 +37,18 @@ public class CTclient : MonoBehaviour
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
 	private Boolean myState = true;
 
-//	private Boolean localObject = false;
 	private Boolean startup = true;
 	private Boolean replayMode = false;
     
 	private Rigidbody rb;
 	private CTunity ctunity;
 
+	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start()
 	{
 		rb = GetComponent<Rigidbody>();
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-
-//		if (gameObject.name.StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
-//			localObject = true;
 
 		// see if this client object is child-of-player (set in ToggleGameObject)
 		if (gameObject.name.Contains("/")) ChildOfPlayer = true;
@@ -57,11 +56,13 @@ public class CTclient : MonoBehaviour
 		ctunity.CTregister(gameObject);     // register with CTgroupstate...
 	}
     
+	//----------------------------------------------------------------------------------------------------------------
 	void FixedUpdate()
 	{
 		doTrack();
 	}
 
+	//----------------------------------------------------------------------------------------------------------------
     // setState called from CTunity, works on active/inactive
 	public void setState(Boolean state, Vector3 pos, Quaternion rot, Boolean ireplay, String icustom)
 	{
@@ -82,6 +83,7 @@ public class CTclient : MonoBehaviour
 		startup = false;
 	}
     
+	//----------------------------------------------------------------------------------------------------------------
 	private Vector3 targetPos = Vector3.zero;
 	private Vector3 oldPos = Vector3.zero;
 	private Vector3 velocity = Vector3.zero;
@@ -90,33 +92,24 @@ public class CTclient : MonoBehaviour
 	private void doTrack()
 	{
 		if (ChildOfPlayer) return;                      // relative "attached" child object go for ride with parent
-
-		//		if (!isRemoteControl()) return;
+        
 		if (isLocalControl() || startup)
 		{
 			if(rb != null) rb.useGravity = true;
 			return;
 		}
         
-//		gameObject.SetActive(myState);  // note:  doTrack (called from Update) doesn't get called for inactive objects! 
-
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
 
 		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode))
 		{
-			//			if (!oldPos.Equals(myPos))
-			//			{
+
 			targetPos = myPos + OverShoot * (myPos - transform.position);    // dead reckoning
 			oldPos = myPos;
-			//			}
-			//			Debug.Log("setState, OverShoot: " + OverShoot + ", TrackSpeed: " + TrackSpeed+", myPos: "+myPos+", target: "+targetPos+", tpos: "+transform.position); 
-
-//			float deltaPos = (myPos - transform.position).magnitude;
-//			Debug.Log("deltaPos: " + deltaPos);
 
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
-			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, TrackSpeed);
-			//			transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * TrackSpeed);
+			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
+//			transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * TrackSpeed);
 			transform.rotation = Quaternion.Lerp(transform.rotation, myRot, Time.deltaTime * RotateSpeed);
 		}
 		else
@@ -126,23 +119,24 @@ public class CTclient : MonoBehaviour
             transform.position = myPos;                     // hard-set without smooth
             transform.rotation = myRot;
 		}
-        
-//		oldPos = myPos;
-//		UnityEngine.Debug.Log("myPos: " + myPos + ", targetPos: " + targetPos+", smoothTrack: "+smoothTrack+", replayMode: "+replayMode);
 	}
 
+	//----------------------------------------------------------------------------------------------------------------
 	public void stopMoving() {
 		if(rb != null) rb.velocity = rb.angularVelocity = Vector3.zero;
 	}
     
+	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isRemoteControl() {
 		return ( !startup && (replayMode || !isLocalObject() || ctunity.showMenu) );
 	}
     
+	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalControl() {
 		return (isLocalObject() && !replayMode && !ctunity.showMenu);
 	}
 
+	//----------------------------------------------------------------------------------------------------------------
 	private Boolean isLocalObject()
     {
 		Boolean localObject = false;
@@ -153,6 +147,7 @@ public class CTclient : MonoBehaviour
 		return localObject;
     }
 
+	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isReplayMode()
     {
         return replayMode;

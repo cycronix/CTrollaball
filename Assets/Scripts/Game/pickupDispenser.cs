@@ -21,7 +21,6 @@ using UnityEngine.EventSystems;
 
 public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 	private CTunity ctunity;
-//	private CTinfo ctinfo;
 	private static int nobject = 0;
 	public int pickupsPerClick = 5;
 	public int maxPickups = 100;
@@ -36,14 +35,15 @@ public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 	{
 		if (Input.GetMouseButton(0))
 		{
-			//			Debug.Log("objectDispenser!");
 			if (ctunity.showMenu) return;          // notta if changing settings...
-			dispensePickups();
+			dispensePickups(ctunity.Player);
 		}
 	}
 
-	public void dispensePickups()
+	public void dispensePickups(string player)
 	{
+//		Debug.Log("dispensePickups!");
+
 		if (nobject >= maxPickups)
 		{
 			Debug.Log("Max Pickups!");
@@ -60,7 +60,7 @@ public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 			float yrand = (float)(random.Next(-95, 95)) / 10F;
 			float zrand = (float)(random.Next(10, 50)) / 10F;
 			if (ctunity.Model.Equals("Ball")) zrand = 0.4F;                 // fixed elevation if ball
-			ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", new Vector3(xrand, zrand, yrand), Quaternion.identity, false, true);
+			ctunity.newGameObject(player + ".Pickup" + nobject++, "Pickup", new Vector3(xrand, zrand, yrand), Quaternion.identity, false, true);
 		}
 
 	}
