@@ -21,12 +21,7 @@ using UnityEngine.EventSystems;
 
 public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 	private CTunity ctunity;
-
-	private static int nobject = 0;
-	public int pickupsPerClick = 5;
-	public int maxPickups = 100;
-	public Vector3 groundPos = Vector3.zero;
-
+    
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();           // reference CTunity script
@@ -39,7 +34,7 @@ public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 		{
 			if (ctunity.showMenu) return;          // notta if changing settings...
 //			Debug.Log("onpointerdown dispense pickups...");
-			PlayerObjects ctplayer = GameObject.Find(ctunity.Player).GetComponent<PlayerObjects>();     // reference Player gameobject spawner
+			PlayerObjects ctplayer = GameObject.Find(ctunity.Player).GetComponent<PlayerObjects>();     // Player gameobject spawner
 			ctplayer.dispensePickups();
 		}
 	}
