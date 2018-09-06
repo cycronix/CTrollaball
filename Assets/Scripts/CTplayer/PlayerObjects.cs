@@ -14,6 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Launch player-owned objects
+// needs thought and design
+
 using System;
 using UnityEngine;
 
@@ -38,8 +41,9 @@ public class PlayerObjects : MonoBehaviour {
 		Player = gameObject.name;
 		Vector3 gpos = ctunity.groundPos(Player);
 
-		// launch player-owned game objects:
-		// TO DO:  player-launched objects need thought and design
+		// Launch player-owned game objects:
+
+		// Ground platform:
 
 		GameObject ground = ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
 
@@ -52,6 +56,8 @@ public class PlayerObjects : MonoBehaviour {
 			Color.RGBToHSV(c, out H, out S, out V);
 			renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
 		}
+
+		// Pickup objects:
 
 		if(npickups(Player) == 0) dispensePickups();                    // init
 	}
@@ -84,7 +90,7 @@ public class PlayerObjects : MonoBehaviour {
     }
 
 	//----------------------------------------------------------------------------------------------------------------
-    public int npickups(string player)
+    private int npickups(string player)
     {
 		int np = 0;
         for (int i = 0; i < ctplayer.childCount; i++)
