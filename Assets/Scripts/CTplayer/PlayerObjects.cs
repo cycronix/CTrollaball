@@ -40,7 +40,7 @@ public class PlayerObjects : MonoBehaviour {
 		// launch player-owned game objects
 		ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
 //		Debug.Log("calling pickupDispenser for player: "+player);
-		if(npickups(Player) == 0 ) dispensePickups();           // init
+		if(npickups(Player) == 0) dispensePickups();           // init
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -77,7 +77,8 @@ public class PlayerObjects : MonoBehaviour {
         for (int i = 0; i < ctplayer.childCount; i++)
         {
             Transform c = ctplayer.GetChild(i);
-            if (c.name.StartsWith(player) && c.name.Contains("Pickup"))
+
+            if (c.name.StartsWith(player) && c.name.Contains("Pickup") && c.gameObject.activeSelf)
             {
                 np++;
             }
