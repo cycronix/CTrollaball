@@ -31,16 +31,16 @@ public class PlayerObjects : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
-		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-		ctplayer = GameObject.Find("Players").transform;                    // reference Players container
-
+		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();   // reference CTunity script
+		if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+      
+		ctplayer = GameObject.Find("Players").transform;                // reference Players container
 		Player = gameObject.name;
 		Vector3 gpos = ctunity.groundPos(Player);
 
 		// launch player-owned game objects
 		ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
-//		Debug.Log("calling pickupDispenser for player: "+player);
-		if(npickups(Player) == 0) dispensePickups();           // init
+		if(npickups(Player) == 0) dispensePickups();                    // init
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
