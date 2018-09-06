@@ -38,8 +38,21 @@ public class PlayerObjects : MonoBehaviour {
 		Player = gameObject.name;
 		Vector3 gpos = ctunity.groundPos(Player);
 
-		// launch player-owned game objects
-		ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
+		// launch player-owned game objects:
+		// TO DO:  player-launched objects need thought and design
+
+		GameObject ground = ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
+
+		// adjust ground object color (needs to be centralized)
+        Renderer renderer = ground.GetComponent<Renderer>();
+		if (renderer != null)
+		{
+			Color c = renderer.material.color;
+			float H, S, V;
+			Color.RGBToHSV(c, out H, out S, out V);
+			renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
+		}
+
 		if(npickups(Player) == 0) dispensePickups();                    // init
 	}
 
