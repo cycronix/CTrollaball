@@ -546,6 +546,11 @@ public class CTunity : MonoBehaviour
 		replayActive = !replayActive;
 	}
 
+	public void turnOffReplay()
+    {
+        replayActive = false;
+    }
+
 	//-------------------------------------------------------------------------------------------------------
     // "pull" object state from list
 	// INACTIVE:  logic not worked out, inefficient double-loop search

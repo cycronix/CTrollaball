@@ -21,10 +21,12 @@ using UnityEngine.EventSystems;
 public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 	private GameObject gameOptions;
 	static Boolean showMenu = true;
+	private CTunity ctunity;
 
 	// Use this for initialization
 	void Start () {
 		gameOptions = GameObject.Find("Setup").gameObject;
+		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -34,6 +36,7 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
         {
 			showMenu = !gameOptions.activeSelf;
             gameOptions.SetActive(showMenu);
+			ctunity.turnOffReplay();
         }
     }
 }
