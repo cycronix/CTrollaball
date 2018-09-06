@@ -1737,6 +1737,7 @@ MonoBehaviour:
   smoothTrack: 0
   smoothReplay: 0
   TrackSpeed: 2
+  RotateSpeed: 1
   OverShoot: 0.5
   prefab: CTchart
   custom: 
@@ -2381,11 +2382,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showMenu: 1
   Server: http://localhost:8000
-  Source: CTmousetrack
-  Chan1: x
-  Chan2: y
+  Source: CTrollaball/Sensors/Blue
+  Chan1: x.f32
+  Chan2: y.f32
   Mode: StripChart
-  Duration: 1
+  Duration: 10
 --- !u!114 &114500253412266240
 MonoBehaviour:
   m_ObjectHideFlags: 1

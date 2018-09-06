@@ -22,7 +22,6 @@ public class PlayerController : MonoBehaviour {
 	private Rigidbody rb;
 	public float ForceFactor = 10F;
 	public float TorqueFactor = 5F;
-
 	public float maxSpeed = 5F;
 	public float liftForce = 0F;
 	public Boolean isVehicle = true;
@@ -38,18 +37,14 @@ public class PlayerController : MonoBehaviour {
 		ctplayer = GetComponent<CTclient>();
 		rb = GetComponent<Rigidbody>();
 		baseRotation = transform.rotation;          // for relative rotation setting
-
-		// launch player-owned game objects
-		GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(gameObject.name); 
 	}
-
+    
 	//----------------------------------------------------------------------------------------------------------------
 	// push player around using forces; let in-game physics decide where it goes
 
 	//	void Update() 
 	void FixedUpdate()
         {
-
 		if (!ctplayer.isLocalControl())	return;                 // notta unless under local-control
 
 		float moveHorizontal = Input.GetAxis ("Horizontal");	// Right Left arrow keys +/- 1

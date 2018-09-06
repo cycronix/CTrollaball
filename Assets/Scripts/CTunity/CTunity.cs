@@ -348,9 +348,7 @@ public class CTunity : MonoBehaviour
 		String playerName = pName + (ghost ? "g" : "");
 		if (CTlist.ContainsKey(playerName))
 		{
-//			Debug.Log("CTlist: " + pName);
-
-			//			CTlist[playerName].SetActive(true);     // let setState activate 
+			// CTlist[playerName].SetActive(true);     // let setState activate 
 			return CTlist[playerName];            // already there
 		}
 
@@ -376,7 +374,6 @@ public class CTunity : MonoBehaviour
 
 		String[] pathparts = playerName.Split('/');
 		for (int i = 0; i < pathparts.Length - 1; i++) parent += ("/" + pathparts[i]);
-//		Debug.Log("newobject parent: " + parent);
 
 		Transform tparent = GameObject.Find(parent).transform;
 		Transform pf = go.transform;
@@ -630,6 +627,25 @@ public class CTunity : MonoBehaviour
         return c;
     }
     
+	//----------------------------------------------------------------------------------------------------------------
+    // position of player-owned ground platform
+
+    public Vector3 groundPos(string player)
+    {
+        switch (player)
+        {
+            case "Red":
+                return new Vector3(0F, 0F, 20F);           // Far
+            case "Blue":
+                return new Vector3(-20F, 0F, 0F);           // Left
+            case "Green":
+                return new Vector3(20F, 0F, 0F);            // Right
+            case "Yellow":
+                return new Vector3(0F, 0F, -20F);            // Near
+            default:
+                return Vector3.zero;
+        }
+    }
 }
 
 

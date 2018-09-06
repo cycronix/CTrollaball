@@ -21,13 +21,15 @@ using UnityEngine.EventSystems;
 
 public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 	private CTunity ctunity;
+
 	private static int nobject = 0;
 	public int pickupsPerClick = 5;
 	public int maxPickups = 100;
+	public Vector3 groundPos = Vector3.zero;
 
 	// Use this for initialization
 	void Start () {
-		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
+		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();           // reference CTunity script
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -36,32 +38,10 @@ public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 		if (Input.GetMouseButton(0))
 		{
 			if (ctunity.showMenu) return;          // notta if changing settings...
-			dispensePickups(ctunity.Player);
+//			Debug.Log("onpointerdown dispense pickups...");
+			PlayerObjects ctplayer = GameObject.Find(ctunity.Player).GetComponent<PlayerObjects>();     // reference Player gameobject spawner
+			ctplayer.dispensePickups();
 		}
 	}
-
-	public void dispensePickups(string player)
-	{
-//		Debug.Log("dispensePickups!");
-
-		if (nobject >= maxPickups)
-		{
-			Debug.Log("Max Pickups!");
-			return;
-		}
-
-		if (ctunity.observerFlag) return;
-
-		// dynamic game object creation:
-		System.Random random = new System.Random();
-		for (int i = 0; i < pickupsPerClick; i++)
-		{
-			float xrand = (float)(random.Next(-95, 95)) / 10F;
-			float yrand = (float)(random.Next(-95, 95)) / 10F;
-			float zrand = (float)(random.Next(10, 50)) / 10F;
-			if (ctunity.Model.Equals("Ball")) zrand = 0.4F;                 // fixed elevation if ball
-			ctunity.newGameObject(player + ".Pickup" + nobject++, "Pickup", new Vector3(xrand, zrand, yrand), Quaternion.identity, false, true);
-		}
-
-	}
+    
 }
