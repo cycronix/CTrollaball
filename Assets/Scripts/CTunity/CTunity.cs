@@ -244,9 +244,10 @@ public class CTunity : MonoBehaviour
 			if ((timeout > 0) && (delta > timeout))         // reject stale times
 			{
 				if (!thisName.Equals(Player) || observerFlag) clearWorld(thisName);    // inefficient?
+//				clearWorld(thisName);
 				continue;       
 			}
-
+            
 			if(!tsourceList.Contains(thisName)) tsourceList.Add(thisName);                   // build list of active worlds
 			CTW.name = thisName;
 
@@ -344,7 +345,7 @@ public class CTunity : MonoBehaviour
 
 	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Boolean ghost, Boolean isactive)
 	{
-//		Debug.Log("newGameObject: " + pName);
+//		UnityEngine.Debug.Log("newGameObject: " + pName);
 		String playerName = pName + (ghost ? "g" : "");
 		if (CTlist.ContainsKey(playerName))
 		{
@@ -438,7 +439,9 @@ public class CTunity : MonoBehaviour
 		List<GameObject> gos = new List<GameObject>(CTlist.Values);     // make copy; avoid sync error
 
 		foreach(GameObject go in gos) {
-			if (go.name.StartsWith(worldName)) {
+			if (go.name.StartsWith(worldName))
+			{
+				//				UnityEngine.Debug.Log("clearWorld go: " + go.name);
 				go.SetActive(false);
 				Destroy(go);                 // keep object; inactivate it only?
 				CTlist.Remove(go.name);
@@ -456,7 +459,7 @@ public class CTunity : MonoBehaviour
 
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
-			if (go.name.Equals(Player)) continue;           // leave local world Player alone
+//			if (go.name.Equals(Player)) continue;           // leave local world Player alone
 
 			if (!ctworld.objects.ContainsKey(go.name))
 			{
@@ -546,9 +549,9 @@ public class CTunity : MonoBehaviour
 		replayActive = !replayActive;
 	}
 
-	public void turnOffReplay()
+	public void setReplay(bool ireplayActive)
     {
-        replayActive = false;
+        replayActive = ireplayActive;
     }
 
 	//-------------------------------------------------------------------------------------------------------

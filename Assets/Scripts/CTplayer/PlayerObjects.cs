@@ -25,6 +25,7 @@ public class PlayerObjects : MonoBehaviour {
 
 	private CTunity ctunity;
 	private Transform ctplayer;
+	private int nobject = 0;
 
 	private string Player;
 	public int pickupsPerClick = 5;
@@ -66,7 +67,7 @@ public class PlayerObjects : MonoBehaviour {
 	public void dispensePickups()
     {
         Vector3 groundPos = ctunity.groundPos(Player);
-        int nobject = npickups(Player);
+//        int np = npickups(Player);
 //        Debug.Log("DispensePickups! player: " + Player + ", groundPos: " + groundPos + ", npickups: " + nobject);
 
         if (nobject >= maxPickups)
@@ -76,7 +77,6 @@ public class PlayerObjects : MonoBehaviour {
         }
 
         if (ctunity.observerFlag) return;
-
         // dynamic game object creation:
         System.Random random = new System.Random();
         for (int i = 0; i < pickupsPerClick; i++)

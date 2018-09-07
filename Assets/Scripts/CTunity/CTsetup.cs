@@ -141,12 +141,13 @@ public class CTsetup: MonoBehaviour
         ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
         ctunity.ctvideo.setAsync(true);
 
-		myCamera.setTarget(GameObject.Find("Ground").transform);
+//		myCamera.setTarget(GameObject.Find("Ground").transform);
 
         if (ctunity.Model.Equals("Observer"))
         {
 //            ctunity.newPlayer(ctunity.Player, ctunity.Model, false);     // instantiate observer
             ctunity.observerFlag = true;
+			myCamera.setTarget(GameObject.Find("Ground").transform);
         }
         else
         {
@@ -163,9 +164,10 @@ public class CTsetup: MonoBehaviour
 				    ctunity.newPlayer(ctunity.Player, "Ghost", true);
             else    ctunity.clearPlayer(ctunity.Player + "g");
 
+			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
 //			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
         }
-
+        
         //      CTroute();      // register CTweb routing connection
         
         ctunity.lastSubmitTime = ctunity.ServerTime();

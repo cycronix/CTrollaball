@@ -36,7 +36,7 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
         {
 			showMenu = !gameOptions.activeSelf;
             gameOptions.SetActive(showMenu);
-			ctunity.turnOffReplay();
+			ctunity.setReplay(false);
         }
     }
 }
