@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.4428712, g: 0.49203742, b: 0.57179356, a: 1}
+  m_IndirectSpecularColor: {r: 0.44625407, g: 0.49604535, b: 0.5746151, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -1290,7 +1290,7 @@ Light:
   serializedVersion: 8
   m_Type: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.6
+  m_Intensity: 0.7
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
@@ -1322,13 +1322,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 399626188}
-  m_LocalRotation: {x: 0.33021343, y: 0.53864676, z: -0.39985248, w: 0.66403073}
-  m_LocalPosition: {x: -9.81, y: 14.37, z: -5.57}
+  m_LocalRotation: {x: 0.24997783, y: 0.5418365, z: -0.39375147, w: 0.69920254}
+  m_LocalPosition: {x: -5.54, y: 10.21, z: -5.57}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 60.378002, y: 65.924, z: -20.771002}
+  m_LocalEulerAnglesHint: {x: 50.920002, y: 62.831, z: -26.342001}
 --- !u!1 &404935727
 GameObject:
   m_ObjectHideFlags: 0
@@ -2091,7 +2091,7 @@ Transform:
   m_GameObject: {fileID: 595713461}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2, y: 1, z: 2}
+  m_LocalScale: {x: 20, y: 0.02, z: 20}
   m_Children: []
   m_Father: {fileID: 1504603993}
   m_RootOrder: 3
@@ -2154,14 +2154,14 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 14
   m_SkinWidth: 0.01
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!33 &595713466
 MeshFilter:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 595713461}
-  m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!1 &618586244
 GameObject:
   m_ObjectHideFlags: 0
