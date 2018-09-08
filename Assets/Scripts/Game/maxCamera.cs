@@ -111,24 +111,22 @@ public class maxCamera : MonoBehaviour
 
 		if (Input.GetKeyDown("space") || mouseToggle)        // lock camera on player
 		{
-			//			if (cameraNear || ctunity.Model.Equals("Observer"))
+			// auto-target player
+			if (ctunity.Model.Equals("Observer"))   setTarget(GameObject.Find("Ground").transform, false);
+			else                                    setTarget(GameObject.Find(ctunity.Player).transform, false);
+			
+            /*
 			if (cameraNear)
 			{
-				//				setTarget(GameObject.Find("Ground").transform, false);          // target ground and unlock camera
 				cameraNear = false;
 				if (desiredDistance < 20F) desiredDistance = 20F;               // fall back
 			}
 			else
 			{
-				//				if (lastPlayerTarget.Equals(""))  // init if setTarget not yet called
-				//				{
-				//					if (ctunity.Model.Equals("Observer"))   lastPlayerTarget = "Ground";
-				//					else                                    lastPlayerTarget = ctunity.Player;
-				//				}
-				//				setTarget(GameObject.Find(lastPlayerTarget).transform, true);     // target player and lock camera
 				cameraNear = true;
 				if (desiredDistance > 5F) desiredDistance = 5F;                 // zoom in
 			}
+            */
 		}
 	}
 
