@@ -100,9 +100,7 @@ public class CTsetup: MonoBehaviour
 		if (ctunity != null)
 		{
 			ctunity.showMenu = true;                // on startup, async ctunity my not yet be defined
-			ctunity.debugText.text = "";            // clear debug/errors
-//			connectionPass = true;                  // (re)start
-//			modeSelect();
+//			ctunity.debugText.text = "";            // clear debug/errors
 
 			//  StartCoroutine("getSourceList");
             //	foreach (String s in ctunity.sourceList) UnityEngine.Debug.Log("source: " + s);

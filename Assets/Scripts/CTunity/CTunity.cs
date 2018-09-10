@@ -498,7 +498,6 @@ public class CTunity : MonoBehaviour
 				CTdebug("HTTP Error: "+www1.error + ": " + url1);
 				continue;
 			}
-			CTdebug("");   // clear error
 
 			// parse to class structure...
 			CTworld CTW = parseCTworld(www1.text, 5f);    // skip stale player data	
@@ -605,6 +604,7 @@ public class CTunity : MonoBehaviour
             double now = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
             clocksync = (Double.Parse(www1.text) / 1000f) - now;
             UnityEngine.Debug.Log("syncClock: " + clocksync + ", CT/sysclock: " + www1.text);
+			CTdebug("Host: " + Server);
 			return true;
         }
 
