@@ -495,7 +495,7 @@ public class CTunity : MonoBehaviour
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.text.Length < 10)
 			{
-				UnityEngine.Debug.Log("getWorldState www1 error: " + www1.error + ", url: " + url1);
+				CTdebug(www1.error + " : " + url1);
 				continue;
 			}
 
@@ -596,7 +596,7 @@ public class CTunity : MonoBehaviour
 
         if (!string.IsNullOrEmpty(www1.error))
         {
-            UnityEngine.Debug.Log("syncClock www1 error: " + www1.error + ", url: " + url1);
+			CTdebug(www1.error + ": " + Server);
         }
         else
         {
@@ -615,8 +615,9 @@ public class CTunity : MonoBehaviour
         return (now + clocksync);
     }
 
-	public void Debug(String debug) {
+	public void CTdebug(String debug) {
 		debugText.text = debug;
+		UnityEngine.Debug.Log(debug);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
