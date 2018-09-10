@@ -68,10 +68,10 @@ public class PickupScore : MonoBehaviour {
 				}
 			}
 		}
-
+        
 		// build scoreboard:
 		String scoreboard = "";
-		String wintext = "";
+		String wintext = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
 		foreach (String player in ctunity.PlayerList)
 		{
 			int npickups = cts[player].npickups;
@@ -87,8 +87,9 @@ public class PickupScore : MonoBehaviour {
 		}
 
 		countText.text = scoreboard;
-		if (ctunity.observerFlag)   winText.text = "Observer";
-		else                        winText.text = wintext;
+		winText.text = wintext;
+//		if (ctunity.observerFlag)   winText.text = "Observer";
+//		else                        winText.text = wintext;
 	}
 
 }
