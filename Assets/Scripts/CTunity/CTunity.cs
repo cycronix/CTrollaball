@@ -620,7 +620,7 @@ public class CTunity : MonoBehaviour
 
 	public void CTdebug(String debug) {
 		debugText.text = debug;
-		UnityEngine.Debug.Log(debug);
+		if(!debug.Equals("")) UnityEngine.Debug.Log(debug);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
