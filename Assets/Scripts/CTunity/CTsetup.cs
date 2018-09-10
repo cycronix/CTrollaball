@@ -92,7 +92,6 @@ public class CTsetup: MonoBehaviour
 		Avatar = GameObject.Find("Model");
 		Mode = GameObject.Find("Mode");
 		modeSelect();
-        
     }
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -100,7 +99,8 @@ public class CTsetup: MonoBehaviour
 	{
 		if (ctunity != null)
 		{
-			ctunity.showMenu = true;        // on startup, async ctunity my not yet be defined
+			ctunity.showMenu = true;                // on startup, async ctunity my not yet be defined
+			ctunity.debugText.text = "";            // clear debug/errors
 
 			//        StartCoroutine("getSourceList");
 //			foreach (String s in ctunity.sourceList) UnityEngine.Debug.Log("source: " + s);
@@ -115,7 +115,7 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     // glean server/session status from menu fields
 
-	void updateServer()
+	Boolean updateServer()
     {
 		ctunity.clearWorld(ctunity.Player);  // clean slate?
 
@@ -128,103 +128,100 @@ public class CTsetup: MonoBehaviour
                     ctunity.Server = c.text;
                     if (!ctunity.Server.Contains(":"))           ctunity.Server += ":" + defaultPort;             // default port :8000
                     if (!ctunity.Server.StartsWith("http://"))   ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
-					c.gameObject.SetActive(false);
 					break;
 
 				case "Session":
                     ctunity.Session = c.text;
-					c.gameObject.SetActive(false);
                     break;
             }
         }
 
-		modeSelect();
-
-        ctunity.doSyncClock();
+//		modeSelect();
+        
+        return ctunity.doSyncClock();
     }
 
-    //----------------------------------------------------------------------------------------------------------------
-    // Play!
+	//----------------------------------------------------------------------------------------------------------------
+	// Play!
 
-    void submitButton()
-    {
+	void submitButton()
+	{
 		if (connectionPass)
 		{
+			if (!updateServer()) return;          // stay here until get a good connection
+
 			connectionPass = false;
-			updateServer();
-			ctunity.observerFlag = true;  // observer on entry
+			ctunity.observerFlag = true;        // observer on entry
 			ctunity.Player = "Observer";
-			ctunity.showMenu = false;   // start observing players
-			return;                                         // return -> auto-follow with player select menu
+			ctunity.showMenu = false;           // start observing players
+			modeSelect();
+			return;                             // return -> auto-follow with player select menu
 		}
-		else
+
+		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
+		foreach (Dropdown d in drops)
 		{
-			Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
-			foreach (Dropdown d in drops)
+			switch (d.name)
 			{
-				switch (d.name)
-				{
-					case "Mode":
-                        string mode = d.GetComponent<Dropdown>().options[d.value].text;
-						if (mode.Equals("Observer"))    ctunity.observerFlag = true;
-						else                            ctunity.observerFlag = false;
-                        break;
-					case "Player1":
-						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
-						break;
-					case "Model":
-						ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
-						break;
-					case "TrackDur":
-						ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-						ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
-						break;
-					case "BlockDur":
-						float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-						ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
-						break;
-				}
+				case "Mode":
+					string mode = d.GetComponent<Dropdown>().options[d.value].text;
+					if (mode.Equals("Observer")) ctunity.observerFlag = true;
+					else ctunity.observerFlag = false;
+					break;
+				case "Player1":
+					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
+					break;
+				case "Model":
+					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
+					break;
+				case "TrackDur":
+					ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+					ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
+					break;
+				case "BlockDur":
+					float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+					ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
+					break;
 			}
 		}
 
-        // setup for video players and observers both
+		// setup for video players and observers both
 		if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session+"/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
-        ctunity.ctvideo.setAsync(true);
-        
-//        if (ctunity.Model.Equals("Observer")) 
+		ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+		ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
+		ctunity.ctvideo.setAsync(true);
+
+		//        if (ctunity.Model.Equals("Observer")) 
 		if (ctunity.observerFlag)           // Observer
-        {
-//            ctunity.observerFlag = true;
+		{
+			//            ctunity.observerFlag = true;
 			ctunity.Player = "Observer";
 			myCamera.setTarget(GameObject.Find("Ground").transform);
-        }
-        else                                // Player
-        {
-//			ctunity.observerFlag = false;
+		}
+		else                                // Player
+		{
+			//			ctunity.observerFlag = false;
 			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
-            ctunity.ctplayer = new CTlib.CThttp(ctunity.Session+"/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-            ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
-            ctunity.ctplayer.setAsync(true);
+			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
+			ctunity.ctplayer.setAsync(true);
 
-            ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
+			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
-            if (ctunity.Ghost) 
-				    ctunity.newPlayer(ctunity.Player, "Ghost", true);
-            else    ctunity.clearPlayer(ctunity.Player + "g");
+			if (ctunity.Ghost)
+				ctunity.newPlayer(ctunity.Player, "Ghost", true);
+			else ctunity.clearPlayer(ctunity.Player + "g");
 
 			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
-//			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
-        }
-        
-        //      CTroute();      // register CTweb routing connection
-        
-        ctunity.lastSubmitTime = ctunity.ServerTime();
-        ctunity.showMenu = false;
-        gameObject.SetActive(ctunity.showMenu);
-    }
+			//			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
+		}
 
+		//      CTroute();      // register CTweb routing connection
+
+		ctunity.lastSubmitTime = ctunity.ServerTime();
+		ctunity.showMenu = false;
+		gameObject.SetActive(ctunity.showMenu);
+	}
 
 	//----------------------------------------------------------------------------------------------------------------
     void modeSelect()

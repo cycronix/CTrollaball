@@ -498,6 +498,7 @@ public class CTunity : MonoBehaviour
 				CTdebug(www1.error + " : " + url1);
 				continue;
 			}
+			CTdebug("");   // clear error
 
 			// parse to class structure...
 			CTworld CTW = parseCTworld(www1.text, 5f);    // skip stale player data	
@@ -583,7 +584,7 @@ public class CTunity : MonoBehaviour
     // sync clock to remote CTweb
     
     //  public IEnumerator 
-    public void doSyncClock()
+    public Boolean doSyncClock()
     {
         string url1 = Server + "/sysclock";
         WWW www1 = new WWW(url1);
@@ -597,12 +598,14 @@ public class CTunity : MonoBehaviour
         if (!string.IsNullOrEmpty(www1.error))
         {
 			CTdebug(www1.error + ": " + Server);
+			return false;
         }
         else
         {
             double now = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
             clocksync = (Double.Parse(www1.text) / 1000f) - now;
             UnityEngine.Debug.Log("syncClock: " + clocksync + ", CT/sysclock: " + www1.text);
+			return true;
         }
 
     }
