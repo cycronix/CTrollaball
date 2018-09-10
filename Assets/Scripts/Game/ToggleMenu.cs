@@ -34,6 +34,7 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
     {
         if (Input.GetMouseButton(0))
         {
+			GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
 			showMenu = !gameOptions.activeSelf;
             gameOptions.SetActive(showMenu);
 			ctunity.setReplay(false);

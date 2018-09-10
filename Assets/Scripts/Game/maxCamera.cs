@@ -39,7 +39,7 @@ public class maxCamera : MonoBehaviour
 	public float ySpeed = 200.0f;
 	public int yLimit = 89;                     // 90 deg (vertical)
 	public int zoomRate = 40;
-	public float panSpeed = 0.3f;
+//	public float panSpeed = 0.3f;
 	public float zoomDampening = 5.0f;
 //	public float snapDistance = 5F;
 	private double clickTime = 0F;          // double-click timer

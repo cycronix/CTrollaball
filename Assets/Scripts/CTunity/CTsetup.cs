@@ -37,11 +37,18 @@ public class CTsetup: MonoBehaviour
     private maxCamera myCamera;
 	private CTunity ctunity;
 
+	private Boolean connectionPass = true;          // first pass: connect to server
+
+	private GameObject Server, Session, Player, Avatar, Mode;
+
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
     void Start()
     {
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
+		ctunity.observerFlag = true;   // startup in observer mode
+
+        // setup callbacks
 
         Button[] buttons = gameObject.GetComponentsInChildren<Button>();
         foreach (Button b in buttons)
@@ -60,9 +67,35 @@ public class CTsetup: MonoBehaviour
             }
         }
 
+		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
+		foreach (Dropdown d in drops)
+		{
+			switch (d.name)
+			{
+				case "Mode":
+//					d.onValueChanged.AddListener(modeSelect);
+
+					d.onValueChanged.AddListener(delegate {
+						ctunity.observerFlag = d.GetComponent<Dropdown>().options[d.value].text.Equals("Observer");
+						modeSelect();
+                    });
+
+                    break;
+			}
+		}
+
         myCamera = GameObject.Find("Main Camera").GetComponent<maxCamera>();
+
+		Server = GameObject.Find("Server");
+		Session = GameObject.Find("Session");
+		Player = GameObject.Find("Player1");
+		Avatar = GameObject.Find("Model");
+		Mode = GameObject.Find("Mode");
+		modeSelect();
+        
     }
     
+	//----------------------------------------------------------------------------------------------------------------
 	private void OnEnable()
 	{
 		if (ctunity != null)
@@ -95,13 +128,17 @@ public class CTsetup: MonoBehaviour
                     ctunity.Server = c.text;
                     if (!ctunity.Server.Contains(":"))           ctunity.Server += ":" + defaultPort;             // default port :8000
                     if (!ctunity.Server.StartsWith("http://"))   ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
-                    break;
+					c.gameObject.SetActive(false);
+					break;
 
 				case "Session":
                     ctunity.Session = c.text;
+					c.gameObject.SetActive(false);
                     break;
             }
         }
+
+		modeSelect();
 
         ctunity.doSyncClock();
     }
@@ -111,48 +148,61 @@ public class CTsetup: MonoBehaviour
 
     void submitButton()
     {
-        updateServer();
-
-        Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
-        foreach (Dropdown d in drops)
-        {
-            switch (d.name)
-            {
-                case "Player1":
-                    ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
-                    break;
-                case "Model":
-					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
-                    break;
-                case "TrackDur":
-					ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-					ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
-                    break;
-                case "BlockDur":
-                    float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-                    ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
-                    break;
-            }
-        }
+		if (connectionPass)
+		{
+			connectionPass = false;
+			updateServer();
+			ctunity.observerFlag = true;  // observer on entry
+			ctunity.Player = "Observer";
+			ctunity.showMenu = false;   // start observing players
+			return;                                         // return -> auto-follow with player select menu
+		}
+		else
+		{
+			Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
+			foreach (Dropdown d in drops)
+			{
+				switch (d.name)
+				{
+					case "Mode":
+                        string mode = d.GetComponent<Dropdown>().options[d.value].text;
+						if (mode.Equals("Observer"))    ctunity.observerFlag = true;
+						else                            ctunity.observerFlag = false;
+                        break;
+					case "Player1":
+						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
+						break;
+					case "Model":
+						ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
+						break;
+					case "TrackDur":
+						ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+						ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
+						break;
+					case "BlockDur":
+						float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+						ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
+						break;
+				}
+			}
+		}
 
         // setup for video players and observers both
 		if (ctunity.ctvideo != null) ctunity.ctvideo.close();
         ctunity.ctvideo = new CTlib.CThttp(ctunity.Session+"/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
         ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
         ctunity.ctvideo.setAsync(true);
-
-//		myCamera.setTarget(GameObject.Find("Ground").transform);
-
-        if (ctunity.Model.Equals("Observer"))
+        
+//        if (ctunity.Model.Equals("Observer")) 
+		if (ctunity.observerFlag)           // Observer
         {
-//            ctunity.newPlayer(ctunity.Player, ctunity.Model, false);     // instantiate observer
-            ctunity.observerFlag = true;
+//            ctunity.observerFlag = true;
+			ctunity.Player = "Observer";
 			myCamera.setTarget(GameObject.Find("Ground").transform);
         }
-        else
+        else                                // Player
         {
-			ctunity.observerFlag = false;
-
+//			ctunity.observerFlag = false;
 			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
             ctunity.ctplayer = new CTlib.CThttp(ctunity.Session+"/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
             ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
@@ -175,7 +225,34 @@ public class CTsetup: MonoBehaviour
         gameObject.SetActive(ctunity.showMenu);
     }
 
-    //----------------------------------------------------------------------------------------------------------------
+
+	//----------------------------------------------------------------------------------------------------------------
+    void modeSelect()
+    {
+		if(connectionPass) {
+			Server.SetActive(true);
+			Session.SetActive(true);
+			Mode.SetActive(false);
+			Player.SetActive(false);
+            Avatar.SetActive(false);
+		}
+		else if(ctunity.observerFlag) {
+			Server.SetActive(false);
+            Session.SetActive(false);
+            Mode.SetActive(true);
+            Player.SetActive(false);
+            Avatar.SetActive(false);
+		}
+		else {
+			Server.SetActive(false);
+            Session.SetActive(false);
+            Mode.SetActive(true);
+            Player.SetActive(true);
+            Avatar.SetActive(true);
+		}
+    }
+
+	//----------------------------------------------------------------------------------------------------------------
     void cancelButton()
     {
         ctunity.showMenu = false;
