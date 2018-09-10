@@ -37,7 +37,7 @@ public class CTsetup: MonoBehaviour
     private maxCamera myCamera;
 	private CTunity ctunity;
 
-	private Boolean connectionPass = true;          // first pass: connect to server
+	public Boolean connectionPass = true;          // first pass: connect to server
 
 	private GameObject Server, Session, Player, Avatar, Mode;
 
@@ -101,9 +101,11 @@ public class CTsetup: MonoBehaviour
 		{
 			ctunity.showMenu = true;                // on startup, async ctunity my not yet be defined
 			ctunity.debugText.text = "";            // clear debug/errors
+//			connectionPass = true;                  // (re)start
+//			modeSelect();
 
-			//        StartCoroutine("getSourceList");
-//			foreach (String s in ctunity.sourceList) UnityEngine.Debug.Log("source: " + s);
+			//  StartCoroutine("getSourceList");
+            //	foreach (String s in ctunity.sourceList) UnityEngine.Debug.Log("source: " + s);
 		}
 	}
 
@@ -111,7 +113,7 @@ public class CTsetup: MonoBehaviour
 	{
 		ctunity.showMenu = false;
 	}
-
+    
 	//----------------------------------------------------------------------------------------------------------------
     // glean server/session status from menu fields
 
@@ -234,6 +236,7 @@ public class CTsetup: MonoBehaviour
             Avatar.SetActive(false);
 		}
 		else if(ctunity.observerFlag) {
+//		else if(Mode.Equals("Observer")) {
 			Server.SetActive(false);
             Session.SetActive(false);
             Mode.SetActive(true);

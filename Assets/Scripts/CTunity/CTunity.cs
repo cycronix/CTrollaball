@@ -495,7 +495,7 @@ public class CTunity : MonoBehaviour
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.text.Length < 10)
 			{
-				CTdebug(www1.error + " : " + url1);
+				CTdebug("HTTP Error: "+www1.error + ": " + url1);
 				continue;
 			}
 			CTdebug("");   // clear error
