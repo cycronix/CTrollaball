@@ -206,6 +206,8 @@ public class CTsetup: MonoBehaviour
 			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
 			ctunity.ctplayer.setAsync(true);
 
+			ctunity.clearWorld(ctunity.Player);   // mjm 9-12-18:  reset new player (to do:  "Play", "Restart" options)
+
 			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
 			if (ctunity.Ghost)

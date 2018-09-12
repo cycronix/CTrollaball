@@ -108,7 +108,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c55319a47bfc4fd3b54388cf8dab12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTrack: 0
+  smoothTrack: 1
   smoothReplay: 1
   TrackSpeed: 1
   RotateSpeed: 1

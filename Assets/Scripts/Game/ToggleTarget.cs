@@ -17,6 +17,7 @@ limitations under the License.
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class ToggleTarget : MonoBehaviour {
 	private CTunity ctunity;
@@ -32,6 +33,8 @@ public class ToggleTarget : MonoBehaviour {
     {
 //        Debug.Log("toggle target: " + transform.name);
 //		if (ctunity.observerFlag)                     // only observers toggle targets
+
+		if(!EventSystem.current.IsPointerOverGameObject())  // avoid "click through" from UI elements
             GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
 	}
 }

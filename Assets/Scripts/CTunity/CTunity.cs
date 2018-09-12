@@ -176,6 +176,7 @@ public class CTunity : MonoBehaviour
 		}
 		else
 		{
+			remoteReplay = false;  // mjm 9-12-18: default out of remoteReplay if no active Replay mode
 			foreach (String world in worlds)            // scan worlds for possible remote Replay
 			{
 				if (world.Length < 2) continue;                     // skip empty lines
@@ -241,7 +242,8 @@ public class CTunity : MonoBehaviour
 			if (CTW.time > updateTime) updateTime = CTW.time;      // keep track of most-recent CTW time
 
 			double delta = Math.Abs(CTW.time - masterTime);   // masterTime NG on Remote... ???         
-			if ((timeout > 0) && (delta > timeout))         // reject stale times
+//			if ((timeout > 0) && (delta > timeout))         // reject stale times
+			if (false)         // mjm 9-12-18:  durable old stuff...
 			{
 				if (!thisName.Equals(Player) || observerFlag) clearWorld(thisName);    // inefficient?
 //				clearWorld(thisName);
@@ -379,6 +381,7 @@ public class CTunity : MonoBehaviour
 		Transform tparent = GameObject.Find(parent).transform;
 		Transform pf = go.transform;
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
+//		newp.gameObject.SetActive(true);  // mjm 9-12-18:  make sure (re)instantiated objects are active
 
 		//		newp.parent = GameObject.Find(parent).transform;
 		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
