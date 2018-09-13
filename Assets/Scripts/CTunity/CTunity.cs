@@ -259,6 +259,18 @@ public class CTunity : MonoBehaviour
 					{
 						newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
 					}
+
+					// check for change of prefab
+                    if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !thisName.Equals(Player)))  // Live mode
+                    {
+                        string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
+                        if (!pf.Equals(ctobject.prefab) && !showMenu)   // recheck showMenu for async newPlayer
+                        {
+                            Debug.Log(Player + ": change prefab: " + pf + " --> " + ctobject.prefab);
+                            clearPlayer(ctobject.id);
+                            newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
+                        }
+                    }
 				}
 			}
 		}
@@ -471,37 +483,40 @@ public class CTunity : MonoBehaviour
 				setState(ctobject.id, ctobject);
 			}
 
-            //
-            // Fetch/process JSON data
-            //
-            string url2 = Server + "/CT/" + Session + "/GamePlay/*/CTstates.json" + urlparams;
-            WWW www2 = new WWW(url2);
-            yield return www2;          // wait for results to HTTP GET
+			Boolean doJSON = false;             // mjm debug
+			if (doJSON)
+			{
+				//
+				// Fetch/process JSON data
+				//
+				string url2 = Server + "/CT/" + Session + "/GamePlay/*/CTstates.json" + urlparams;
+				WWW www2 = new WWW(url2);
+				yield return www2;          // wait for results to HTTP GET
 
-            // proceed with parsing CTstates.json
-            if (!string.IsNullOrEmpty(www2.error) || www2.text.Length < 10)
-            {
-                UnityEngine.Debug.Log("getWorldState www2 error: " + www2.error + ", url: " + url2);
-                continue;
-            }
-            UnityEngine.Debug.Log("CTstates.json: " + www2.text);
-            List<CTworld> worlds = CTserdes.deserialize(www2.text);
-            if (worlds == null || worlds.Count < 1) continue;
-            foreach (CTworld jCTW in worlds)
-            {
-                if (jCTW == null || jCTW.objects == null) continue;
-                foreach (CTobject ctobject in jCTW.objects.Values)
-                {
-                    // instantiate new players and objects
-                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !jCTW.name.Equals(Player)))
-                    {
-                        newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
-                    }
-                    // update this object in the game world
-                    setState(ctobject.id, ctobject);
-                }
-            }
-
+				// proceed with parsing CTstates.json
+				if (!string.IsNullOrEmpty(www2.error) || www2.text.Length < 10)
+				{
+					UnityEngine.Debug.Log("getWorldState www2 error: " + www2.error + ", url: " + url2);
+					continue;
+				}
+				UnityEngine.Debug.Log("CTstates.json: " + www2.text);
+				List<CTworld> worlds = CTserdes.deserialize(www2.text);
+				if (worlds == null || worlds.Count < 1) continue;
+				foreach (CTworld jCTW in worlds)
+				{
+					if (jCTW == null || jCTW.objects == null) continue;
+					foreach (CTobject ctobject in jCTW.objects.Values)
+					{
+						// instantiate new players and objects
+						if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !jCTW.name.Equals(Player)))
+						{
+							newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
+						}
+						// update this object in the game world
+						setState(ctobject.id, ctobject);
+					}
+				}
+			}
         }                   // end while(true)      
     }
 

@@ -167,6 +167,7 @@ public class CTsetup: MonoBehaviour
 					string mode = d.GetComponent<Dropdown>().options[d.value].text;
 					if (mode.Equals("Observer")) ctunity.observerFlag = true;
 					else ctunity.observerFlag = false;
+					ctunity.showMenu = ctunity.observerFlag;  // pause ctunity parseWorld loop while creating new player
 					break;
 				case "Player1":
 					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;

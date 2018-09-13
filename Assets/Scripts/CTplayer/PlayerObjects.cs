@@ -52,7 +52,8 @@ public class PlayerObjects : MonoBehaviour {
         Renderer renderer = ground.GetComponent<Renderer>();
 		if (renderer != null)
 		{
-			Color c = renderer.material.color;
+			//			Color c = renderer.material.color;
+			Color c = ctunity.Text2Color(ctunity.Player, 1F);   // ref original color (avoid accumulated changes)
 			float H, S, V;
 			Color.RGBToHSV(c, out H, out S, out V);
 			renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
