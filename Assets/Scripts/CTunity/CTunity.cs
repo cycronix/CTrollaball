@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using CTworldNS;
 
 //-------------------------------------------------------------------------------------------------------
 /// <summary>
@@ -30,7 +31,7 @@ public class CTunity : MonoBehaviour
 {
 	#region Globals
 
-    private Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
+    public Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
 
     public Boolean remoteReplay = false;            // ghost (Player2) replay mode?
 	public double latestTime = 0F;
@@ -56,8 +57,8 @@ public class CTunity : MonoBehaviour
     public CTlib.CThttp ctvideo = null;
 
 	public double replayTime = 0;
-	private Boolean replayActive = false;
-	private String replayText = "Live";
+	public Boolean replayActive = false;
+	public String replayText = "Live";
 	public Text debugText;
 
 	public List<String> PlayerList = new List<String>();
@@ -96,31 +97,8 @@ public class CTunity : MonoBehaviour
             PtCounter = 0;
             return;
         }
-        
-		// header line:
-		string CTstateString = "#" + replayText + ":" + ServerTime().ToString() + ":" + Player + "\n";
 
-		string delim = ";";
-        foreach (GameObject ct in CTlist.Values)
-        {
-			if (ct==null) continue;  
-			CTclient ctp = ct.GetComponent<CTclient>();
-			if (ctp == null) continue;
-//			UnityEngine.Debug.Log("CTput: " + ct.name+", active: "+ct.activeSelf);
-
-			String prefab = ctp.prefab;
-            if (prefab.Equals("Ghost")) continue;                                   // no save ghosts												
-			if (!replayActive && !ct.name.StartsWith(Player)) continue;  // only save locally owned objects
-
-            CTstateString += ct.name;
-//            CTstateString += (delim + ct.tag);
-			CTstateString += (delim + prefab);
-            CTstateString += (delim + (ct.activeSelf ? "1" : "0"));
-            CTstateString += (delim + ct.transform.localPosition.ToString("F4"));
-            CTstateString += (delim + ct.transform.localRotation.eulerAngles.ToString("F4"));
-			if (ctp.custom != null && ctp.custom.Length>0) CTstateString += (delim + ctp.custom);
-            CTstateString += "\n";
-        }
+        string CTstateString = CTserdes.serialize(this, CTserdes.Format.CSV);
 
         ctplayer.setTime(ServerTime());
         ctplayer.putData("CTstates.txt", CTstateString);
@@ -132,31 +110,10 @@ public class CTunity : MonoBehaviour
     //-------------------------------------------------------------------------------------------------------
     // parseCTworld:  utilities to parse CTworld/CTstates.txt into CTworld/CTobject List structures
 
-    // CTworld class structures:
+    String masterWorldName = null;
 
-    public class CTworld
-    {
-        public string name { get; set; }
-        public double time { get; set; }
-        public string mode { get; set; }
-//        public List<CTobject> objects;
-		public Dictionary<String, CTobject> objects;
-    }
-
-    public class CTobject
-    {
-        public string id { get; set; }
-		public string prefab { get; set; }
-        public Boolean state { get; set; }
-        public Vector3 pos { get; set; }
-        public Quaternion rot { get; set; }
-        public string custom { get; set; }
-    }
-
-	String masterWorldName = null;
-
-	//-------------------------------------------------------------------------------------------------------
-	CTworld parseCTworld(string wtext, double timeout)
+    //-------------------------------------------------------------------------------------------------------
+    CTworld parseCTworld(string wtext, double timeout)
 	{
 //		double masterTime = replayTime;
 		double masterTime = ServerTime();
@@ -514,7 +471,38 @@ public class CTunity : MonoBehaviour
 				setState(ctobject.id, ctobject);
 			}
 
-		}                   // end while(true)      
+            //
+            // Fetch/process JSON data
+            //
+            string url2 = Server + "/CT/" + Session + "/GamePlay/*/CTstates.json" + urlparams;
+            WWW www2 = new WWW(url2);
+            yield return www2;          // wait for results to HTTP GET
+
+            // proceed with parsing CTstates.json
+            if (!string.IsNullOrEmpty(www2.error) || www2.text.Length < 10)
+            {
+                UnityEngine.Debug.Log("getWorldState www2 error: " + www2.error + ", url: " + url2);
+                continue;
+            }
+            UnityEngine.Debug.Log("CTstates.json: " + www2.text);
+            List<CTworld> worlds = CTserdes.deserialize(www2.text);
+            if (worlds == null || worlds.Count < 1) continue;
+            foreach (CTworld jCTW in worlds)
+            {
+                if (jCTW == null || jCTW.objects == null) continue;
+                foreach (CTobject ctobject in jCTW.objects.Values)
+                {
+                    // instantiate new players and objects
+                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !jCTW.name.Equals(Player)))
+                    {
+                        newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
+                    }
+                    // update this object in the game world
+                    setState(ctobject.id, ctobject);
+                }
+            }
+
+        }                   // end while(true)      
     }
 
 
