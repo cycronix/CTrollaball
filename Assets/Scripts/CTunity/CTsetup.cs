@@ -15,7 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -23,8 +22,6 @@ using UnityEngine.UI;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
-//using System.Threading;
-using UnityEngine.SceneManagement;
 
 // Config Menu for CTrollaball
 // Matt Miller, Cycronix, 6-16-2017
@@ -36,9 +33,7 @@ public class CTsetup: MonoBehaviour
 
     private maxCamera myCamera;
 	private CTunity ctunity;
-
-	public Boolean connectionPass = true;          // first pass: connect to server
-
+	private Boolean connectionPass = true;          // first pass: connect to server
 	private GameObject Server, Session, Player, Avatar, Mode;
 
     //----------------------------------------------------------------------------------------------------------------
@@ -73,13 +68,19 @@ public class CTsetup: MonoBehaviour
 			switch (d.name)
 			{
 				case "Mode":
-//					d.onValueChanged.AddListener(modeSelect);
-
 					d.onValueChanged.AddListener(delegate {
 						ctunity.observerFlag = d.GetComponent<Dropdown>().options[d.value].text.Equals("Observer");
 						modeSelect();
                     });
-
+                    break;
+				case "Session":
+                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
+					d.onValueChanged.AddListener(delegate
+					{
+						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
+//						updateServer();
+						updateSession();
+					});
                     break;
 			}
 		}
@@ -100,10 +101,6 @@ public class CTsetup: MonoBehaviour
 		if (ctunity != null)
 		{
 			ctunity.showMenu = true;                // on startup, async ctunity my not yet be defined
-//			ctunity.debugText.text = "";            // clear debug/errors
-
-			//  StartCoroutine("getSourceList");
-            //	foreach (String s in ctunity.sourceList) UnityEngine.Debug.Log("source: " + s);
 		}
 	}
 
@@ -117,7 +114,10 @@ public class CTsetup: MonoBehaviour
 
 	Boolean updateServer()
     {
-		ctunity.clearWorld(ctunity.Player);  // clean slate?
+//		UnityEngine.Debug.Log("updateServer!");
+
+		//		ctunity.clearWorld(ctunity.Player);  // clean slate?
+		ctunity.clearWorlds();  // clean slate all worlds
 
         InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
         foreach (InputField c in fields)
@@ -129,17 +129,55 @@ public class CTsetup: MonoBehaviour
                     if (!ctunity.Server.Contains(":"))           ctunity.Server += ":" + defaultPort;             // default port :8000
                     if (!ctunity.Server.StartsWith("http://"))   ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
 					break;
-
-				case "Session":
-                    ctunity.Session = c.text;
-                    break;
             }
         }
-
-//		modeSelect();
         
-        return ctunity.doSyncClock();
+		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
+
+		StartCoroutine("getSessionList");                                       // get list of current GamePlay Sessions
+
+		ctunity.observerFlag = true;
+		ctunity.showMenu = false;
+        return ctunity.doSyncClock();       // sync client/server clocks, return T/F if successful connection
     }
+
+	//----------------------------------------------------------------------------------------------------------------
+    // update Session, refresh connection and view
+
+	private void updateSession()
+	{
+		ctunity.showMenu = true;                                                // turn off CTstates recording while clear world
+		ctunity.clearWorlds();                                                  // clean slate all worlds
+
+		serverConnect();                                                        // reconnect new server/session/player
+
+		//		UnityEngine.Debug.Log("updateSession!");
+		ctunity.observerFlag = true;
+		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
+		ctunity.setReplay(false);
+		ctunity.CTdebug(null);
+		ctunity.showMenu = false;                                               // start updating world
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+    // Connect to CTweb server
+
+	private void serverConnect() 
+	{
+		// setup for video players and observers both
+        if (ctunity.ctvideo != null) ctunity.ctvideo.close();
+        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
+        ctunity.ctvideo.setAsync(true);
+
+		if (!ctunity.observerFlag)
+		{
+			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
+			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
+			ctunity.ctplayer.setAsync(true);
+		}
+	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Play!
@@ -163,6 +201,9 @@ public class CTsetup: MonoBehaviour
 		{
 			switch (d.name)
 			{
+				case "Session":
+                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
+                    break;
 				case "Mode":
 					string mode = d.GetComponent<Dropdown>().options[d.value].text;
 					if (mode.Equals("Observer")) ctunity.observerFlag = true;
@@ -186,27 +227,17 @@ public class CTsetup: MonoBehaviour
 			}
 		}
 
-		// setup for video players and observers both
-		if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-		ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-		ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
-		ctunity.ctvideo.setAsync(true);
+        // connect to CTweb server
+		serverConnect();
 
 		//        if (ctunity.Model.Equals("Observer")) 
 		if (ctunity.observerFlag)           // Observer
 		{
-			//            ctunity.observerFlag = true;
 			ctunity.Player = "Observer";
 			myCamera.setTarget(GameObject.Find("Ground").transform);
 		}
 		else                                // Player
 		{
-			//			ctunity.observerFlag = false;
-			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
-			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
-			ctunity.ctplayer.setAsync(true);
-
 			ctunity.clearWorld(ctunity.Player);   // mjm 9-12-18:  reset new player (to do:  "Play", "Restart" options)
 
 			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
@@ -218,12 +249,11 @@ public class CTsetup: MonoBehaviour
 			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
 			//			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
 		}
-
-		//      CTroute();      // register CTweb routing connection
-
+        
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
-		gameObject.SetActive(ctunity.showMenu);
+		gameObject.SetActive(false);
+		ctunity.CTdebug(null);                // clear warnings/debug text
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -231,7 +261,7 @@ public class CTsetup: MonoBehaviour
     {
 		if(connectionPass) {
 			Server.SetActive(true);
-			Session.SetActive(true);
+			Session.SetActive(false);
 			Mode.SetActive(false);
 			Player.SetActive(false);
             Avatar.SetActive(false);
@@ -239,14 +269,14 @@ public class CTsetup: MonoBehaviour
 		else if(ctunity.observerFlag) {
 //		else if(Mode.Equals("Observer")) {
 			Server.SetActive(false);
-            Session.SetActive(false);
+            Session.SetActive(true);
             Mode.SetActive(true);
             Player.SetActive(false);
             Avatar.SetActive(false);
 		}
 		else {
 			Server.SetActive(false);
-            Session.SetActive(false);
+            Session.SetActive(true);
             Mode.SetActive(true);
             Player.SetActive(true);
             Avatar.SetActive(true);
@@ -274,54 +304,106 @@ public class CTsetup: MonoBehaviour
 //        ctunity.showMenu = gameObject.activeSelf;
     }
 
-    // out-of-service code follows...
-	/* 
 	//----------------------------------------------------------------------------------------------------------------
+    // get session list
+    List<String> sessionList = new List<String>();
+
+    public IEnumerator getSessionList()
+    {
+        while (true)
+        {
+//            UnityEngine.Debug.Log("getSessionList!");
+            yield return new WaitForSeconds(0.1F);
+
+            string url1 = ctunity.Server + "/CT";
+            WWW www1 = new WWW(url1);
+            yield return www1;          // wait for results to HTTP GET
+
+            if (!string.IsNullOrEmpty(www1.error))
+            {
+                ctunity.CTdebug("getSessionList www1 error: " + www1.error + ", url: " + url1);
+                yield break;
+            }
+
+            Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
+            sessionList.Clear();
+			sessionList.Add(ctunity.Session);         // seed with a default session
+
+            Match match;
+            for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+            {
+                foreach (Group group in match.Groups)
+                {
+                    //UnityEngine.Debug.Log ("Group: "+group);
+                    String gstring = group.ToString();
+					String prefix = "\"/CT/";
+					String gamePlay = "/GamePlay/";
+                    
+                    if (gstring.StartsWith(prefix) && gstring.Contains(gamePlay))
+                    {
+						String thisSession = gstring.Split('/')[2];
+                        if(!sessionList.Contains(thisSession)) sessionList.Add(thisSession);
+                    }
+                }
+            }
+
+			//            foreach (String s in sessionList) UnityEngine.Debug.Log("Session: " + s);
+			// reset Session dropdown option list:
+			Dropdown d = transform.Find("Session").gameObject.GetComponent<Dropdown>();
+			d.ClearOptions();
+            d.AddOptions(sessionList);
+
+            yield break;
+        }
+    }
+
+	// out-of-service code follows...
+    /*
+    //----------------------------------------------------------------------------------------------------------------
     // get source list
     List<String> sourceList = new List<String>();
 
-	IEnumerator getSourceList()
-	{
+    public IEnumerator getSourceList()
+    {
+        while (true)
+        {
+//          UnityEngine.Debug.Log("getSourceList!");
+            yield return new WaitForSeconds(0.1F);
 
-		yield return new WaitForSeconds(0.1F);
+            string url1 = ctunity.Server + "/CT";
+            WWW www1 = new WWW(url1);
+            yield return www1;          // wait for results to HTTP GET
 
-		string url1 = ctunity.Server + "/CT";
-		WWW www1 = new WWW(url1);
-		yield return www1;          // wait for results to HTTP GET
+            if (!string.IsNullOrEmpty(www1.error))
+            {
+                ctunity.CTdebug("getSourceList www1 error: " + www1.error + ", url: " + url1);
+                yield break;
+            }
 
-		if (!string.IsNullOrEmpty(www1.error))
-		{
-			UnityEngine.Debug.Log("getSourceList www1 error: " + www1.error + ", url: " + url1);
-		}
-		else
-		{
-//			UnityEngine.Debug.Log("getWorldState: " + www1.text);
-		}
+            Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
+            sourceList.Clear();
+            Match match;
+            for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+            {
+                foreach (Group group in match.Groups)
+                {
+                    //              UnityEngine.Debug.Log ("Group: "+group);
+                    String gstring = group.ToString();
+                    String prefix = "\"/CT/" + ctunity.Session + "/GamePlay/";
 
-		Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
-		sourceList.Clear();
-		Match match;
-		for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
-		{
-			foreach (Group group in match.Groups)
-			{
-//				UnityEngine.Debug.Log ("Group value: {0}: "+group);
-				String gstring = group.ToString();
-				String prefix = "\"/CT/"+ctunity.Session+"/GamePlay/";
+                    if (gstring.StartsWith(prefix))
+                    {
+                        //UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
+                        String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);
+                        sourceList.Add(thisSource);
+                    }
+                }
+            }
 
-				if (gstring.StartsWith(prefix))
-				{
-//					UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
-					String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);               
-					sourceList.Add(thisSource);
-				}
-			}
-		}
-
-		foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
-		//			yield break;
-        
-	}
+            foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
+            yield break;
+        }
+    }
       
     //----------------------------------------------------------------------------------------------------------------
     // establish route for remote to local CTweb proxy-connection
@@ -335,8 +417,7 @@ public class CTsetup: MonoBehaviour
             IPEndPoint endPoint = socket.LocalEndPoint as IPEndPoint;
             localIP = endPoint.Address.ToString();
         }
-        new WWW(ctg.Server + "/addroute?" + ctg.Player + "=" + localIP + ":8000");
+        new WWW(ctunity.Server + "/addroute?" + ctunity.Player + "=" + localIP + ":8000");
     }
     */
-    
 }

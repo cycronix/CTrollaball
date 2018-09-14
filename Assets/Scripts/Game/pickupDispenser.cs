@@ -32,7 +32,7 @@ public class pickupDispenser : MonoBehaviour, IPointerDownHandler  {
 	{
 		if (Input.GetMouseButton(0))
 		{
-			if (ctunity.showMenu) return;          // notta if changing settings...
+			if (ctunity.showMenu || ctunity.observerFlag) return;          // notta if changing settings...
 //			Debug.Log("onpointerdown dispense pickups...");
 			PlayerObjects ctplayer = GameObject.Find(ctunity.Player).GetComponent<PlayerObjects>();     // Player gameobject spawner
 			ctplayer.dispensePickups();

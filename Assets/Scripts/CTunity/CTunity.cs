@@ -66,6 +66,9 @@ public class CTunity : MonoBehaviour
 	public Boolean trackEnabled = true;             // enable player-tracks
 	#endregion
 
+	private readonly object objectLock = new object();
+	private Boolean clearWorldsFlag = false;
+
 	//-------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start()
@@ -254,11 +257,7 @@ public class CTunity : MonoBehaviour
 						UnityEngine.Debug.Log("CTW.object.Add error: "+e);
                     }
 
-					// instantiate new players and objects
-					if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !thisName.Equals(Player)))
-					{
-						newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
-					}
+					if (showMenu) continue;             // oops abort changes!
 
 					// check for change of prefab
                     if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !thisName.Equals(Player)))  // Live mode
@@ -266,10 +265,16 @@ public class CTunity : MonoBehaviour
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
                         if (!pf.Equals(ctobject.prefab) && !showMenu)   // recheck showMenu for async newPlayer
                         {
-                            Debug.Log(Player + ": change prefab: " + pf + " --> " + ctobject.prefab);
+                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
                             clearPlayer(ctobject.id);
                             newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
                         }
+                    }
+
+					// instantiate new players and objects
+                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !thisName.Equals(Player)))
+                    {
+                        newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
                     }
 				}
 			}
@@ -402,16 +407,24 @@ public class CTunity : MonoBehaviour
 			Destroy(go);
 		}
 		CTlist.Remove(playerName);
-//		UnityEngine.Debug.Log("clearPlayer: " + playerName);
 	}
 
 	//-------------------------------------------------------------------------------------------------------
-    public void clearWorld(String worldName)
-    {
+	// clear all object from given world; all worlds if null
+
+	public void clearWorlds()
+	{
+		clearWorldsFlag = true;
+	}
+
+	public void clearWorld(String worldName)
+	{
+		
 		List<GameObject> gos = new List<GameObject>(CTlist.Values);     // make copy; avoid sync error
 
-		foreach(GameObject go in gos) {
-			if (go.name.StartsWith(worldName))
+		foreach (GameObject go in gos)
+		{
+			if (worldName == null || go.name.StartsWith(worldName))
 			{
 				//				UnityEngine.Debug.Log("clearWorld go: " + go.name);
 				go.SetActive(false);
@@ -419,7 +432,9 @@ public class CTunity : MonoBehaviour
 				CTlist.Remove(go.name);
 			}
 		}
-    }
+
+		clearWorldsFlag = false;        // done
+	}
     
 	//-------------------------------------------------------------------------------------------------------
     // disable objects that are in CTlist but go missing from CTworld list
@@ -431,11 +446,8 @@ public class CTunity : MonoBehaviour
 
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
-//			if (go.name.Equals(Player)) continue;           // leave local world Player alone
-
 			if (!ctworld.objects.ContainsKey(go.name))
 			{
-//				Debug.Log("Missing object: " + go.name);
 				go.SetActive(false);
 			}
         }
@@ -451,34 +463,37 @@ public class CTunity : MonoBehaviour
 		{
 			yield return new WaitForSeconds(BlockPts / 50.0f);     // sleep for block duration
 
+			if (clearWorldsFlag) clearWorld(null);
+
 			if (showMenu) continue;                                                // no-op unless run-mode
 			if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
 
 			oldTime = replayTime;
-            
+
 			// form HTTP GET URL
 			String urlparams = "?f=d";
 			if (replayActive) urlparams = "?f=d&t=" + replayTime;     // replay at masterTime
-			string url1 = Server + "/CT/"+Session+"/GamePlay/*/CTstates.txt" + urlparams;
-//			UnityEngine.Debug.Log("url1: " + url1);
+			string url1 = Server + "/CT/" + Session + "/GamePlay/*/CTstates.txt" + urlparams;
+			//			UnityEngine.Debug.Log("url1: " + url1);
 			WWW www1 = new WWW(url1);
 			yield return www1;          // wait for results to HTTP GET
 
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.text.Length < 10)
 			{
-				CTdebug("HTTP Error: "+www1.error + ": " + url1);
+				CTdebug("HTTP Error: " + www1.error + ": " + url1);
 				continue;
 			}
 
 			// parse to class structure...
 			CTworld CTW = parseCTworld(www1.text, 5f);    // skip stale player data	
 			if (CTW == null || CTW.objects == null) continue;          // notta      
+																	   //			if (showMenu) continue;                                    // recheck for async clearWorld?
 
 			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
 			{
 				if (Ghost && ctobject.id.Equals(Player))          // extra "ghost" player
-					setState(Player+"g", ctobject);
+					setState(Player + "g", ctobject);
 
 				setState(ctobject.id, ctobject);
 			}
@@ -517,7 +532,8 @@ public class CTunity : MonoBehaviour
 					}
 				}
 			}
-        }                   // end while(true)      
+
+		}              // end while(true)   
     }
 
 
@@ -610,7 +626,7 @@ public class CTunity : MonoBehaviour
             double now = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
             clocksync = (Double.Parse(www1.text) / 1000f) - now;
             UnityEngine.Debug.Log("syncClock: " + clocksync + ", CT/sysclock: " + www1.text);
-			CTdebug("Host: " + Server);
+			CTdebug(null);
 			return true;
         }
 
@@ -625,6 +641,7 @@ public class CTunity : MonoBehaviour
     }
 
 	public void CTdebug(String debug) {
+		if (debug == null) debug = "Host: " + Server + ", Session: " + Session;  // default info
 		debugText.text = debug;
 		if(!debug.Equals("")) UnityEngine.Debug.Log(debug);
 	}
