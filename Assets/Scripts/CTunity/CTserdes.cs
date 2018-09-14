@@ -1,6 +1,5 @@
 ﻿
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using CTworldNS;
@@ -39,9 +38,9 @@ public class CTserdes
     [Serializable]
     public class CTworldJson
     {
+        public string mode;
         public string name;
         public double time;
-        public string mode;
         public List<CTobjectJson> objects;
     }
     [Serializable]
@@ -53,6 +52,42 @@ public class CTserdes
         public List<Double> pos;
         public List<Double> rot;
         public string custom;
+    }
+
+    /// <summary>
+    /// Find all indeces of a given substring within a string.
+    /// 
+    /// This method was (almost entirely) copied from Matti Virkkunen's sample code found on Stack Overflow at
+    /// https://stackoverflow.com/questions/2641326/finding-all-positions-of-substring-in-a-larger-string-in-c-sharp.
+    /// Sample author: Matti Virkkunen, https://stackoverflow.com/users/227267/matti-virkkunen
+    /// License: Stack Overflow content is covered by the Creative Commons license, https://creativecommons.org/licenses/by-sa/3.0/legalcode
+    /// </summary>
+    /// <param name="str">The string to search.</param>
+    /// <param name="value">The value to search for in the given string.</param>
+    /// <returns>List of integer indeces.</returns>
+    public static List<int> AllIndexesOf(string str, string value)
+    {
+        if (String.IsNullOrEmpty(value))
+            throw new ArgumentException("the string to find may not be empty", "value");
+        List<int> indexes = new List<int>();
+        for (int index = 0; ; index += value.Length)
+        {
+            index = str.IndexOf(value, index);
+            if (index == -1)
+                return indexes;
+            indexes.Add(index);
+        }
+    }
+
+    /// <summary>
+    /// Limit the precision of a given floating point value.
+    /// </summary>
+    /// <param name="valI">Input floating point value.</param>
+    /// <param name="precI">Desired number of decimal places of precision.</param>
+    /// <returns>The double with the desired number of decimal places of precision.</returns>
+    public static double LimitPrecision(double valI, int precI)
+    {
+        return ((long)(valI * Math.Pow(10.0, precI))) / Math.Pow(10.0, precI);
     }
 
     /// <summary>
@@ -100,6 +135,7 @@ public class CTserdes
 
     /// <summary>
     /// Deserialize the given JSON string into a List of CTworld objects.
+    /// The given string may contain one or a concatenation of several "world" objects.
     /// 
     /// JSON example:
     /// {"mode":"Live","time":1.536844452785E9,"name":"Blue","objects":[{"id":"Blue","prefab":"Ball","state":true,"pos":[-8.380356788635254,0.25,3.8628578186035156],"rot":[0.0,0.0,0.0],"custom":""}]}
@@ -109,39 +145,62 @@ public class CTserdes
     /// <returns>A List of CTworlds, parsed from the given string.</returns>
     private static List<CTworld> deserialize_json(string strI)
     {
-        CTworldJson dataFromJson = null;
-        try
-        {
-            dataFromJson = JsonUtility.FromJson<CTworldJson>(strI);
-        }
-        catch (Exception e)
-        {
-            UnityEngine.Debug.Log("Exception parsing JSON: " + e.Message);
-            return null;
-        }
-        if (dataFromJson == null || dataFromJson.objects == null)
-        {
-            return null;
-        }
-        // Create CTworld object from CTworldJson (these classes are very similar but there are differences, see definitions above)
-        CTworld jCTW = new CTworld();
-        jCTW.name = dataFromJson.name;
-        jCTW.time = dataFromJson.time;
-        jCTW.mode = dataFromJson.mode;
-        jCTW.objects = new Dictionary<String, CTobject>();
-        foreach (CTobjectJson ctobject in dataFromJson.objects)
-        {
-            CTobject cto = new CTobject();
-            cto.id = ctobject.id;
-            cto.prefab = ctobject.prefab;
-            cto.state = ctobject.state;
-            cto.custom = ctobject.custom;
-            cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
-            cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
-            jCTW.objects.Add(cto.id, cto);
-        }
+        if ((strI == null) || (strI.Length < 10)) return null;
+
         List<CTworld> worlds = new List<CTworld>();
-        worlds.Add(jCTW);
+
+        // Break up the given string into different "world" objects
+        // NOTE: This assumes that "mode" is the first field in the JSON string
+        List<int> indexes = AllIndexesOf(strI,@"{""mode"":""");
+        if (indexes.Count == 0) return null;
+        for (int i=0; i<indexes.Count; ++i)
+        {
+            int startIdx = indexes[i];
+            int endIdx = strI.Length - 1;
+            if (i < (indexes.Count-1))
+            {
+                endIdx = indexes[i + 1];
+            }
+            string nextWorldStr = strI.Substring(startIdx, endIdx - startIdx + 1);
+            CTworldJson dataFromJson = null;
+            try
+            {
+                dataFromJson = JsonUtility.FromJson<CTworldJson>(nextWorldStr);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.Log("Exception deserializing JSON: " + e.Message);
+                continue;
+            }
+            if (dataFromJson == null || dataFromJson.objects == null)
+            {
+                continue;
+            }
+            // Create CTworld object from CTworldJson (these classes are very similar but there are differences, see definitions above)
+            CTworld jCTW = new CTworld();
+            jCTW.name = dataFromJson.name;
+            jCTW.time = dataFromJson.time;
+            jCTW.mode = dataFromJson.mode;
+            jCTW.objects = new Dictionary<String, CTobject>();
+            foreach (CTobjectJson ctobject in dataFromJson.objects)
+            {
+                CTobject cto = new CTobject();
+                cto.id = ctobject.id;
+                cto.prefab = ctobject.prefab;
+                cto.state = ctobject.state;
+                cto.custom = ctobject.custom;
+                cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
+                cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
+                jCTW.objects.Add(cto.id, cto);
+            }
+            worlds.Add(jCTW);
+        }
+
+        if (worlds.Count == 0)
+        {
+            return null;
+        }
+
         return worlds;
     }
 
@@ -208,9 +267,50 @@ public class CTserdes
     /// <returns>Serialized player information.</returns>
     private static string serialize_json(CTunity ctunityI)
     {
-        string serStr = null;
 
-        return serStr;
+        CTworldJson world = new CTworldJson();
+        world.name = ctunityI.Player;
+        world.time = ctunityI.ServerTime();
+        world.mode = ctunityI.replayText;
+        world.objects = new List<CTobjectJson>();
+        foreach (GameObject ct in ctunityI.CTlist.Values)
+        {
+            if (ct == null) continue;
+            CTclient ctp = ct.GetComponent<CTclient>();
+            if (ctp == null) continue;
+            String prefab = ctp.prefab;
+            if (prefab.Equals("Ghost")) continue;  // no save ghosts												
+            if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
+            CTobjectJson obj = new CTobjectJson();
+            obj.id = ct.name;
+            obj.prefab = prefab;
+            obj.state = (ct.activeSelf ? true : false);
+            // NOTE: limit floating point values to 4 decimal places
+            obj.pos = new List<Double>();
+            obj.pos.Add(LimitPrecision(ct.transform.localPosition.x,4));
+            obj.pos.Add(LimitPrecision(ct.transform.localPosition.y,4));
+            obj.pos.Add(LimitPrecision(ct.transform.localPosition.z,4));
+            obj.rot = new List<Double>();
+            obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.x,4));
+            obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.y,4));
+            obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.z,4));
+            if (ctp.custom != null && ctp.custom.Length > 0)
+            {
+                obj.custom = ctp.custom;
+            }
+            world.objects.Add(obj);
+        }
+        string jsonData = null;
+        try
+        {
+            jsonData = JsonUtility.ToJson(world);
+        }
+        catch (Exception e)
+        {
+            UnityEngine.Debug.Log("Exception serializing JSON: " + e.Message);
+            return null;
+        }
+        return jsonData;
     }
 
 }
