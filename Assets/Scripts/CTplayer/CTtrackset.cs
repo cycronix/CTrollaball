@@ -41,6 +41,13 @@ public class CTtrackset : MonoBehaviour {
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
+    private void OnEnable()
+    {
+		XYplayer.Clear();
+        if(lineR1 != null) lineR1.positionCount = 0;  // clears old 3D line
+    }
+    
+	//----------------------------------------------------------------------------------------------------------------
 	void Update() {
 		if (!trackEnabled) return;
         
