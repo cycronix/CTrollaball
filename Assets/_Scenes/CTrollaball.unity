@@ -6618,6 +6618,7 @@ MonoBehaviour:
   debugText: {fileID: 411027160}
   PlayerList: []
   trackEnabled: 1
+  JSON_Format: 0
 --- !u!1 &1691117057
 GameObject:
   m_ObjectHideFlags: 0
@@ -8807,4 +8808,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   defaultPort: 8000
-  connectionPass: 1
