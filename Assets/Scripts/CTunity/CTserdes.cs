@@ -210,7 +210,7 @@ public class CTserdes
 			{
 				endIdx = indexes[i + 1];
 			}
-			string nextWorldStr = strI.Substring(startIdx, endIdx - startIdx + 1);
+			string nextWorldStr = strI.Substring(startIdx, endIdx - startIdx);
 			CTworldJson dataFromJson = null;
 			try
 			{
