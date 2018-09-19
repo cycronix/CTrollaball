@@ -46,7 +46,6 @@ public class CTunity : MonoBehaviour
     public int MaxPts = 100;
     public float TrackDur = 10f;
     public int BlockPts = 5;                        // 5/50 = 0.1s
-//    public Boolean VidCapMode = false;
     public Double clocksync = 0f;                   // add this to local clock to sync to CTweb
     public double lastSubmitTime = 0;
     public Boolean observerFlag = false;
@@ -65,7 +64,7 @@ public class CTunity : MonoBehaviour
 	public Boolean trackEnabled = true;             // enable player-tracks
 
 	public Boolean JSON_Format = false;
-	//	public Boolean commanderMode = false;           // commander-mode asserts remote-control on replay (not working)
+	//	public Boolean commanderMode = false;       // commander-mode asserts remote-control on replay (not working)
 	#endregion
 
 	private readonly object objectLock = new object();
@@ -437,7 +436,6 @@ public class CTunity : MonoBehaviour
 			CTdebug(null);          // clear error
 
 			// parse to class structure...
-			// try separate parse:
             List<CTworld> ws = CTserdes.deserialize(www1.text);
 			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      
@@ -535,7 +533,6 @@ public class CTunity : MonoBehaviour
         //      yield return www1;          // wait for results to HTTP GET
         while (!www1.isDone)
         {
-            //          UnityEngine.Debug.Log ("waiting on www...");
             new WaitForSeconds(0.1f);
         }
 
