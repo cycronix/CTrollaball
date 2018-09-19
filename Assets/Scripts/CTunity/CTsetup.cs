@@ -33,6 +33,8 @@ public class CTsetup: MonoBehaviour
 
     private maxCamera myCamera;
 	private CTunity ctunity;
+	private GameObject replayControl;
+
 	private Boolean connectionPass = true;          // first pass: connect to server
 	private GameObject Server, Session, Player, Avatar, Mode;
 
@@ -40,6 +42,7 @@ public class CTsetup: MonoBehaviour
     // Use this for initialization
     void Start()
     {
+		replayControl = GameObject.Find("replayControl");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 		ctunity.observerFlag = true;   // startup in observer mode
 
@@ -238,16 +241,14 @@ public class CTsetup: MonoBehaviour
 		}
 		else                                // Player
 		{
-			ctunity.clearWorld(ctunity.Player);   // mjm 9-12-18:  reset new player (to do:  "Play", "Restart" options)
+//			ctunity.clearWorld(ctunity.Player);   // mjm 9-12-18:  reset new player (to do:  "Play", "Restart" options)
 
 			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
-			if (ctunity.Ghost)
-				ctunity.newPlayer(ctunity.Player, "Ghost", true);
-			else ctunity.clearPlayer(ctunity.Player + "g");
+			if (ctunity.Ghost)  ctunity.newPlayer(ctunity.Player, "Ghost", true);
+			else                ctunity.clearPlayer(ctunity.Player + "g");
 
 			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
-			//			GameObject.Find("pickupDispenser").GetComponent<pickupDispenser>().dispensePickups(); 
 		}
         
 		ctunity.lastSubmitTime = ctunity.ServerTime();
@@ -281,6 +282,9 @@ public class CTsetup: MonoBehaviour
             Player.SetActive(true);
             Avatar.SetActive(true);
 		}
+
+		replayControl.SetActive(ctunity.observerFlag);
+
     }
 
 	//----------------------------------------------------------------------------------------------------------------

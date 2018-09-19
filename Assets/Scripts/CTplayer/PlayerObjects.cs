@@ -26,42 +26,57 @@ public class PlayerObjects : MonoBehaviour {
 	private CTunity ctunity;
 	private Transform ctplayer;
 	private int nobject = 0;
-
+	private GameObject Ground;
 	private string Player;
+//	private Color myColor = Color.white;
+
 	public int pickupsPerClick = 5;
 	public int maxPickups = 100;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
-
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();   // reference CTunity script
-		if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
-      
-		ctplayer = GameObject.Find("Players").transform;                // reference Players container
-		Player = gameObject.name;
-		Vector3 gpos = ctunity.groundPos(Player);
+//		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + gameObject.name);
 
+//        if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+//		if (!gameObject.name.StartsWith(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+
+        ctplayer = GameObject.Find("Players").transform;                // reference Players container
+        Player = gameObject.name;
+        
 		// Launch player-owned game objects:
 
 		// Ground platform:
-
-		GameObject ground = ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
+		Vector3 gpos = ctunity.groundPos(Player);
+        Ground = ctunity.newGameObject(Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
 
 		// adjust ground object color (needs to be centralized)
-        Renderer renderer = ground.GetComponent<Renderer>();
-		if (renderer != null)
+        Renderer renderer = Ground.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+ //           if (myColor == Color.white) myColor = renderer.material.color;
+            //            Color c = renderer.material.color;
+            Color c = ctunity.Text2Color(gameObject.name, 1F);   // ref original color (avoid accumulated changes)
+            float H, S, V;
+            Color.RGBToHSV(c, out H, out S, out V);
+            renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
+        }
+
+        // Pickup objects:
+        if (npickups(Player) == 0) dispensePickups();                    // init
+	}
+
+	void Update()
+	{
+		if (ctunity == null) return;
+		if (!gameObject.name.Equals(ctunity.Player)) return; 
+
+		if (Ground != null && !Ground.activeSelf)
 		{
-			//			Color c = renderer.material.color;
-			Color c = ctunity.Text2Color(ctunity.Player, 1F);   // ref original color (avoid accumulated changes)
-			float H, S, V;
-			Color.RGBToHSV(c, out H, out S, out V);
-			renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
+			Ground.SetActive(true);             // Ground stays enabled with player
+//        UnityEngine.Debug.Log("on enable, ground: " + Ground);
 		}
-
-		// Pickup objects:
-
-		if(npickups(Player) == 0) dispensePickups();                    // init
 	}
 
 	//----------------------------------------------------------------------------------------------------------------

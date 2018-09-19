@@ -291,11 +291,12 @@ public class CTserdes
 			CTclient ctp = ct.GetComponent<CTclient>();
 			if (ctp == null) continue;
 			//			UnityEngine.Debug.Log("CTput: " + ct.name+", active: "+ct.activeSelf);
-
+            
 			String prefab = ctp.prefab;
 			if (prefab.Equals("Ghost")) continue;                                   // no save ghosts												
-			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
-
+//			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
+			if (!ctunityI.doCTwrite(ct.name)) continue;          // only save locally owned objects
+				
 			CTstateString += ct.name;
 			//            CTstateString += (delim + ct.tag);
 			CTstateString += (delim + prefab);
@@ -329,7 +330,9 @@ public class CTserdes
 			if (ctp == null) continue;
 			String prefab = ctp.prefab;
 			if (prefab.Equals("Ghost")) continue;  // no save ghosts												
-			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
+//			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
+			if (!ctunityI.doCTwrite(ct.name)) continue;          // only save locally owned objects
+
 			CTobjectJson obj = new CTobjectJson();
 			obj.id = ct.name;
 			obj.prefab = prefab;

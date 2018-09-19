@@ -43,15 +43,14 @@ public class CTunity : MonoBehaviour
     public string Model = "Ball";
 	public string Session = "";
 
-//    public string ReplayMode = "Action";
     public int MaxPts = 100;
     public float TrackDur = 10f;
     public int BlockPts = 5;                        // 5/50 = 0.1s
-    public Boolean VidCapMode = false;
-//    public String worldState = "";                  // storage bin...
+//    public Boolean VidCapMode = false;
     public Double clocksync = 0f;                   // add this to local clock to sync to CTweb
     public double lastSubmitTime = 0;
     public Boolean observerFlag = false;
+	public float SyncTime = 600.0F;        // nix inactive players beyond this time (sec)
 
     public CTlib.CThttp ctplayer = null;            // storage
     public CTlib.CThttp ctvideo = null;
@@ -66,6 +65,7 @@ public class CTunity : MonoBehaviour
 	public Boolean trackEnabled = true;             // enable player-tracks
 
 	public Boolean JSON_Format = false;
+	//	public Boolean commanderMode = false;           // commander-mode asserts remote-control on replay (not working)
 	#endregion
 
 	private readonly object objectLock = new object();
@@ -120,19 +120,20 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
 	// mergeCTworlds:  consolidate CTworlds from each player into local world-state
 
-	CTworld mergeCTworlds(List<CTworld> worlds, double timeout) {
+	CTworld mergeCTworlds(List<CTworld> worlds) {
 
 		double masterTime = ServerTime();
         double updateTime = 0F;
         
         //  first pass:  screen for replay/master world
-        if (replayActive)             // Replay mode:  we are the master
+        if (replayActive)
+//        if (replayActive || !commanderMode)             // Replay mode:  we are the master
         {
             masterWorldName = Player;
             masterTime = latestTime = replayTime;
             remoteReplay = false;
         }
-        else
+        else if(!observerFlag)
         {
             remoteReplay = false;  // mjm 9-12-18: default out of remoteReplay if no active Replay mode
             foreach (CTworld world in worlds)            // scan worlds for possible remote Replay
@@ -151,7 +152,7 @@ public class CTunity : MonoBehaviour
                 else if (world.mode.Equals("Replay"))                    // world mode
                 {
                     double delta = Math.Abs(world.time - ServerTime());   // replay leader needs current TOD time        
-                    if ((timeout > 0) && (delta > timeout))
+                    if ((SyncTime > 0) && (delta > SyncTime))
                     {
                         continue;
                     }
@@ -185,8 +186,7 @@ public class CTunity : MonoBehaviour
             if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
 
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
-                                                              //            if ((timeout > 0) && (delta > timeout))         // reject stale times
-            if (false)         // mjm 9-12-18:  durable old stuff...
+            if ((SyncTime > 0) && (delta > SyncTime))         // reject stale times
             {
                 if (!world.name.Equals(Player) || observerFlag) clearWorld(world.name);    // inefficient?
                 continue;
@@ -204,13 +204,11 @@ public class CTunity : MonoBehaviour
                 {               
                     CTW.objects.Add(ctobject.id, ctobject);
 
-                    if (showMenu) continue;             // oops abort changes!
-
-                    // check for change of prefab
+					// check for change of prefab
                     if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.name.Equals(Player)))  // Live mode
                     {
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
-                        if (!pf.Equals(ctobject.prefab) && !showMenu)   // recheck showMenu for async newPlayer
+                        if (!pf.Equals(ctobject.prefab))   // recheck showMenu for async newPlayer
                         {
                             Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
                             clearPlayer(ctobject.id);
@@ -272,8 +270,18 @@ public class CTunity : MonoBehaviour
 		String playerName = pName + (ghost ? "g" : "");
 		if (CTlist.ContainsKey(playerName))
 		{
-			// CTlist[playerName].SetActive(true);     // let setState activate 
-			return CTlist[playerName];            // already there
+			CTlist[playerName].SetActive(true);     // let setState activate?
+			string ctpf = CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
+			if (!ctpf.Equals(prefab))
+			{
+				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
+				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
+				clearPlayer(playerName);    
+			}
+			else
+			{
+				return CTlist[playerName];            // already there
+			}
 		}
 
 		GameObject tgo = GameObject.Find(playerName);
@@ -290,10 +298,6 @@ public class CTunity : MonoBehaviour
 			return null;
 		}
 		go.SetActive(isactive);
-		//		go.SetActive(true);     // Bleh: this flashes inactive players on long enough for them to register...           
-
-      
-		//		newp.parent = GameObject.Find("Players/" + Player).transform;
 		String parent = "Players";
 
 		String[] pathparts = playerName.Split('/');
@@ -303,12 +307,11 @@ public class CTunity : MonoBehaviour
 		Transform pf = go.transform;
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
 //		newp.gameObject.SetActive(true);  // mjm 9-12-18:  make sure (re)instantiated objects are active
-
+        
 		//		newp.parent = GameObject.Find(parent).transform;
 		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 
 		newp.name = playerName;
-//		newp.gameObject.tag = prefab;            // keep track of object prefab
         if(newp.GetComponent<CTclient>() != null)
 		    newp.GetComponent<CTclient>().prefab = prefab;
 
@@ -373,7 +376,6 @@ public class CTunity : MonoBehaviour
 		{
 			if (worldName == null || go.name.StartsWith(worldName))
 			{
-				//				UnityEngine.Debug.Log("clearWorld go: " + go.name);
 				go.SetActive(false);
 				Destroy(go);                 // keep object; inactivate it only?
 				CTlist.Remove(go.name);
@@ -421,7 +423,6 @@ public class CTunity : MonoBehaviour
 			String urlparams = "";    // "?f=d" is no-op for wildcard request
 			if (replayActive) urlparams = "?t=" + replayTime;     // replay at masterTime
 			string url1 = Server + "/CT/" + Session + "/GamePlay/*/"+CTchannel + urlparams;
-//			UnityEngine.Debug.Log("url1: " + url1);
 			WWW www1 = new WWW(url1);
 			yield return www1;          // wait for results to HTTP GET
 //			CTdebug("www.text: " + www1.text);
@@ -429,7 +430,7 @@ public class CTunity : MonoBehaviour
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.text.Length < 10)
 			{
-				CTdebug("HTTP Error: " + www1.error + ": " + url1);
+				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
 				if(isReplayMode()) clearWorlds();              // presume problem is empty world...
 				continue;
 			}
@@ -438,9 +439,7 @@ public class CTunity : MonoBehaviour
 			// parse to class structure...
 			// try separate parse:
             List<CTworld> ws = CTserdes.deserialize(www1.text);
-			CTworld CTW = mergeCTworlds(ws, 5f);
-//            foreach (CTworld w in ws) printCTworld(w);
-//			CTworld CTW = parseCTworld(www1.text, 5f);    // skip stale player data	
+			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      
             
 			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
@@ -450,42 +449,6 @@ public class CTunity : MonoBehaviour
 
 				setState(ctobject.id, ctobject);
 			}
-
-			Boolean doJSON = false;             // mjm debug
-			if (doJSON)
-			{
-				//
-				// Fetch/process JSON data
-				//
-				string url2 = Server + "/CT/" + Session + "/GamePlay/*/CTstates.json" + urlparams;
-				WWW www2 = new WWW(url2);
-				yield return www2;          // wait for results to HTTP GET
-
-				// proceed with parsing CTstates.json
-				if (!string.IsNullOrEmpty(www2.error) || www2.text.Length < 10)
-				{
-					UnityEngine.Debug.Log("getWorldState www2 error: " + www2.error + ", url: " + url2);
-					continue;
-				}
-				UnityEngine.Debug.Log("CTstates.json: " + www2.text);
-				List<CTworld> worlds = CTserdes.deserialize(www2.text);
-				if (worlds == null || worlds.Count < 1) continue;
-				foreach (CTworld jCTW in worlds)
-				{
-					if (jCTW == null || jCTW.objects == null) continue;
-					foreach (CTobject ctobject in jCTW.objects.Values)
-					{
-						// instantiate new players and objects
-						if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !jCTW.name.Equals(Player)))
-						{
-							newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
-						}
-						// update this object in the game world
-						setState(ctobject.id, ctobject);
-					}
-				}
-			}
-
 		}              // end while(true)   
     }
 
@@ -494,10 +457,7 @@ public class CTunity : MonoBehaviour
 
 	private void setState(String objectID, CTobject ctobject) {
 		GameObject ct;
-//		UnityEngine.Debug.Log("<<<setstate object: " + objectID);
-
         if (!CTlist.TryGetValue(objectID, out ct)) return;
-//		UnityEngine.Debug.Log(">>>setstate object: " + ctobject.id);
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)
@@ -516,17 +476,28 @@ public class CTunity : MonoBehaviour
 //		replayActive = ireplayActive;
 		replayText = ireplayText;
 
+//		if (commanderMode)  
 		return replayActive;
+//		else   return replayActive || observerFlag;
 	}
 
 	public void toggleReplay() {
 		replayActive = !replayActive;
+//		if (!commanderMode) observerFlag = replayActive;
 	}
 
 	public void setReplay(bool ireplayActive)
     {
         replayActive = ireplayActive;
+//		if (!commanderMode) observerFlag = replayActive;
     }
+
+    // return True if this object should be written to CT
+	public Boolean doCTwrite(String objName) {
+//		if(commanderMode) 
+		return (replayActive || objName.StartsWith(Player));
+//		else    return (objName.StartsWith(Player));
+	}
 
 	//-------------------------------------------------------------------------------------------------------
     // "pull" object state from list
@@ -635,183 +606,3 @@ public class CTunity : MonoBehaviour
         }
     }
 }
-
-
-// old code:
-/*
-    //-------------------------------------------------------------------------------------------------------
-    CTworld parseCTworld(string wtext, double timeout)
-    {
-//      double masterTime = replayTime;
-        double masterTime = ServerTime();
-
-        double updateTime = 0F;
-
-        CTworld CTW = new CTworld();
-
-        String[] worlds = wtext.Split('#');     // parse game-by-game
-
-        //  first pass:  screen for replay/master world
-        if (replayActive)             // Replay mode:  we are the master
-        {
-            masterWorldName = Player;
-            masterTime = latestTime = replayTime;
-            remoteReplay = false;
-        }
-        else
-        {
-            remoteReplay = false;  // mjm 9-12-18: default out of remoteReplay if no active Replay mode
-            foreach (String world in worlds)            // scan worlds for possible remote Replay
-            {
-                if (world.Length < 2) continue;                     // skip empty lines
-                String[] lines = world.Split('\n');
-                String[] header = lines[0].Split(':');
-                if (header.Length != 3) continue;
-
-                String mode = header[0];
-                String name = header[2];
-
-                // check for end of Remote mode
-                if (remoteReplay)
-                {
-                    if (name.Equals(masterWorldName) && !mode.Equals("Replay"))
-                    {
-                        remoteReplay = false;
-                        break;
-                    }
-                }
-
-                // check for someone asserting Replay
-                else if (mode.Equals("Replay"))                    // world mode
-                {
-                    double time = Double.Parse(header[1]);
-                    double delta = Math.Abs(time - ServerTime());   // replay leader needs current TOD time        
-                    if ((timeout > 0) && (delta > timeout))
-                    {
-                        continue;
-                    }
-               
-                    masterWorldName = name;                   // world name
-                    masterTime = time;          // world time
-                    remoteReplay = true;
-                    break;
-                }
-            }
-        }
-        
-        // second pass:  build CTWorld structure:
-        //                  - from replay master
-        //                  - or from consolidated objects as owned (prefix) by each world
-        
-//      CTW.objects = new List<CTobject>();
-        CTW.objects = new Dictionary<String, CTobject>();
-        List<String> tsourceList = new List<String>();
-        tsourceList.Add(Player);    // always include self
-        
-        // second pass, screen masterTime, consolidate masterWorld
-        foreach (String world in worlds)
-        {
-//          UnityEngine.Debug.Log("world: " + world);
-            if (world.Length < 2) continue;    // TODO: reduce redundancy with first-pass (save data structure, function?)
-            String[] lines = world.Split('\n');
-            String[] header = lines[0].Split(':');
-            if (header.Length != 3) continue;
-            
-            String thisName = header[2];
-
-            if (remoteReplay && !thisName.Equals(masterWorldName)) continue;        // consolidate to replayWorld
-
-            CTW.mode = header[0];
-            CTW.time = Double.Parse(header[1]);
-            if (CTW.time > updateTime) updateTime = CTW.time;      // keep track of most-recent CTW time
-
-            double delta = Math.Abs(CTW.time - masterTime);   // masterTime NG on Remote... ???         
-//          if ((timeout > 0) && (delta > timeout))         // reject stale times
-            if (false)         // mjm 9-12-18:  durable old stuff...
-            {
-                if (!thisName.Equals(Player) || observerFlag) clearWorld(thisName);    // inefficient?
-//              clearWorld(thisName);
-                continue;       
-            }
-            
-            if(!tsourceList.Contains(thisName)) tsourceList.Add(thisName);                   // build list of active worlds
-            CTW.name = thisName;
-
-            foreach (String line in lines)
-            {
-                if (line.Length < 2 || line.StartsWith("<")) continue;  // skip empty & html lines
-                String[] parts = line.Split(';');
-                if (parts.Length < 3) continue;
-
-                CTobject ctobject = new CTobject();
-
-                ctobject.id = parts[0];
-
-            //  UnityEngine.Debug.Log("line: " + line+", thisName: "+thisName+", objectID: "+ctobject.id+", remoteReplay: "+remoteReplay);
-                if (remoteReplay                                // remotePlay: this is master world get all objects
-                    || ctobject.id.StartsWith(thisName))         // Live mode:  accumulate objects owned by each world      
-                {
-                    ctobject.prefab = parts[1];
-                    ctobject.state = !parts[2].Equals("0");
-
-                    // parse ctobject.pos
-                    string pstate = parts[3].Substring(1, parts[3].Length - 2);     // drop parens
-                    string[] pvec = pstate.Split(',');
-                    ctobject.pos = new Vector3(float.Parse(pvec[0]), float.Parse(pvec[1]), float.Parse(pvec[2]));
-
-                    // parse ctobject.rot
-                    pstate = parts[4].Substring(1, parts[4].Length - 2);     // drop parens
-                    pvec = pstate.Split(',');
-                    ctobject.rot = Quaternion.Euler(float.Parse(pvec[0]), float.Parse(pvec[1]), float.Parse(pvec[2]));
-
-                    String custom = null;
-                    if (parts.Length > 5)
-                    {
-                        custom = parts[5];
-//                      Debug.Log("parse custom: " + custom);
-                        ctobject.custom = custom;
-                    }
-
-                    try
-                    {
-                        CTW.objects.Add(ctobject.id, ctobject);
-                    }
-                    catch(Exception e)
-                    {
-                        UnityEngine.Debug.Log("CTW.object.Add error: "+e);
-                    }
-
-                    if (showMenu) continue;             // oops abort changes!
-
-                    // check for change of prefab
-                    if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !thisName.Equals(Player)))  // Live mode
-                    {
-                        string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
-                        if (!pf.Equals(ctobject.prefab) && !showMenu)   // recheck showMenu for async newPlayer
-                        {
-                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
-                            clearPlayer(ctobject.id);
-                            newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
-                        }
-                    }
-
-                    // instantiate new players and objects
-                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !thisName.Equals(Player)))
-                    {
-                        newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
-                    }
-                }
-            }
-        }
-
-        // scan for missing objects
-        clearMissing(CTW);
-
-        latestTime = updateTime;                    // for replay reference
-        PlayerList = tsourceList;                   // update list of active sources
-
-//      printCTworld(CTW);
-        return CTW;                                 // consolidated CTworld
-    }
- */   
-

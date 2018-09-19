@@ -70,7 +70,7 @@ public class CTtimecontrol : MonoBehaviour {
 
 			oldSliderValue = 1F;    // init
 		}
-        
+
 		if (ctunity.showMenu)
 		{
 			setStateText(pausedLabel);
