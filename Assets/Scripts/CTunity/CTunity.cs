@@ -86,6 +86,7 @@ public class CTunity : MonoBehaviour
 		if (!CTlist.ContainsKey(go.name))
 		{
 			CTlist.Add(go.name, go);
+			UnityEngine.Debug.Log("CTregister: " + go.name);
 		}
 	}
 
@@ -206,11 +207,17 @@ public class CTunity : MonoBehaviour
 					// check for change of prefab
                     if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.name.Equals(Player)))  // Live mode
                     {
+						GameObject mygo = CTlist[ctobject.id].gameObject;
+						if (mygo == null)
+						{
+							UnityEngine.Debug.Log("missing go: " + ctobject.id);
+							continue;
+						}
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
                         if (!pf.Equals(ctobject.prefab))   // recheck showMenu for async newPlayer
                         {
                             Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
-                            clearPlayer(ctobject.id);
+//                            clearObject(ctobject.id);
                             newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
                         }
                     }
@@ -275,7 +282,7 @@ public class CTunity : MonoBehaviour
 			{
 				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
 				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
-				clearPlayer(playerName);    
+				clearObject(playerName);    
 			}
 			else
 			{
@@ -302,7 +309,13 @@ public class CTunity : MonoBehaviour
 		String[] pathparts = playerName.Split('/');
 		for (int i = 0; i < pathparts.Length - 1; i++) parent += ("/" + pathparts[i]);
 
+		GameObject pgo = GameObject.Find(parent);
+		if(pgo == null) {
+			UnityEngine.Debug.Log("Missing parent object: " + parent);  // init issue, catch it next update...
+			return null;
+		}
 		Transform tparent = GameObject.Find(parent).transform;
+
 		Transform pf = go.transform;
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
 //		newp.gameObject.SetActive(true);  // mjm 9-12-18:  make sure (re)instantiated objects are active
@@ -318,6 +331,7 @@ public class CTunity : MonoBehaviour
 		if (!CTlist.ContainsKey(playerName))
 		{
 			CTlist.Add(newp.name, newp.gameObject);
+//			UnityEngine.Debug.Log("CTlist.Add: " + playerName+", prefab: "+prefab);
 		}
         
         // from here to end of method split into 2 new methods...
@@ -347,15 +361,23 @@ public class CTunity : MonoBehaviour
 	}
 
 	//-------------------------------------------------------------------------------------------------------
-	public void clearPlayer(String playerName) {
-		if (!CTlist.ContainsKey(playerName)) return;            // not already there
-		GameObject go = GameObject.Find(playerName);
+	public void clearObject(String objectName) {
+		if (!CTlist.ContainsKey(objectName)) return;            // not already there
+
+		GameObject go = GameObject.Find(objectName);
 		if (go != null)
 		{
+//			UnityEngine.Debug.Log("clearObject: " + objectName);
+			foreach (Transform c in go.transform)
+			{
+//				UnityEngine.Debug.Log("clear child: " + c.name);
+				CTlist.Remove(c.name);  // children will be destroyed with parent
+			}
 			go.SetActive(false);
 			Destroy(go);
 		}
-		CTlist.Remove(playerName);
+        
+		CTlist.Remove(objectName);
 	}
 
 	//-------------------------------------------------------------------------------------------------------
@@ -394,11 +416,30 @@ public class CTunity : MonoBehaviour
 
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
+			if(go == null) {
+				Debug.Log("oops: CTlist go missing!");
+				continue;
+			}
 			if (!ctworld.objects.ContainsKey(go.name))
 			{
 				go.SetActive(false);
 			}
         }
+/*
+		foreach (KeyValuePair<String, CTobject> ctpair in ctworld.objects)
+		{
+			CTobject go = ctpair.Value;
+			string ctname = ctpair.Key;
+			if(go == null) {
+				Debug.Log("oops: CTlist null gameObject: "+ctname);
+				CTlist.Remove(ctname);
+			}
+			else if(!ctworld.objects.ContainsKey(ctname)) {
+				Debug.Log("CTlist clear missing: " + ctname);
+				CTlist[ctname].SetActive(false);
+			}
+		}
+*/
     }
 
     //-------------------------------------------------------------------------------------------------------

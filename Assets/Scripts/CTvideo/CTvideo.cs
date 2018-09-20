@@ -53,26 +53,31 @@ public class CTvideo : MonoBehaviour {
 
                 if (ctclient != null && ctclient.enabled && ctclient.custom != null && !ctclient.isLocalControl())
                 {       // remote control
-//					Debug.Log("oldCustom: " + oldCustom + ", custom: " + ctclient.custom);
+					if (ctclient.custom.Equals("")) continue;
                     if (ctclient.custom.Equals(oldCustom)) continue;
 					url = ctclient.custom;
                     oldCustom = ctclient.custom;
                 }
                 else    // local control
                 {
-//					Debug.Log("local control");
 					url = ctunity.Server + "/CT/"+ctunity.Session+"/Video/" + ctunity.Player + "/webcam.jpg";
                     url = url + "?t=" + ctunity.replayTime;  // live or replay
                     oldCustom = "";
                 }
 
 				String urlparams = "";
-//				if (ctunity.isReplayMode()) urlparams = "?t=" + ctunity.replayTime;
+				//				if (ctunity.isReplayMode()) urlparams = "?t=" + ctunity.replayTime;
 
-				WWW www = new WWW (url);
+				WWW www;
+				try
+				{
+					www = new WWW(url);
+				} catch (Exception e) {
+					UnityEngine.Debug.Log("CTvideo exception: " + url);
+					continue;
+				}
 				yield return www;
 
-//				Debug.Log(">url: " + url);
 				if (ctclient != null) ctclient.custom = url;
 
 				Texture2D tex = new Texture2D (www.texture.width, www.texture.height, TextureFormat.DXT1, false);
@@ -82,14 +87,9 @@ public class CTvideo : MonoBehaviour {
 				www.Dispose ();
 				www = null;
 			} else {
-//				Debug.Log ("ClearImage");
 				GetComponent<Renderer> ().material.mainTexture = startTexture;
 			}
 		}
 	}
 
-	public void OnMouseDown() {
-//		Debug.Log ("MouseDown");
-//		showImage = !showImage;		// toggle
-	}
 }

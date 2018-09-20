@@ -56,14 +56,19 @@ public class ToggleGameObject : MonoBehaviour, IPointerDownHandler
 		if (thisObject.activeSelf) GetComponent<RawImage>().color = Color.red;
         else GetComponent<RawImage>().color = Color.white;
     }
-
+    
 	//----------------------------------------------------------------------------------------------------------------
-    // create new game object
+	// create new game object
 	private void toggleGameObject()
     {
-		if (thisObject != null)                         // exists; toggle active state on/off
+		GameObject thisobj = GameObject.Find(ctunity.Player + "/" + Prefab);
+		if (thisobj != null) thisObject = thisobj;
+
+//		if (thisObject != null)                         // exists; toggle active state on/off
+        if (thisObject != null && thisObject.activeSelf)
 		{
-			thisObject.SetActive(!thisObject.activeSelf);       // toggle active/inactive
+			//			thisObject.SetActive(!thisObject.activeSelf);       // toggle active/inactive
+			ctunity.clearObject(thisObject.name);
 		}
 		else                                    // load prefab
 		{

@@ -18,38 +18,45 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
-	private GameObject gameOptions;
+public class ToggleObserver : MonoBehaviour, IPointerDownHandler {
+	private CTsetup ctsetup;
 	static Boolean showMenu = true;
 	private CTunity ctunity;
+	private GameObject replayControl;
+	private GameObject gameOptions;
 
 	// Use this for initialization
 	void Start () {
-		gameOptions = GameObject.Find("Setup").gameObject;
+		ctsetup = GameObject.Find("Setup").GetComponent<CTsetup>();
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
+		replayControl = GameObject.Find("replayControl");
+		gameOptions = GameObject.Find("Setup").gameObject;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
-    // OnPointerDown works for overlay canvas
 	public void OnPointerDown (PointerEventData eventData)      
     {
         if (Input.GetMouseButton(0))
         {
-//			Debug.Log("PointerDown ToggleMenu!");
-			GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
-			showMenu = !gameOptions.activeSelf;
-            gameOptions.SetActive(showMenu);
-			ctunity.setReplay(false);
+			Debug.Log("ToggleObserver!");
+			if (ctunity.observerFlag)
+			{
+				GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
+                gameOptions.SetActive(true);
+                ctunity.setReplay(false);
+			}
+			else
+			{
+				ctunity.observerFlag = true;
+				ctsetup.serverConnect();
+				ctunity.Player = "Observer";
+				ctunity.lastSubmitTime = ctunity.ServerTime();
+				ctunity.showMenu = false;
+				replayControl.SetActive(true);
+			}
+
+			ctunity.CTdebug(null);                // clear warnings/debug text
         }
     }
-
-    // OnMouseDown works on in-world canvas
-	public void OnMouseDown()
-	{
-//		Debug.Log("MouseDown ToggleMenu!");
-		GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
-		showMenu = !gameOptions.activeSelf;
-		gameOptions.SetActive(showMenu);
-		ctunity.setReplay(false);
-	}
+    
 }

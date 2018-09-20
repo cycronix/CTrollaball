@@ -34,10 +34,17 @@ public class CTsetup: MonoBehaviour
     private maxCamera myCamera;
 	private CTunity ctunity;
 	private GameObject replayControl;
+    
+	private enum MenuPass
+    {
+        Connection,
+        Session,
+        PlayerSelect
+    }
+	private MenuPass menuPass = MenuPass.Connection;
 
-	private Boolean connectionPass = true;          // first pass: connect to server
-	private GameObject Server, Session, Player, Avatar, Mode;
-
+	private GameObject Server, Session, Player, Avatar, Play, View, Login;
+    
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
     void Start()
@@ -54,9 +61,15 @@ public class CTsetup: MonoBehaviour
             switch (b.name)
             {
                 case "Submit":
-                    b.onClick.AddListener(submitButton);
+                    b.onClick.AddListener(playButton);
                     break;
-                case "Cancel":
+                case "View":
+                    b.onClick.AddListener(viewButton);
+                    break;
+				case "Login":
+                    b.onClick.AddListener(loginButton);
+                    break;
+				case "Cancel":
                     b.onClick.AddListener(cancelButton);
                     break;
                 case "Quit":
@@ -94,7 +107,9 @@ public class CTsetup: MonoBehaviour
 		Session = GameObject.Find("Session");
 		Player = GameObject.Find("Player1");
 		Avatar = GameObject.Find("Model");
-		Mode = GameObject.Find("Mode");
+		Play = GameObject.Find("Submit");
+		View = GameObject.Find("View");
+		Login = GameObject.Find("Login");
 		modeSelect();
     }
     
@@ -135,7 +150,7 @@ public class CTsetup: MonoBehaviour
             }
         }
         
-		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
+//		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
 
 		StartCoroutine("getSessionList");                                       // get list of current GamePlay Sessions
 
@@ -152,11 +167,11 @@ public class CTsetup: MonoBehaviour
 		ctunity.showMenu = true;                                                // turn off CTstates recording while clear world
 		ctunity.clearWorlds();                                                  // clean slate all worlds
 
-		serverConnect();                                                        // reconnect new server/session/player
+//		serverConnect();                                                        // reconnect new server/session/player
 
 		//		UnityEngine.Debug.Log("updateSession!");
 		ctunity.observerFlag = true;
-		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
+//		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
 		ctunity.setReplay(false);
 		ctunity.CTdebug(null);
 		ctunity.showMenu = false;                                               // start updating world
@@ -165,7 +180,7 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     // Connect to CTweb server
 
-	private void serverConnect() 
+	public void serverConnect() 
 	{
 		// setup for video players and observers both
         if (ctunity.ctvideo != null) ctunity.ctvideo.close();
@@ -183,10 +198,38 @@ public class CTsetup: MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
+    // Login
+
+	void loginButton() {
+		if(updateServer()) {
+			menuPass = MenuPass.Session;
+		} else
+		{
+			menuPass = MenuPass.Connection;
+		}
+		modeSelect();
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
+    // Player select
+
+	void playButton() {
+//		if(menuPass == MenuPass.Session) {
+//			menuPass = MenuPass.PlayerSelect;
+//			modeSelect();
+//		}
+//		else {
+			ctunity.observerFlag = false;
+			submitButton();
+//		}
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
 	// Play!
 
 	void submitButton()
 	{
+		/*
 		if (connectionPass)
 		{
 			if (!updateServer()) return;          // stay here until get a good connection
@@ -198,6 +241,7 @@ public class CTsetup: MonoBehaviour
 			modeSelect();
 			return;                             // return -> auto-follow with player select menu
 		}
+    */
 
 		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
 		foreach (Dropdown d in drops)
@@ -207,18 +251,13 @@ public class CTsetup: MonoBehaviour
 				case "Session":
                     ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
                     break;
-				case "Mode":
-					string mode = d.GetComponent<Dropdown>().options[d.value].text;
-					if (mode.Equals("Observer")) ctunity.observerFlag = true;
-					else ctunity.observerFlag = false;
-					ctunity.showMenu = ctunity.observerFlag;  // pause ctunity parseWorld loop while creating new player
-					break;
 				case "Player1":
 					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
 				case "Model":
 					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
+             /*
 				case "TrackDur":
 					ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
 					ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
@@ -227,64 +266,74 @@ public class CTsetup: MonoBehaviour
 					float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
 					ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
 					break;
+			*/
 			}
 		}
-
+        
         // connect to CTweb server
 		serverConnect();
-
+        /*
 		//        if (ctunity.Model.Equals("Observer")) 
 		if (ctunity.observerFlag)           // Observer
 		{
 			ctunity.Player = "Observer";
 			myCamera.setTarget(GameObject.Find("Ground").transform);
 		}
-		else                                // Player
-		{
-//			ctunity.clearWorld(ctunity.Player);   // mjm 9-12-18:  reset new player (to do:  "Play", "Restart" options)
-
+        */
+//		else                                // Player
+//		{
 			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
 			if (ctunity.Ghost)  ctunity.newPlayer(ctunity.Player, "Ghost", true);
-			else                ctunity.clearPlayer(ctunity.Player + "g");
+			else                ctunity.clearObject(ctunity.Player + "g");
 
 			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
-		}
+//		}
         
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
 		gameObject.SetActive(false);
+		replayControl.SetActive(ctunity.observerFlag);
 		ctunity.CTdebug(null);                // clear warnings/debug text
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
     void modeSelect()
     {
-		if(connectionPass) {
-			Server.SetActive(true);
-			Session.SetActive(false);
-			Mode.SetActive(false);
-			Player.SetActive(false);
-            Avatar.SetActive(false);
-		}
-		else if(ctunity.observerFlag) {
-//		else if(Mode.Equals("Observer")) {
-			Server.SetActive(false);
-            Session.SetActive(true);
-            Mode.SetActive(true);
-            Player.SetActive(false);
-            Avatar.SetActive(false);
-		}
-		else {
-			Server.SetActive(false);
-            Session.SetActive(true);
-            Mode.SetActive(true);
-            Player.SetActive(true);
-            Avatar.SetActive(true);
+		switch (menuPass)
+		{
+			case MenuPass.Connection:
+				Server.SetActive(true);
+				Login.SetActive(true);
+				Session.SetActive(false);
+				Player.SetActive(false);
+				Avatar.SetActive(false);
+				Play.SetActive(false);
+				View.SetActive(false);
+				break;
+
+			case MenuPass.Session:
+				Server.SetActive(false);
+				Login.SetActive(false);
+				Session.SetActive(true);
+				Player.SetActive(true);
+				Avatar.SetActive(true);
+				Play.SetActive(true);
+				View.SetActive(true);
+				break;
+
+			case MenuPass.PlayerSelect:                 // not used
+				Server.SetActive(false);
+				Login.SetActive(false);
+				Session.SetActive(false);
+				Player.SetActive(true);
+				Avatar.SetActive(true);
+				Play.SetActive(true);
+				View.SetActive(true);
+				break;
 		}
 
 		replayControl.SetActive(ctunity.observerFlag);
-
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -294,7 +343,22 @@ public class CTsetup: MonoBehaviour
         gameObject.SetActive(ctunity.showMenu);
     }
 
-    //----------------------------------------------------------------------------------------------------------------
+	//----------------------------------------------------------------------------------------------------------------
+	void viewButton()
+	{
+		UnityEngine.Debug.Log("View Button!");
+
+		ctunity.observerFlag = true;
+		serverConnect();
+		ctunity.Player = "Observer";
+		ctunity.lastSubmitTime = ctunity.ServerTime();
+		replayControl.SetActive(true);
+		ctunity.CTdebug(null);                // clear warnings/debug te
+		ctunity.showMenu = false;
+		gameObject.SetActive(ctunity.showMenu);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------
     void quitButton()
     {
         Debug.Log("Quitting...");
@@ -331,7 +395,7 @@ public class CTsetup: MonoBehaviour
 
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sessionList.Clear();
-			sessionList.Add(ctunity.Session);         // seed with a default session
+			sessionList.Add("CTrollaball");         // seed with a default session
 
             Match match;
             for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
@@ -356,7 +420,7 @@ public class CTsetup: MonoBehaviour
 			Dropdown d = transform.Find("Session").gameObject.GetComponent<Dropdown>();
 			d.ClearOptions();
             d.AddOptions(sessionList);
-
+			d.value = 0;
             yield break;
         }
     }

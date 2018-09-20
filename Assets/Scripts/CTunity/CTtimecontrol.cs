@@ -122,10 +122,12 @@ public class CTtimecontrol : MonoBehaviour {
 			slider.gameObject.SetActive(false);
 
 			// check for downArrow double-click enter Replay mode
+            /*
 			if (Input.GetKeyDown(KeyCode.DownArrow)) {
 				if((nowTime()-clickTime) < 0.5F) ctunity.toggleReplay();
 				clickTime = nowTime();
 			}        
+            */
 
 			masterTime = ctunity.ServerTime();
 			playFactor = 0F;

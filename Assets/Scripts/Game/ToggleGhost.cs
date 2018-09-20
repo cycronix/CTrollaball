@@ -47,7 +47,7 @@ public class ToggleGhost : MonoBehaviour
 		{
 			ctunity.Ghost = !ctunity.Ghost;
             if (ctunity.Ghost) ctunity.newPlayer(ctunity.Player, "Ghost", true);
-            else ctunity.clearPlayer(ctunity.Player + "g");
+            else ctunity.clearObject(ctunity.Player + "g");
 		}
 
 		clickTime = nowTime();  // start double-click timer
