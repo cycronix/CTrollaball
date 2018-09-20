@@ -78,7 +78,11 @@ public class CTvideo : MonoBehaviour {
 				}
 				yield return www;
 
-				if (ctclient != null) ctclient.custom = url;
+				if (ctclient != null)
+				{
+					ctclient.custom = url;
+//					Debug.Log("ctclient: " + ctclient.name + ", url: " + url);
+				}
 
 				Texture2D tex = new Texture2D (www.texture.width, www.texture.height, TextureFormat.DXT1, false);
 				www.LoadImageIntoTexture (tex);

@@ -30,40 +30,37 @@ using CTworldNS;
 public class CTunity : MonoBehaviour
 {
 	#region Globals
-
-    public Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
-
-    public Boolean remoteReplay = false;            // ghost (Player2) replay mode?
-	public double latestTime = 0F;
-    
-	public Boolean showMenu = true;
-    public string Server = "http://localhost:8000";
-    public string Player = "Red";
-    public Boolean Ghost = false;
-    public string Model = "Ball";
-	public string Session = "";
-
-    public int MaxPts = 100;
-    public float TrackDur = 10f;
-    public int BlockPts = 5;                        // 5/50 = 0.1s
-    public Double clocksync = 0f;                   // add this to local clock to sync to CTweb
-    public double lastSubmitTime = 0;
-    public Boolean observerFlag = false;
+	public float TrackDur = 10f;
 	public float SyncTime = 600.0F;        // nix inactive players beyond this time (sec)
-
-    public CTlib.CThttp ctplayer = null;            // storage
-    public CTlib.CThttp ctvideo = null;
-
-	public double replayTime = 0;
-	public Boolean replayActive = false;
-	public String replayText = "Live";
+	public int BlockPts = 5;                        // 5/50 = 0.1s
+	public Boolean JSON_Format = false;
 	public Text debugText;
 
-	public List<String> PlayerList = new List<String>();
+    // internal variable accessible from other scripts but not Editor Inspector
+    internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
+	internal List<String> PlayerList = new List<String>();
 
-	public Boolean trackEnabled = true;             // enable player-tracks
+    internal Boolean remoteReplay = false;            // ghost (Player2) replay mode?
+	internal double latestTime = 0F;
+	internal Boolean showMenu = true;
+    internal string Server = "http://localhost:8000";
+    internal string Player = "Red";
+    internal Boolean Ghost = false;
+    internal string Model = "Ball";
+	internal string Session = "";
+    internal int MaxPts = 100;
+    internal Double clocksync = 0f;                   // add this to local clock to sync to CTweb
+    internal double lastSubmitTime = 0;
+    internal Boolean observerFlag = false;
+	internal Boolean trackEnabled = true;             // enable player-tracks
 
-	public Boolean JSON_Format = false;
+    internal CTlib.CThttp ctplayer = null;            // storage
+    internal CTlib.CThttp ctvideo = null;
+
+	internal double replayTime = 0;
+	internal Boolean replayActive = false;
+	internal String replayText = "Live";
+
 	//	public Boolean commanderMode = false;       // commander-mode asserts remote-control on replay (not working)
 	#endregion
 
