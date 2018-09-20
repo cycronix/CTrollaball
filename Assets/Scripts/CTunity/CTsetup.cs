@@ -346,8 +346,6 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	void viewButton()
 	{
-		UnityEngine.Debug.Log("View Button!");
-
 		ctunity.observerFlag = true;
 		serverConnect();
 		ctunity.Player = "Observer";

@@ -176,8 +176,8 @@ public class CTunity : MonoBehaviour
 
         CTW.objects = new Dictionary<String, CTobject>();
         List<String> tsourceList = new List<String>();
-        tsourceList.Add(Player);    // always include self
-              
+		if (!Player.Equals("") && !Player.Equals("Observer")) tsourceList.Add(Player);    // always include self
+
         // second pass, screen masterTime, consolidate masterWorld
         foreach (CTworld world in worlds)
         {
@@ -191,10 +191,9 @@ public class CTunity : MonoBehaviour
                 if (!world.name.Equals(Player) || observerFlag) clearWorld(world.name);    // inefficient?
                 continue;
             }
-            
-            if (!tsourceList.Contains(world.name)) tsourceList.Add(world.name);                   // build list of active worlds
 
-//            foreach (CTobject ctobject in world.objects)
+			if (!tsourceList.Contains(world.name)) tsourceList.Add(world.name);             // build list of active worlds
+
 			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
 				CTobject ctobject = ctpair.Value;
@@ -216,7 +215,7 @@ public class CTunity : MonoBehaviour
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
                         if (!pf.Equals(ctobject.prefab))   // recheck showMenu for async newPlayer
                         {
-                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
+//                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
 //                            clearObject(ctobject.id);
                             newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
                         }
@@ -280,7 +279,7 @@ public class CTunity : MonoBehaviour
 			string ctpf = CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
 			if (!ctpf.Equals(prefab))
 			{
-				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
+//				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
 				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
 				clearObject(playerName);    
 			}
