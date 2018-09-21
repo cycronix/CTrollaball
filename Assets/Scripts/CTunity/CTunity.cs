@@ -589,26 +589,30 @@ public class CTunity : MonoBehaviour
     {
         string url1 = Server + "/sysclock";
 		syncError = true;
-		int maxTry = 10;
+		int maxTry = 5;
 
 		while (true)
 		{
 			yield return new WaitForSeconds(0.1F);
-
+            
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
 			www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
-			www1.chunkedTransfer = false;  // unity bug work-around?
-			www1.SendWebRequest();
+			www1.chunkedTransfer = false;           // unity bug work-around?
+			yield return www1.SendWebRequest();     // wait for results to HTTP GET
 
 			//        WWW www1 = new WWW(url1);
-			yield return www1;          // wait for results to HTTP GET
+//			yield return www1;          // wait for results to HTTP GET
+//			UnityEngine.Debug.Log("getSyncClock, text: " + www1.downloadHandler.text);
 
 			//			UnityEngine.Debug.Log("text: " + www1.downloadHandler.text);
-			if (!string.IsNullOrEmpty(www1.error) || www1.responseCode != 200)
+			if (!string.IsNullOrEmpty(www1.error) || www1.isHttpError || www1.isNetworkError || www1.responseCode != 200)
 			{
 				syncError = true;
-                if(www1.responseCode == 401) 
-				    CTdebug("Unauthorized Server Connection! ("+www1.responseCode+")");
+				if (www1.responseCode == 401)
+				{
+					CTdebug("Unauthorized Server Connection! (" + www1.responseCode + ")");
+					yield break;
+				}
 				else
 					CTdebug("Server Connection Error (" + www1.responseCode + "): " + www1.error);
 			}
@@ -629,9 +633,11 @@ public class CTunity : MonoBehaviour
 
 			if (syncError && ((maxTry--) > 0))
 			{
-//				UnityEngine.Debug.Log("maxTry: " + maxTry+", syncError: "+syncError);
+				UnityEngine.Debug.Log("maxTry: " + maxTry+", syncError: "+syncError+", url1: "+url1);
 				continue;
 			}
+
+//			syncError = false;  // foo
 //			UnityEngine.Debug.Log("sync!");
 			yield break;
 		}
