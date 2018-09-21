@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using CTworldNS;
+using UnityEngine.Networking;
 
 //-------------------------------------------------------------------------------------------------------
 /// <summary>
@@ -44,14 +45,14 @@ public class CTunity : MonoBehaviour
 	internal double latestTime = 0F;
 	internal Boolean showMenu = true;
     internal string Server = "http://localhost:8000";
-    internal string Player = "Red";
+    internal string Player = "Observer";
     internal Boolean Ghost = false;
     internal string Model = "Ball";
 	internal string Session = "";
     internal int MaxPts = 100;
     internal Double clocksync = 0f;                   // add this to local clock to sync to CTweb
     internal double lastSubmitTime = 0;
-    internal Boolean observerFlag = false;
+    internal Boolean observerFlag = true;
 	internal Boolean trackEnabled = true;             // enable player-tracks
 
     internal CTlib.CThttp ctplayer = null;            // storage
@@ -60,6 +61,9 @@ public class CTunity : MonoBehaviour
 	internal double replayTime = 0;
 	internal Boolean replayActive = false;
 	internal String replayText = "Live";
+
+	internal string user = "CloudTurbine";
+	internal String password = "RBNB";
 
 	//	public Boolean commanderMode = false;       // commander-mode asserts remote-control on replay (not working)
 	#endregion
@@ -459,12 +463,17 @@ public class CTunity : MonoBehaviour
 			String urlparams = "";    // "?f=d" is no-op for wildcard request
 			if (replayActive) urlparams = "?t=" + replayTime;     // replay at masterTime
 			string url1 = Server + "/CT/" + Session + "/GamePlay/*/"+CTchannel + urlparams;
-			WWW www1 = new WWW(url1);
-			yield return www1;          // wait for results to HTTP GET
-//			CTdebug("www.text: " + www1.text);
 
+			UnityWebRequest www1 = UnityWebRequest.Get(url1);
+            www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
+            yield return www1.Send();
+
+//			WWW www1 = new WWW(url1);
+//			yield return www1;          // wait for results to HTTP GET
+//			CTdebug("www.text: " + www1.text);
+            
 			// proceed with parsing CTstates.txt
-			if (!string.IsNullOrEmpty(www1.error) || www1.text.Length < 10)
+			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
 			{
 				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
 				if(isReplayMode()) clearWorlds();              // presume problem is empty world...
@@ -473,7 +482,7 @@ public class CTunity : MonoBehaviour
 			CTdebug(null);          // clear error
 
 			// parse to class structure...
-            List<CTworld> ws = CTserdes.deserialize(www1.text);
+            List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
 			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      
             
@@ -534,6 +543,13 @@ public class CTunity : MonoBehaviour
 //		else    return (objName.StartsWith(Player));
 	}
 
+	public string CTauthorization() {
+		string auth = user + ":" + password;
+        auth = System.Convert.ToBase64String(System.Text.Encoding.GetEncoding("ISO-8859-1").GetBytes(auth));
+        auth = "Basic " + auth;
+		return auth;
+	}
+
 	//-------------------------------------------------------------------------------------------------------
     // "pull" object state from list
 	// INACTIVE:  logic not worked out, inefficient double-loop search
@@ -558,35 +574,67 @@ public class CTunity : MonoBehaviour
 			return null;
 		}
     }
+
+	//----------------------------------------------------------------------------------------------------------------
+	// sync clock to remote CTweb
     
-    //----------------------------------------------------------------------------------------------------------------
-    // sync clock to remote CTweb
-    
-    //  public IEnumerator 
-    public Boolean doSyncClock()
+	public Boolean syncError = true;
+	public Boolean doSyncClock() {
+		StartCoroutine(getSyncClock());
+		return true;  // bleh need to wait for syncError status ??
+	}
+ 
+	private IEnumerator getSyncClock()
+//    public Boolean doSyncClock()
     {
         string url1 = Server + "/sysclock";
-        WWW www1 = new WWW(url1);
-        //      yield return www1;          // wait for results to HTTP GET
-        while (!www1.isDone)
-        {
-            new WaitForSeconds(0.1f);
-        }
+		syncError = true;
+		int maxTry = 10;
 
-        if (!string.IsNullOrEmpty(www1.error))
-        {
-			CTdebug(www1.error + ": " + Server);
-			return false;
-        }
-        else
-        {
-            double now = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-            clocksync = (Double.Parse(www1.text) / 1000f) - now;
-            UnityEngine.Debug.Log("syncClock: " + clocksync + ", CT/sysclock: " + www1.text);
-			CTdebug(null);
-			return true;
-        }
+		while (true)
+		{
+			yield return new WaitForSeconds(0.1F);
 
+			UnityWebRequest www1 = UnityWebRequest.Get(url1);
+			www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
+			www1.chunkedTransfer = false;  // unity bug work-around?
+			www1.SendWebRequest();
+
+			//        WWW www1 = new WWW(url1);
+			yield return www1;          // wait for results to HTTP GET
+
+			//			UnityEngine.Debug.Log("text: " + www1.downloadHandler.text);
+			if (!string.IsNullOrEmpty(www1.error) || www1.responseCode != 200)
+			{
+				syncError = true;
+                if(www1.responseCode == 401) 
+				    CTdebug("Unauthorized Server Connection! ("+www1.responseCode+")");
+				else
+					CTdebug("Server Connection Error (" + www1.responseCode + "): " + www1.error);
+			}
+			else
+			{
+				double now = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+				try
+				{
+					clocksync = (Double.Parse(www1.downloadHandler.text) / 1000f) - now;
+					UnityEngine.Debug.Log("syncClock: " + clocksync);
+					syncError = false;
+				} 
+				catch (Exception e) {
+					UnityEngine.Debug.Log(e.Message);
+				}
+				CTdebug(null);
+			}
+
+			if (syncError && ((maxTry--) > 0))
+			{
+//				UnityEngine.Debug.Log("maxTry: " + maxTry+", syncError: "+syncError);
+				continue;
+			}
+//			UnityEngine.Debug.Log("sync!");
+			yield break;
+		}
     }
 
     //----------------------------------------------------------------------------------------------------------------

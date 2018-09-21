@@ -22,6 +22,7 @@ using UnityEngine.UI;
 using System.Net;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using UnityEngine.Networking;
 
 // Config Menu for CTrollaball
 // Matt Miller, Cycronix, 6-16-2017
@@ -42,9 +43,8 @@ public class CTsetup: MonoBehaviour
         PlayerSelect
     }
 	private MenuPass menuPass = MenuPass.Connection;
+	private GameObject Server, Session, Player, Avatar, Play, View, Login, User, Password;
 
-	private GameObject Server, Session, Player, Avatar, Play, View, Login;
-    
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
     void Start()
@@ -83,12 +83,6 @@ public class CTsetup: MonoBehaviour
 		{
 			switch (d.name)
 			{
-				case "Mode":
-					d.onValueChanged.AddListener(delegate {
-						ctunity.observerFlag = d.GetComponent<Dropdown>().options[d.value].text.Equals("Observer");
-						modeSelect();
-                    });
-                    break;
 				case "Session":
                     ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
 					d.onValueChanged.AddListener(delegate
@@ -110,27 +104,43 @@ public class CTsetup: MonoBehaviour
 		Play = GameObject.Find("Submit");
 		View = GameObject.Find("View");
 		Login = GameObject.Find("Login");
+		User = GameObject.Find("User");
+		Password = GameObject.Find("Password");
 		modeSelect();
     }
-    
+
+	private void LateUpdate()
+	{
+		if (ctunity.syncError) menuPass = MenuPass.Connection;
+		else
+		{
+			menuPass = MenuPass.Session;
+			ctunity.observerFlag = true;
+			ctunity.showMenu = false;
+		}
+		modeSelect();
+	}
+
 	//----------------------------------------------------------------------------------------------------------------
 	private void OnEnable()
 	{
-		if (ctunity != null)
+		if (ctunity != null)  // on startup, async ctunity my not yet be defined
 		{
-			ctunity.showMenu = true;                // on startup, async ctunity my not yet be defined
+			//			ctunity.showMenu = true;                
+			ctunity.Player = "Observer";            // be in live observer mode while in menu
+			ctunity.observerFlag = true;
 		}
 	}
 
 	private void OnDisable()
 	{
-		ctunity.showMenu = false;
+//		ctunity.showMenu = false;
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
     // glean server/session status from menu fields
-
-	Boolean updateServer()
+    
+	void updateServer()
     {
 //		UnityEngine.Debug.Log("updateServer!");
 
@@ -140,23 +150,24 @@ public class CTsetup: MonoBehaviour
         InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
         foreach (InputField c in fields)
         {
-            switch (c.name)
-            {
-                case "Server":
-                    ctunity.Server = c.text;
-                    if (!ctunity.Server.Contains(":"))           ctunity.Server += ":" + defaultPort;             // default port :8000
-                    if (!ctunity.Server.StartsWith("http://"))   ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
+			switch (c.name)
+			{
+				case "Server":
+					ctunity.Server = c.text;
+					if (!ctunity.Server.Contains(":")) ctunity.Server += ":" + defaultPort;             // default port :8000
+					if (!ctunity.Server.StartsWith("http://")) ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
 					break;
-            }
+				case "User":
+					ctunity.user = c.text;
+					break;
+				case "Password":
+					ctunity.password = c.text;
+					break;
+			}
         }
         
-//		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
-
-		StartCoroutine("getSessionList");                                       // get list of current GamePlay Sessions
-
-		ctunity.observerFlag = true;
-		ctunity.showMenu = false;
-        return ctunity.doSyncClock();       // sync client/server clocks, return T/F if successful connection
+		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
+		ctunity.doSyncClock();                  // sync client/server clocks
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -182,17 +193,21 @@ public class CTsetup: MonoBehaviour
 
 	public void serverConnect() 
 	{
+		UnityEngine.Debug.Log("serverConnect, user: " + ctunity.user + ", pw: " + ctunity.password);
+
 		// setup for video players and observers both
         if (ctunity.ctvideo != null) ctunity.ctvideo.close();
         ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
+//        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
+		ctunity.ctvideo.login(ctunity.user, ctunity.password);
         ctunity.ctvideo.setAsync(true);
-
+        
 		if (!ctunity.observerFlag)
 		{
 			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
 			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
-			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
+//			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
+			ctunity.ctplayer.login(ctunity.user, ctunity.password);
 			ctunity.ctplayer.setAsync(true);
 		}
 	}
@@ -201,13 +216,7 @@ public class CTsetup: MonoBehaviour
     // Login
 
 	void loginButton() {
-		if(updateServer()) {
-			menuPass = MenuPass.Session;
-		} else
-		{
-			menuPass = MenuPass.Connection;
-		}
-		modeSelect();
+		updateServer();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -305,16 +314,20 @@ public class CTsetup: MonoBehaviour
 			case MenuPass.Connection:
 				Server.SetActive(true);
 				Login.SetActive(true);
+				User.SetActive(true);
+				Password.SetActive(true);
 				Session.SetActive(false);
 				Player.SetActive(false);
 				Avatar.SetActive(false);
 				Play.SetActive(false);
 				View.SetActive(false);
 				break;
-
+                
 			case MenuPass.Session:
 				Server.SetActive(false);
 				Login.SetActive(false);
+				User.SetActive(false);
+                Password.SetActive(false);
 				Session.SetActive(true);
 				Player.SetActive(true);
 				Avatar.SetActive(true);
@@ -323,13 +336,6 @@ public class CTsetup: MonoBehaviour
 				break;
 
 			case MenuPass.PlayerSelect:                 // not used
-				Server.SetActive(false);
-				Login.SetActive(false);
-				Session.SetActive(false);
-				Player.SetActive(true);
-				Avatar.SetActive(true);
-				Play.SetActive(true);
-				View.SetActive(true);
 				break;
 		}
 
@@ -382,12 +388,13 @@ public class CTsetup: MonoBehaviour
             yield return new WaitForSeconds(0.1F);
 
             string url1 = ctunity.Server + "/CT";
-            WWW www1 = new WWW(url1);
-            yield return www1;          // wait for results to HTTP GET
-
+			UnityWebRequest www1 = UnityWebRequest.Get(url1);
+            www1.SetRequestHeader("AUTHORIZATION", ctunity.CTauthorization());
+            yield return www1.SendWebRequest();
+         
             if (!string.IsNullOrEmpty(www1.error))
             {
-                ctunity.CTdebug("getSessionList www1 error: " + www1.error + ", url: " + url1);
+                UnityEngine.Debug.Log("getSessionList www1 error: " + www1.error + ", url: " + url1);
                 yield break;
             }
 
@@ -396,7 +403,8 @@ public class CTsetup: MonoBehaviour
 			sessionList.Add("CTrollaball");         // seed with a default session
 
             Match match;
-            for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+//			for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+            for (match = regex.Match(www1.downloadHandler.text); match.Success; match = match.NextMatch())
             {
                 foreach (Group group in match.Groups)
                 {

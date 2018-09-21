@@ -98,7 +98,10 @@ public class CTtimecontrol : MonoBehaviour {
 				slider.value = Mathf.Clamp(slider.value + (float)(dt / durationReplayTime), 0F, 1F);
 				playTimeRef = nowTime();
             }
-            
+			else {      // manual slider control:
+				
+			}
+
             // limit checks
 			if (slider.value >= 1F && playFactor > 0F)    // was >= 1, but that insta-pauses on startup when value==1 ??
             {

@@ -35,21 +35,24 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
     {
         if (Input.GetMouseButton(0))
         {
-//			Debug.Log("PointerDown ToggleMenu!");
-			GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
-			showMenu = !gameOptions.activeSelf;
-            gameOptions.SetActive(showMenu);
-			ctunity.setReplay(false);
+			//			Debug.Log("PointerDown ToggleMenu!");
+			doit();
         }
     }
 
     // OnMouseDown works on in-world canvas
 	public void OnMouseDown()
 	{
-//		Debug.Log("MouseDown ToggleMenu!");
+		//		Debug.Log("MouseDown ToggleMenu!");
+		doit();
+	}
+
+	private void doit() {
 		GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
-		showMenu = !gameOptions.activeSelf;
+        showMenu = !gameOptions.activeSelf;
+        ctunity.setReplay(false);
+//        ctunity.observerFlag = true;  // ??
+//		ctunity.showMenu = false;   // observer mode while in menu...
 		gameOptions.SetActive(showMenu);
-		ctunity.setReplay(false);
 	}
 }

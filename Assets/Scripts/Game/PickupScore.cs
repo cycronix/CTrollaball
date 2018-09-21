@@ -79,7 +79,7 @@ public class PickupScore : MonoBehaviour {
 			int nactive = cts[player].nactive;
 			int score = npickups - nactive;
 			scoreboard += "<color="+player+">"+player + ": " + score.ToString() + " / " + npickups+"</color>   ";
-			if (score > 0 && score >= npickups && !ctunity.isReplayMode())
+			if (score > 0 && score >= npickups && !ctunity.isReplayMode() && player.Equals(ctunity.Player))
 			{
 				wintext = "<color=" + player + ">" + player + " Wins!</color>";
 //				GameOver = true;
