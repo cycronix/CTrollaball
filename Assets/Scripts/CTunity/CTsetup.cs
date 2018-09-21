@@ -193,7 +193,7 @@ public class CTsetup: MonoBehaviour
 
 	public void serverConnect() 
 	{
-		UnityEngine.Debug.Log("serverConnect, user: " + ctunity.user + ", pw: " + ctunity.password);
+//		UnityEngine.Debug.Log("serverConnect, user: " + ctunity.user + ", pw: " + ctunity.password);
 
 		// setup for video players and observers both
         if (ctunity.ctvideo != null) ctunity.ctvideo.close();

@@ -578,7 +578,7 @@ public class CTunity : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	// sync clock to remote CTweb
     
-	public Boolean syncError = true;
+	internal Boolean syncError = true;
 	public Boolean doSyncClock() {
 		StartCoroutine(getSyncClock());
 		return true;  // bleh need to wait for syncError status ??
