@@ -39,7 +39,7 @@ public class PlayerObjects : MonoBehaviour {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();   // reference CTunity script
 //		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + gameObject.name);
 
-//        if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+        if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
 //		if (!gameObject.name.StartsWith(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
 
         ctplayer = GameObject.Find("Players").transform;                // reference Players container
