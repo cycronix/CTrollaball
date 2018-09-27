@@ -41,6 +41,7 @@ public class Rotator : MonoBehaviour {
 
 	void OnTriggerEnter(Collider other) {
 //		if (ctplayer.isLocalControl()) 
-			gameObject.SetActive(false);      
+			gameObject.SetActive(false); 
+//		    Destroy(gameObject);                 // poof?
 	}
 }
