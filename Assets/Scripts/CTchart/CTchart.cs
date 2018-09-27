@@ -34,6 +34,8 @@ public class CTchart : MonoBehaviour {
 	public float pollInterval = 0.05f;          // polling interval for new data (sec)
 //	public Boolean observerMode = false;        // observer mode (CT read-only)
 
+	public Boolean autoScale = true;            // y-scaling
+
 	private float Duration = 1F;
     
 	private CTchartOptions chartOptions = null;
@@ -114,6 +116,9 @@ public class CTchart : MonoBehaviour {
 	String oldCustom = "";
 	IEnumerator getData()
 	{
+		float ymax = -10000F;  // force first-pass init
+		float ymin = 10000F;
+
 		while (true) {
 			yield return new WaitForSeconds (pollInterval);
 			if (chartOptions==null || chartOptions.showMenu) continue;
@@ -211,8 +216,9 @@ public class CTchart : MonoBehaviour {
 
 					double ptsPerSec = xvals.Length / hdur;              // deduce queue size from apparent sample rate
 					MaxPts = (int)(Duration * ptsPerSec);
+//					Debug.Log("xvals.len: " + xvals.Length);
 
-					if (Mode == "CrossPlot")
+					if (Mode == "CrossPlot")   // cross plots presume data scaled 0-1 coming in
 					{
 						yvals = www2.text.Split('\n');
 						int maxCount = Math.Min(xvals.Length, yvals.Length);
@@ -226,12 +232,13 @@ public class CTchart : MonoBehaviour {
 							{
 								float xv = float.Parse(xvals[i]) - 0.5f;
 								float yv = float.Parse(yvals[i]) - 0.5f;
-								p1[Ngot] = new Vector3(xv, yv, -0.6f);
+								p1[Ngot] = new Vector3(xv, yv, -1f);
 							} 
 							catch(Exception) {};
 
 							Ngot++;
 						}
+
 						lineR1.positionCount = Ngot-2;   // why ratty end???
                         lineR1.SetPositions(p1);
 					}
@@ -257,13 +264,15 @@ public class CTchart : MonoBehaviour {
 							try
 							{
 								float xv = float.Parse(xvals[i]) - 0.5f;
-								if (numChan == 1) xv = float.Parse(xvals[i]) / 65536.0f;  // cluge: audio scaling
-								p1[Ngot] = new Vector3(x1, xv, -0.6f);
+//								if (numChan == 1) xv = float.Parse(xvals[i]) / 65536.0f;  // cluge: audio scaling
+								p1[Ngot] = new Vector3(x1, xv, -0.8f);
+								if (xv > ymax) ymax = xv; if (xv < ymin) ymin = xv;
 
 								if (numChan > 1)
 								{
 									float yv = float.Parse(yvals[i]) - 0.5f;
-									p2[Ngot] = new Vector3(x1, yv, -0.6f);
+									p2[Ngot] = new Vector3(x1, yv, -1f);
+									if (yv > ymax) ymax = yv; if (yv < ymin) ymin = yv;
 								}
 
 							}
@@ -274,6 +283,13 @@ public class CTchart : MonoBehaviour {
 							Ngot++;
 							x1 += dx;
 						}
+                        
+						if (autoScale)  // scale to nominal +/- 0.5F range
+						{
+							p1 = doScale(p1, ymin, ymax);
+							if (numChan > 1) p2 = doScale(p2, ymin, ymax);
+						}
+
 						lineR1.positionCount = lineR2.positionCount = Ngot-2;  // why ratty end???
 						lineR1.SetPositions(p1);
 						if (numChan > 1) lineR2.SetPositions(p2);
@@ -292,6 +308,19 @@ public class CTchart : MonoBehaviour {
 			}
 		}
 	}
+    
+    // scale yvals
+	private Vector3[] doScale(Vector3[] p, float ymin, float ymax) {
+		Vector3[] p1 = new Vector3[p.Length];
+		float yrange = ymax - ymin;
+        
+		for (int i = 0; i < p.Length; i++)
+		{
+			p1[i] = new Vector3(p[i].x, ((p[i].y - ymin) / yrange) -0.5F, p[i].z);      // scale +/- 0.5F
+        }
+		return p1;
+	}
+
 /*		
 	void updateLines() {
 		Debug.Log("updateLines p1: " + p1);
