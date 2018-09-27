@@ -68,7 +68,8 @@ public class ToggleGameObject : MonoBehaviour, IPointerDownHandler
         if (thisObject != null && thisObject.activeSelf)
 		{
 			//			thisObject.SetActive(!thisObject.activeSelf);       // toggle active/inactive
-			ctunity.clearObject(thisObject.name);
+			if (UiLayer) thisObject.SetActive(false);
+			else         ctunity.clearObject(thisObject.name);
 		}
 		else                                    // load prefab
 		{
