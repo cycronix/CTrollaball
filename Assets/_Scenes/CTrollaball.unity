@@ -6919,7 +6919,6 @@ MonoBehaviour:
   BlockPts: 5
   JSON_Format: 1
   debugText: {fileID: 411027160}
-  syncError: 1
 --- !u!1 &1713389157
 GameObject:
   m_ObjectHideFlags: 0
