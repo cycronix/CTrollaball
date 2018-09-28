@@ -258,47 +258,42 @@ public class CTsetup: MonoBehaviour
 			switch (d.name)
 			{
 				case "Session":
-                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
-                    break;
+					ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
+					break;
 				case "Player1":
 					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
 				case "Model":
 					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
-             /*
-				case "TrackDur":
-					ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-					ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
-					break;
-				case "BlockDur":
-					float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-					ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
-					break;
-			*/
+					/*
+					   case "TrackDur":
+						   ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+						   ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
+						   break;
+					   case "BlockDur":
+						   float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
+						   ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
+						   break;
+				   */
 			}
 		}
-        
-        // connect to CTweb server
-		serverConnect();
-        /*
-		//        if (ctunity.Model.Equals("Observer")) 
-		if (ctunity.observerFlag)           // Observer
-		{
-			ctunity.Player = "Observer";
-			myCamera.setTarget(GameObject.Find("Ground").transform);
-		}
-        */
-//		else                                // Player
-//		{
-			ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
 
-			if (ctunity.Ghost)  ctunity.newPlayer(ctunity.Player, "Ghost", true);
-			else                ctunity.clearObject(ctunity.Player + "g");
+		// connect to CTweb server
+		serverConnect();
+
+		GameObject go = ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
+        
+		// kick new player to launch its playerObjects:
+		PlayerObjects po = go.GetComponent<PlayerObjects>();
+		if (po != null) po.Startup();
+
+//			if (ctunity.Ghost)  ctunity.newPlayer(ctunity.Player, "Ghost", true);
+//			else                ctunity.clearObject(ctunity.Player + "g");
 
 			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
-//		}
-        
+		//		}
+
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
 		gameObject.SetActive(false);

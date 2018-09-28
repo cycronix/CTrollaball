@@ -265,9 +265,9 @@ public class CTunity : MonoBehaviour
     //-------------------------------------------------------------------------------------------------------
     // clone new player or player-owned object...
 
-	public void newPlayer(String playerName, String model, Boolean ghost)
+	public GameObject newPlayer(String playerName, String model, Boolean ghost)
     {
-		newGameObject(playerName, model, new Vector3(0F, 5F, 0F), transform.rotation, ghost, true);      
+		return newGameObject(playerName, model, new Vector3(0F, 5F, 0F), transform.rotation, ghost, true);      
     }
 
 	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Boolean ghost, Boolean isactive)
@@ -361,6 +361,8 @@ public class CTunity : MonoBehaviour
 	}
 
 	//-------------------------------------------------------------------------------------------------------
+	//  clear and destroy a game object by name:
+
 	public void clearObject(String objectName) {
 		if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
@@ -378,6 +380,23 @@ public class CTunity : MonoBehaviour
 		}
         
 		CTlist.Remove(objectName);
+	}
+    
+	// more efficient if know the gameObject itself:
+	public void clearObject(GameObject go) {
+        if (go != null)
+        {
+			string objectName = go.name;
+            if (!CTlist.ContainsKey(objectName)) return;            // not already there
+            
+            foreach (Transform c in go.transform)
+            {
+                CTlist.Remove(c.name);  // children will be destroyed with parent
+            }
+            go.SetActive(false);
+            Destroy(go);
+			CTlist.Remove(objectName);
+        }
 	}
 
 	//-------------------------------------------------------------------------------------------------------
@@ -502,6 +521,7 @@ public class CTunity : MonoBehaviour
 	private void setState(String objectID, CTobject ctobject) {
 		GameObject ct;
         if (!CTlist.TryGetValue(objectID, out ct)) return;
+		if (ct == null) return;         // fire wall
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)

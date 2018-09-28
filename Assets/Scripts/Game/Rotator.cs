@@ -18,11 +18,13 @@ using UnityEngine;
 
 public class Rotator : MonoBehaviour {
 	private CTclient ctplayer;
+	private CTunity ctunity;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
 		ctplayer = GetComponent<CTclient>();
+		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();           // reference CTunity script
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -40,8 +42,7 @@ public class Rotator : MonoBehaviour {
 	// poof on collide
 
 	void OnTriggerEnter(Collider other) {
-//		if (ctplayer.isLocalControl()) 
-			gameObject.SetActive(false); 
-//		    Destroy(gameObject);                 // poof?
+//		gameObject.SetActive(false); 
+		ctunity.clearObject(gameObject);
 	}
 }

@@ -35,8 +35,13 @@ public class PlayerObjects : MonoBehaviour {
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
-	void Start () {
+	private void Start()
+	{
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();   // reference CTunity script
+	}
+
+	// Startup is called by CTsetup on new-player launch (vs object start)
+	public void Startup () {
 //		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + gameObject.name);
 
         if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
@@ -55,8 +60,6 @@ public class PlayerObjects : MonoBehaviour {
         Renderer renderer = Ground.GetComponent<Renderer>();
         if (renderer != null)
         {
- //           if (myColor == Color.white) myColor = renderer.material.color;
-            //            Color c = renderer.material.color;
             Color c = ctunity.Text2Color(gameObject.name, 1F);   // ref original color (avoid accumulated changes)
             float H, S, V;
             Color.RGBToHSV(c, out H, out S, out V);
@@ -69,23 +72,16 @@ public class PlayerObjects : MonoBehaviour {
 
 	void Update()
 	{
-		if (ctunity == null) return;
-		if (!gameObject.name.Equals(ctunity.Player)) return; 
-
-		if (Ground != null && !Ground.activeSelf)
-		{
-			Ground.SetActive(true);             // Ground stays enabled with player
-//        UnityEngine.Debug.Log("on enable, ground: " + Ground);
-		}
+//		if (ctunity == null) return;
+//		if (!gameObject.name.Equals(ctunity.Player)) return; 
+//		if (Ground != null && !Ground.activeSelf) Ground.SetActive(true);             // Ground stays enabled with player
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	public void dispensePickups()
     {
         Vector3 groundPos = ctunity.groundPos(ctunity.Player);
-//        int np = npickups(Player);
-//        Debug.Log("DispensePickups! player: " + Player + ", ctunity.Player: " + ctunity.Player + ", npickups: " + nobject);
-
+      
         if (nobject >= maxPickups)
         {
             Debug.Log("Max Pickups!");
