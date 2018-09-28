@@ -238,20 +238,6 @@ public class CTsetup: MonoBehaviour
 
 	void submitButton()
 	{
-		/*
-		if (connectionPass)
-		{
-			if (!updateServer()) return;          // stay here until get a good connection
-
-			connectionPass = false;
-			ctunity.observerFlag = true;        // observer on entry
-			ctunity.Player = "Observer";
-			ctunity.showMenu = false;           // start observing players
-			modeSelect();
-			return;                             // return -> auto-follow with player select menu
-		}
-    */
-
 		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
 		foreach (Dropdown d in drops)
 		{
@@ -266,16 +252,6 @@ public class CTsetup: MonoBehaviour
 				case "Model":
 					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
-					/*
-					   case "TrackDur":
-						   ctunity.TrackDur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-						   ctunity.MaxPts = (int)Math.Round(ctunity.TrackDur * 50.0f);         // sec @50 Hz sampling
-						   break;
-					   case "BlockDur":
-						   float blockdur = Single.Parse(d.GetComponent<Dropdown>().options[d.value].text);
-						   ctunity.BlockPts = (int)Math.Round(blockdur * 0.05f);       // msec @ 50 Hz sampling
-						   break;
-				   */
 			}
 		}
 
@@ -283,20 +259,16 @@ public class CTsetup: MonoBehaviour
 		serverConnect();
 
 		GameObject go = ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
-        
+
 		// kick new player to launch its playerObjects:
 		PlayerObjects po = go.GetComponent<PlayerObjects>();
 		if (po != null) po.Startup();
 
-//			if (ctunity.Ghost)  ctunity.newPlayer(ctunity.Player, "Ghost", true);
-//			else                ctunity.clearObject(ctunity.Player + "g");
+		myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
 
-			myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
-		//		}
-
+		gameObject.SetActive(false);
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
-		gameObject.SetActive(false);
 		replayControl.SetActive(ctunity.observerFlag);
 		ctunity.CTdebug(null);                // clear warnings/debug text
 	}

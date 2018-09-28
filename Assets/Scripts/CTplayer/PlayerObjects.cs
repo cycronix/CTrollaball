@@ -43,7 +43,9 @@ public class PlayerObjects : MonoBehaviour {
 	// Startup is called by CTsetup on new-player launch (vs object start)
 	public void Startup () {
 //		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + gameObject.name);
-
+        if(ctunity == null)    // async startup possible issue
+			ctunity = GameObject.Find("CTunity").GetComponent<CTunity>(); 
+		
         if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
 //		if (!gameObject.name.StartsWith(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
 
