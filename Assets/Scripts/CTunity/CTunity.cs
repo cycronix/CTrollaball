@@ -431,7 +431,7 @@ public class CTunity : MonoBehaviour
 
 	public void clearMissing(CTworld ctworld)
     {
-		if (!isReplayMode()) return;          // check missing only in replay mode
+//		if (!isReplayMode()) return;     // check missing Player only in replay mode
 
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
@@ -439,9 +439,12 @@ public class CTunity : MonoBehaviour
 				Debug.Log("oops: CTlist go missing!");
 				continue;
 			}
-			if (!ctworld.objects.ContainsKey(go.name))
+			if (!ctworld.objects.ContainsKey(go.name))  
 			{
-				go.SetActive(false);
+				if(!go.name.StartsWith(Player))     //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
+				    go.SetActive(false);
+//				Destroy(go);                        // ??
+//				CTlist.Remove(go.name);             // can't change CTlist in CTlist-iterator
 			}
         }
 /*

@@ -2383,11 +2383,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   showMenu: 1
   Server: http://localhost:8000
-  Source: CTrollaball/Sensors/Blue
-  Chan1: x.f32
-  Chan2: y.f32
+  Source: Xplane/Sensors/Blue
+  Chan1: packet_020_alt_ind.f32
+  Chan2: packet_017_roll_deg.f32
   Mode: StripChart
-  Duration: 10
+  Duration: 60
 --- !u!114 &114500253412266240
 MonoBehaviour:
   m_ObjectHideFlags: 1
