@@ -64,7 +64,7 @@ public class PickupScore : MonoBehaviour {
 				if (c.name.StartsWith(player) && c.name.Contains("Pickup"))
 				{
 					cts[player].npickups++;
-					if (c.gameObject.activeSelf) cts[player].nactive++;
+					if (c.gameObject.activeSelf) cts[player].nactive++;  // delete vs inactivate: npickups == nactive
 				}
 			}
 		}
@@ -78,7 +78,9 @@ public class PickupScore : MonoBehaviour {
 			if (npickups == 0) continue;
 			int nactive = cts[player].nactive;
 			int score = npickups - nactive;
-			scoreboard += "<color="+player+">"+player + ": " + score.ToString() + " / " + npickups+"</color>   ";
+//			scoreboard += "<color="+player+">"+player + ": " + score.ToString() + " / " + npickups+"</color>   ";
+			scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
+
 			if (score > 0 && score >= npickups && !ctunity.isReplayMode() && player.Equals(ctunity.Player))
 			{
 				wintext = "<color=" + player + ">" + player + " Wins!</color>";
@@ -87,9 +89,9 @@ public class PickupScore : MonoBehaviour {
 		}
 
 		countText.text = scoreboard;
-		winText.text = wintext;
-//		if (ctunity.observerFlag)   winText.text = "Observer";
-//		else                        winText.text = wintext;
+//		winText.text = wintext;
+		winText.text = "";   // need to sort out how to win...
+
 	}
 
 }
