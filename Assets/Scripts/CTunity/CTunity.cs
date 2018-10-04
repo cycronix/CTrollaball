@@ -123,6 +123,12 @@ public class CTunity : MonoBehaviour
 
 	CTworld mergeCTworlds(List<CTworld> worlds) {
 
+		if (worlds == null)
+		{
+			CTdebug("Warning: null CTworlds!");
+			return null;                     // null if empty start?
+		}
+
 		double masterTime = ServerTime();
         double updateTime = 0F;
         
