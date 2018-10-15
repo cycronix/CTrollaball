@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 33267497834212810}
   - component: {fileID: 136558523656596964}
   - component: {fileID: 23999183848858018}
+  - component: {fileID: 114884215755894858}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Untagged
@@ -83,6 +84,22 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1523619735577584}
   m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &114884215755894858
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1523619735577584}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c55319a47bfc4fd3b54388cf8dab12f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  smoothTrack: 0
+  smoothReplay: 0
+  TrackSpeed: 2
+  RotateSpeed: 1
+  OverShoot: 0.5
 --- !u!136 &136558523656596964
 CapsuleCollider:
   m_ObjectHideFlags: 1

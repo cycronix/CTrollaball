@@ -30,8 +30,9 @@ public class CTclient : MonoBehaviour
 	public float TrackSpeed = 2F;         // multiplier on how fast to Lerp to position/rotation
 	public float RotateSpeed = 1F;          // rotation speed multiplier
     public float OverShoot = 0.5F;        // how much to shoot past known position for dead reckoning
-	public String prefab="Player";          // programmatically set; reference value
-	public String custom = "";            // for sending custom info via CTstates.txt
+
+	internal String prefab="Player";          // programmatically set; reference value
+	internal String custom = "";            // for sending custom info via CTstates.txt
     
 	private Boolean ChildOfPlayer = false;    // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
@@ -56,7 +57,7 @@ public class CTclient : MonoBehaviour
 		// see if this client object is child-of-player (set in ToggleGameObject)
 		if (gameObject.name.Contains("/")) ChildOfPlayer = true;
 
-		ctunity.CTregister(gameObject);     // register with CTgroupstate...
+		ctunity.CTregister(gameObject);     // register with CTunity...
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -112,7 +113,6 @@ public class CTclient : MonoBehaviour
 
 		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode))
 		{
-
 			targetPos = myPos + OverShoot * (myPos - transform.position);    // dead reckoning
 			oldPos = myPos;
 

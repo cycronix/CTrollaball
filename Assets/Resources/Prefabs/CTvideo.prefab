@@ -625,5 +625,3 @@ MonoBehaviour:
   TrackSpeed: 2
   RotateSpeed: 1
   OverShoot: 0.5
-  prefab: CTvideo
-  custom: 

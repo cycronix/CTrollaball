@@ -113,8 +113,6 @@ MonoBehaviour:
   TrackSpeed: 1
   RotateSpeed: 1
   OverShoot: 0.5
-  prefab: Pickup
-  custom: 
 --- !u!114 &114391461351928790
 MonoBehaviour:
   m_ObjectHideFlags: 1

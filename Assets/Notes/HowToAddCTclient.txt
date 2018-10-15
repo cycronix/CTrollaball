@@ -1,0 +1,6 @@
+Adding a CTclient prefab model:
+
+Build or import model, convert to prefab per standard Unity instructions.
+
+Add CTclient.cs script to associated prefab.
+
