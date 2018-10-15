@@ -18,6 +18,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using CTworldNS;
 
 //----------------------------------------------------------------------------------------------------------------
 
@@ -31,9 +32,11 @@ public class CTclient : MonoBehaviour
     public float OverShoot = 0.5F;        // how much to shoot past known position for dead reckoning
 	public String prefab="Player";          // programmatically set; reference value
 	public String custom = "";            // for sending custom info via CTstates.txt
-
+    
 	private Boolean ChildOfPlayer = false;    // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
+	private Vector3 myScale = Vector3.one;
+
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
 	private Boolean myState = true;
 
@@ -64,10 +67,16 @@ public class CTclient : MonoBehaviour
 
 	//----------------------------------------------------------------------------------------------------------------
     // setState called from CTunity, works on active/inactive
-	public void setState(Boolean state, Vector3 pos, Quaternion rot, Boolean ireplay, String icustom)
+
+	public void setState(CTobject cto, Boolean ireplay) {
+		setState(cto.state, cto.pos, cto.rot, cto.scale, cto.custom, ireplay);
+	}
+
+	public void setState(Boolean state, Vector3 pos, Quaternion rot, Vector3 scale, String icustom, Boolean ireplay)
 	{
 		myPos = pos;
 		myRot = rot;
+		myScale = scale;
 		myState = state;
 		replayMode = ireplay;
 		custom = icustom;
@@ -111,6 +120,8 @@ public class CTclient : MonoBehaviour
 			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
 //			transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * TrackSpeed);
 			transform.rotation = Quaternion.Lerp(transform.rotation, myRot, Time.deltaTime * RotateSpeed);
+			if(myScale != Vector3.zero)
+				transform.localScale = Vector3.Lerp(transform.localScale, myScale, Time.deltaTime * RotateSpeed);
 		}
 		else
 		{
@@ -118,6 +129,7 @@ public class CTclient : MonoBehaviour
 
             transform.position = myPos;                     // hard-set without smooth
             transform.rotation = myRot;
+			if (myScale != Vector3.zero) transform.localScale = myScale;
 		}
 	}
 

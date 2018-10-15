@@ -66,6 +66,7 @@ public class CTserdes
 		public Boolean state;
 		public List<Double> pos;
 		public List<Double> rot;
+		public List<Double> scale;
 		public string custom;
 	}
 
@@ -255,6 +256,13 @@ public class CTserdes
 				cto.custom = ctobject.custom;
 				cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
 				cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
+				if (ctobject.scale != null && ctobject.scale.Count==3)
+				{
+					cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
+				}
+				else {
+					cto.scale = Vector3.zero;
+				}
 				jCTW.objects.Add(cto.id, cto);
 			}
 			worlds.Add(jCTW);
@@ -347,7 +355,7 @@ public class CTserdes
 			if (prefab.Equals("Ghost")) continue;  // no save ghosts												
 //			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
 			if (!ctunityI.doCTwrite(ct.name)) continue;          // only save locally owned objects
-
+            
 			CTobjectJson obj = new CTobjectJson();
 			obj.id = ct.name;
 			obj.prefab = prefab;
@@ -361,6 +369,10 @@ public class CTserdes
 			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.x, 4));
 			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.y, 4));
 			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.z, 4));
+			obj.scale = new List<Double>();
+            obj.scale.Add(LimitPrecision(ct.transform.localScale.x, 4));
+            obj.scale.Add(LimitPrecision(ct.transform.localScale.y, 4));
+            obj.scale.Add(LimitPrecision(ct.transform.localScale.z, 4));
 			if (ctp.custom != null && ctp.custom.Length > 0)
 			{
 				obj.custom = ctp.custom;

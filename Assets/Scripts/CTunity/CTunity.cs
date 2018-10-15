@@ -224,14 +224,14 @@ public class CTunity : MonoBehaviour
                         {
 //                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
 //                            clearObject(ctobject.id);
-                            newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
+                            newGameObject(ctobject);
                         }
                     }
 
                     // instantiate new players and objects
                     if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !world.name.Equals(Player)))
                     {
-                        newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, false, ctobject.state);
+                        newGameObject(ctobject);
                     }
                 }
             }
@@ -273,10 +273,15 @@ public class CTunity : MonoBehaviour
 
 	public GameObject newPlayer(String playerName, String model, Boolean ghost)
     {
-		return newGameObject(playerName, model, new Vector3(0F, 5F, 0F), transform.rotation, ghost, true);      
+		return newGameObject(playerName, model, new Vector3(0F, 5F, 0F), transform.rotation,  Vector3.zero, ghost, true);      
     }
 
-	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Boolean ghost, Boolean isactive)
+	public GameObject newGameObject(CTobject ctobject)
+    {
+		return newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, ctobject.scale, false, ctobject.state);
+    }
+    
+	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Vector3 scale, Boolean ghost, Boolean isactive)
 	{
 //		UnityEngine.Debug.Log("newGameObject: " + pName);
 		String playerName = pName + (ghost ? "g" : "");
@@ -284,7 +289,7 @@ public class CTunity : MonoBehaviour
 		{
 			CTlist[playerName].SetActive(true);     // let setState activate?
 			string ctpf = CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
-			if (!ctpf.Equals(prefab))
+			if (!ctpf.Equals(prefab) || scale==Vector3.zero)
 			{
 //				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
 				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
@@ -324,6 +329,8 @@ public class CTunity : MonoBehaviour
 
 		Transform pf = go.transform;
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
+
+		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
 //		newp.gameObject.SetActive(true);  // mjm 9-12-18:  make sure (re)instantiated objects are active
         
 		//		newp.parent = GameObject.Find(parent).transform;
@@ -534,7 +541,7 @@ public class CTunity : MonoBehaviour
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)
-            ctp.setState(ctobject.state, ctobject.pos, ctobject.rot, isReplayMode(), ctobject.custom);
+            ctp.setState(ctobject, isReplayMode());
 	}
 
 	public Boolean isReplayMode() {

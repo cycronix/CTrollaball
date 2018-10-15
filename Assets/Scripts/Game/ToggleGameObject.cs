@@ -102,7 +102,7 @@ public class ToggleGameObject : MonoBehaviour, IPointerDownHandler
 			else
 			{
 				// use ctunity method to create object: gets it on CTlist and multi-player CTstates.txt
-				thisObject = ctunity.newGameObject(objectName, Prefab, Position, Quaternion.Euler(Rotation), false, true);
+				thisObject = ctunity.newGameObject(objectName, Prefab, Position, Quaternion.Euler(Rotation), Vector3.one, false, true);
 				thisObject.transform.localScale = Scale * thisObject.transform.localScale;
 			}
             

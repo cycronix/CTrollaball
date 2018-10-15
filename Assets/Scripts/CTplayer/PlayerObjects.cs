@@ -56,7 +56,7 @@ public class PlayerObjects : MonoBehaviour {
 
 		// Ground platform:
 		Vector3 gpos = ctunity.groundPos(ctunity.Player);
-        Ground = ctunity.newGameObject(ctunity.Player + ".Ground", "Ground", gpos, Quaternion.identity, false, true);
+        Ground = ctunity.newGameObject(ctunity.Player + ".Ground", "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
 
 		// adjust ground object color (needs to be centralized)
         Renderer renderer = Ground.GetComponent<Renderer>();
@@ -83,12 +83,14 @@ public class PlayerObjects : MonoBehaviour {
 	public void dispensePickups()
     {
         Vector3 groundPos = ctunity.groundPos(ctunity.Player);
-      
+
+		nobject = npickups(ctunity.Player);
         if (nobject >= maxPickups)
         {
             Debug.Log("Max Pickups!");
             return;
         }
+//		Debug.Log("PlayerObjects dispensePickups, observermode: " + ctunity.observerFlag);
 
         if (ctunity.observerFlag) return;
         // dynamic game object creation:
@@ -99,7 +101,9 @@ public class PlayerObjects : MonoBehaviour {
             float yrand = (float)(random.Next(-95, 95)) / 10F;
             float zrand = (float)(random.Next(10, 50)) / 10F;
             if (ctunity.Model.Equals("Ball")) zrand = 0.4F;                 // fixed elevation if ball
-            ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, false, true);
+//			Debug.Log("PlayerObjects dispensePickups, i: " + i);
+
+            ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
         }
     }
 
