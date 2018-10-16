@@ -220,7 +220,7 @@ public class CTunity : MonoBehaviour
 							continue;
 						}
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
-                        if (!pf.Equals(ctobject.prefab))   // recheck showMenu for async newPlayer
+                        if (!pf.Equals(ctobject.model))   // recheck showMenu for async newPlayer
                         {
 //                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
 //                            clearObject(ctobject.id);
@@ -260,7 +260,7 @@ public class CTunity : MonoBehaviour
 			foreach (CTobject ctobject in ctworld.objects.Values)
 			{
 				p += ("\tkey: " + ctobject.id + "\n");          // redundant Key, id?
-				p += ("\tprefab: " + ctobject.prefab + "\n");         // object class
+				p += ("\tprefab: " + ctobject.model + "\n");         // object class
 				p += ("\tstate: " + ctobject.state + "\n");
 				p += ("\tpos: " + ctobject.pos + "\n");
 			}
@@ -278,7 +278,7 @@ public class CTunity : MonoBehaviour
 
 	public GameObject newGameObject(CTobject ctobject)
     {
-		return newGameObject(ctobject.id, ctobject.prefab, ctobject.pos, ctobject.rot, ctobject.scale, false, ctobject.state);
+		return newGameObject(ctobject.id, ctobject.model, ctobject.pos, ctobject.rot, ctobject.scale, false, ctobject.state);
     }
     
 	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Vector3 scale, Boolean ghost, Boolean isactive)

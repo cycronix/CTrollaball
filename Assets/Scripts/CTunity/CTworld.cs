@@ -32,7 +32,7 @@ namespace CTworldNS
     public class CTobject
     {
         public string id { get; set; }
-        public string prefab { get; set; }
+        public string model { get; set; }
         public Boolean state { get; set; }
         public Vector3 pos { get; set; }
         public Quaternion rot { get; set; }

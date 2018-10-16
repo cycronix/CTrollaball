@@ -54,7 +54,7 @@ public class CTserdes
 	public class CTworldJson
 	{
 		public string player;
-		public double time = 0F;
+		public double time = 0F;            // header-time used for optional "staleness" test
 		public string mode = "Live";        // default mode
 		public List<CTobjectJson> objects;
 	}
@@ -62,13 +62,13 @@ public class CTserdes
 	public class CTobjectJson
 	{
 		public string id;
-		public string prefab;
-		public Boolean state = true;        // default state
+		public string model;
+		public Boolean state = true;                                    // default state is true
 		public List<Double> pos = new List<Double> { 0, 0, 0 };
 		public List<Double> rot = new List<Double> { 0, 0, 0 };
-		public List<Double> scale = new List<Double> { 0, 0, 0 };
+		public List<Double> scale = new List<Double> { 0, 0, 0 };       // default Vector3.zero means no change native scale
 		public string link;
-		public List<Double> color = new List<Double> { 0, 0, 0, 0 };
+		public List<Double> color = new List<Double> { 0, 0, 0, 0 };    // default Color.clear means use native object-color
 	}
 
 	/// <summary>
@@ -174,7 +174,7 @@ public class CTserdes
 
 				CTobject ctobject = new CTobject();
 				ctobject.id = parts[0];
-				ctobject.prefab = parts[1];
+				ctobject.model = parts[1];
 				ctobject.state = !parts[2].Equals("0");
 
 				// parse ctobject.pos
@@ -252,17 +252,13 @@ public class CTserdes
 			{
 				CTobject cto = new CTobject();
 				cto.id = ctobject.id;
-				cto.prefab = ctobject.prefab;
+				cto.model = ctobject.model;
 				cto.state = ctobject.state;
 				cto.link = ctobject.link;
 				cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
 				cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
-				if (ctobject.scale != null && ctobject.scale.Count==3)
-					    cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
-				else    cto.scale = Vector3.zero;
-				if (ctobject.color != null && ctobject.color.Count == 4)
-					    cto.color = new Color((float)ctobject.color[0], (float)ctobject.color[1], (float)ctobject.color[2], (float)ctobject.color[3]);
-                else    cto.color = Color.clear;
+				cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
+				cto.color = new Color((float)ctobject.color[0], (float)ctobject.color[1], (float)ctobject.color[2], (float)ctobject.color[3]);
 				jCTW.objects.Add(cto.id, cto);
 			}
 			worlds.Add(jCTW);
@@ -358,7 +354,7 @@ public class CTserdes
             
 			CTobjectJson obj = new CTobjectJson();
 			obj.id = ct.name;
-			obj.prefab = prefab;
+			obj.model = prefab;
 			obj.state = (ct.activeSelf ? true : false);
 			// NOTE: limit floating point values to 4 decimal places
 			obj.pos = new List<Double>();
