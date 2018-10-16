@@ -4,3 +4,8 @@ Build or import model, convert to prefab per standard Unity instructions.
 
 Add CTclient.cs script to associated prefab.
 
+
+
+Add parameter to CTworld:
+
+- add field to CTworld.cs

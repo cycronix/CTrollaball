@@ -37,6 +37,7 @@ namespace CTworldNS
         public Vector3 pos { get; set; }
         public Quaternion rot { get; set; }
 		public Vector3 scale { get; set; }
-        public string custom { get; set; }
+        public string link { get; set; }
+		public Color color { get; set; }
     }
 }

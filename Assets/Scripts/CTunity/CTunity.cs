@@ -283,7 +283,7 @@ public class CTunity : MonoBehaviour
     
 	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Vector3 scale, Boolean ghost, Boolean isactive)
 	{
-//		UnityEngine.Debug.Log("newGameObject: " + pName);
+//		UnityEngine.Debug.Log("newGameObject: " + pName+", prefab: "+prefab);
 		String playerName = pName + (ghost ? "g" : "");
 		if (CTlist.ContainsKey(playerName))
 		{

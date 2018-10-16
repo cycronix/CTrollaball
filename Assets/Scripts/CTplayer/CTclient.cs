@@ -32,7 +32,7 @@ public class CTclient : MonoBehaviour
     public float OverShoot = 0.5F;        // how much to shoot past known position for dead reckoning
 
 	internal String prefab="Player";          // programmatically set; reference value
-	internal String custom = "";            // for sending custom info via CTstates.txt
+	internal String link = "";            // for sending custom info via CTstates.txt
     
 	private Boolean ChildOfPlayer = false;    // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
@@ -68,27 +68,37 @@ public class CTclient : MonoBehaviour
 
 	//----------------------------------------------------------------------------------------------------------------
     // setState called from CTunity, works on active/inactive
-
+    
 	public void setState(CTobject cto, Boolean ireplay) {
-		setState(cto.state, cto.pos, cto.rot, cto.scale, cto.custom, ireplay);
+		setState(cto.state, cto.pos, cto.rot, cto.scale, cto.link, cto.color, ireplay);
 	}
 
-	public void setState(Boolean state, Vector3 pos, Quaternion rot, Vector3 scale, String icustom, Boolean ireplay)
+	private void setState(Boolean state, Vector3 pos, Quaternion rot, Vector3 scale, String ilink, Color icolor, Boolean ireplay)
 	{
 		myPos = pos;
 		myRot = rot;
 		myScale = scale;
 		myState = state;
 		replayMode = ireplay;
-		custom = icustom;
+		link = ilink;
 
 		if(replayMode || !isLocalObject()) gameObject.SetActive(state);         // need to activate here (vs Update callback)
         
 		if (rb != null)
 		{
-			//           if (!localControl) rb.isKinematic = true;
 			if (replayMode) { rb.isKinematic = true; rb.useGravity = false; }
 			else            { rb.isKinematic = false; rb.useGravity = true; }
+		}
+
+		if(icolor != null && icolor != Color.clear) {
+			Renderer renderer = transform.gameObject.GetComponent<Renderer>();
+			if (renderer != null)
+			{
+				renderer.material.color = icolor;
+                // difficult to change rendering mode in script...  following NG
+//				if (icolor.a >= 1.0F)   renderer.material.SetFloat("_Mode", 0f);    // opaque
+//				else                    renderer.material.SetFloat("_Mode", 2f);    // fade
+			}
 		}
 		startup = false;
 	}
@@ -98,6 +108,7 @@ public class CTclient : MonoBehaviour
 	private Vector3 oldPos = Vector3.zero;
 	private Vector3 velocity = Vector3.zero;
 
+	// doTrack runs under Update(), enables smooth Lerp's
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
 	private void doTrack()
 	{

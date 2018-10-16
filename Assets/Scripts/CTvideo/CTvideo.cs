@@ -51,12 +51,12 @@ public class CTvideo : MonoBehaviour {
 
 			if (showImage) {
 
-                if (ctclient != null && ctclient.enabled && ctclient.custom != null && !ctclient.isLocalControl())
+                if (ctclient != null && ctclient.enabled && ctclient.link != null && !ctclient.isLocalControl())
                 {       // remote control
-					if (ctclient.custom.Equals("")) continue;
-                    if (ctclient.custom.Equals(oldCustom)) continue;
-					url = ctclient.custom;
-                    oldCustom = ctclient.custom;
+					if (ctclient.link.Equals("")) continue;
+                    if (ctclient.link.Equals(oldCustom)) continue;
+					url = ctclient.link;
+                    oldCustom = ctclient.link;
                 }
                 else    // local control
                 {
@@ -80,7 +80,7 @@ public class CTvideo : MonoBehaviour {
 
 				if (ctclient != null)
 				{
-					ctclient.custom = url;
+					ctclient.link = url;
 //					Debug.Log("ctclient: " + ctclient.name + ", url: " + url);
 				}
 

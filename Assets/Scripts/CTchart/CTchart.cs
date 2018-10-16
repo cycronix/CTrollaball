@@ -142,11 +142,11 @@ public class CTchart : MonoBehaviour {
             }
 
 			string url1="", url2="";
-			if (ctclient!=null && ctclient.enabled && ctclient.custom!=null && !ctclient.isLocalControl())
+			if (ctclient!=null && ctclient.enabled && ctclient.link!=null && !ctclient.isLocalControl())
 //			if (ctunity.isReplayMode())
 			{
-				if (ctclient.custom.Equals(oldCustom)) continue;
-				string[] customparts = ctclient.custom.Split(',');
+				if (ctclient.link.Equals(oldCustom)) continue;
+				string[] customparts = ctclient.link.Split(',');
 				url1 = customparts[0];
 				if (customparts.Length > 1)
 				{
@@ -154,7 +154,7 @@ public class CTchart : MonoBehaviour {
 					numChan = 2;
 				}
 				else numChan = 1;
-				oldCustom = ctclient.custom;
+				oldCustom = ctclient.link;
 			}
 			else 
             {
@@ -178,11 +178,11 @@ public class CTchart : MonoBehaviour {
 				if (numChan > 1)
 				{
 					www2 = new WWW(url2);
-					if(ctclient!=null) ctclient.custom = url1 + "," + url2;
+					if(ctclient!=null) ctclient.link = url1 + "," + url2;
 				}
 				else
 				{
-					if(ctclient!=null) ctclient.custom = url1;
+					if(ctclient!=null) ctclient.link = url1;
 				}
 			} catch(Exception e) {
 				Debug.Log("CTchart Exception on WWW fetch: "+e);

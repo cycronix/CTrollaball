@@ -67,7 +67,8 @@ public class CTserdes
 		public List<Double> pos;
 		public List<Double> rot;
 		public List<Double> scale;
-		public string custom;
+		public string link;
+		public List<Double> color;
 	}
 
 	/// <summary>
@@ -187,7 +188,7 @@ public class CTserdes
 				ctobject.rot = Quaternion.Euler(float.Parse(pvec[0]), float.Parse(pvec[1]), float.Parse(pvec[2]));
                 
 				// custom field (used for indirect URL):
-				if (parts.Length > 5) ctobject.custom = parts[5];
+				if (parts.Length > 5) ctobject.link = parts[5];
 
                 CTW.objects.Add(ctobject.id, ctobject);
 			}
@@ -253,16 +254,15 @@ public class CTserdes
 				cto.id = ctobject.id;
 				cto.prefab = ctobject.prefab;
 				cto.state = ctobject.state;
-				cto.custom = ctobject.custom;
+				cto.link = ctobject.link;
 				cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
 				cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
 				if (ctobject.scale != null && ctobject.scale.Count==3)
-				{
-					cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
-				}
-				else {
-					cto.scale = Vector3.zero;
-				}
+					    cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
+				else    cto.scale = Vector3.zero;
+				if (ctobject.color != null && ctobject.color.Count == 4)
+					    cto.color = new Color((float)ctobject.color[0], (float)ctobject.color[1], (float)ctobject.color[2], (float)ctobject.color[3]);
+                else    cto.color = Color.clear;
 				jCTW.objects.Add(cto.id, cto);
 			}
 			worlds.Add(jCTW);
@@ -326,7 +326,7 @@ public class CTserdes
 			CTstateString += (delim + (ct.activeSelf ? "1" : "0"));
 			CTstateString += (delim + ct.transform.localPosition.ToString("F4"));
 			CTstateString += (delim + ct.transform.localRotation.eulerAngles.ToString("F4"));
-			if (ctp.custom != null && ctp.custom.Length > 0) CTstateString += (delim + ctp.custom);
+			if (ctp.link != null && ctp.link.Length > 0) CTstateString += (delim + ctp.link);
 			CTstateString += "\n";
 		}
 
@@ -373,9 +373,21 @@ public class CTserdes
             obj.scale.Add(LimitPrecision(ct.transform.localScale.x, 4));
             obj.scale.Add(LimitPrecision(ct.transform.localScale.y, 4));
             obj.scale.Add(LimitPrecision(ct.transform.localScale.z, 4));
-			if (ctp.custom != null && ctp.custom.Length > 0)
+
+			Renderer renderer = ct.transform.gameObject.GetComponent<Renderer>();
+			if (renderer != null)
 			{
-				obj.custom = ctp.custom;
+				Color mycolor = renderer.material.color;
+				obj.color = new List<Double>();
+				obj.color.Add(LimitPrecision(mycolor.r, 4));
+				obj.color.Add(LimitPrecision(mycolor.g, 4));
+				obj.color.Add(LimitPrecision(mycolor.b, 4));
+				obj.color.Add(LimitPrecision(mycolor.a, 4));
+			}
+
+			if (ctp.link != null && ctp.link.Length > 0)
+			{
+				obj.link = ctp.link;
 			}
 			world.objects.Add(obj);
 		}
