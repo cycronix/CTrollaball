@@ -148,7 +148,7 @@ public class CTunity : MonoBehaviour
                 // check for end of Remote mode
                 if (remoteReplay)
                 {
-                    if (world.name.Equals(masterWorldName) && !world.mode.Equals("Replay"))
+                    if (world.player.Equals(masterWorldName) && !world.mode.Equals("Replay"))
                     {
                         remoteReplay = false;
                         break;
@@ -164,7 +164,7 @@ public class CTunity : MonoBehaviour
                         continue;
                     }
 
-                    masterWorldName = world.name;                   // world name
+                    masterWorldName = world.player;                   // world name
                     masterTime = world.time;          // world time
                     remoteReplay = true;
                     break;
@@ -177,7 +177,7 @@ public class CTunity : MonoBehaviour
         //                  - or from consolidated objects as owned (prefix) by each world
 
 		CTworld CTW = new CTworld();
-		CTW.name = masterWorldName;                 // nominal CTW header values (not actually used)
+		CTW.player = masterWorldName;                 // nominal CTW header values (not actually used)
         CTW.time = masterTime;
 		CTW.mode = replayActive?"Replay":(remoteReplay?"Remote":"Live");
 
@@ -188,30 +188,30 @@ public class CTunity : MonoBehaviour
         // second pass, screen masterTime, consolidate masterWorld
         foreach (CTworld world in worlds)
         {
-            if (remoteReplay && !world.name.Equals(masterWorldName)) continue;        // consolidate to replayWorld
+            if (remoteReplay && !world.player.Equals(masterWorldName)) continue;        // consolidate to replayWorld
 
             if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
 
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
             if ((SyncTime > 0) && (delta > SyncTime))         // reject stale times
             {
-                if (!world.name.Equals(Player) || observerFlag) clearWorld(world.name);    // inefficient?
+                if (!world.player.Equals(Player) || observerFlag) clearWorld(world.player);    // inefficient?
                 continue;
             }
 
-			if (!tsourceList.Contains(world.name)) tsourceList.Add(world.name);             // build list of active worlds
+			if (!tsourceList.Contains(world.player)) tsourceList.Add(world.player);             // build list of active worlds
 
 			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
 				CTobject ctobject = ctpair.Value;
                 //  UnityEngine.Debug.Log("line: " + line+", world.name: "+world.name+", objectID: "+ctobject.id+", remoteReplay: "+remoteReplay);
                 if (remoteReplay                                // remotePlay: this is master world get all objects
-                    || ctobject.id.StartsWith(world.name))         // Live mode:  accumulate objects owned by each world      
+                    || ctobject.id.StartsWith(world.player))         // Live mode:  accumulate objects owned by each world      
                 {               
                     CTW.objects.Add(ctobject.id, ctobject);
 
 					// check for change of prefab
-                    if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.name.Equals(Player)))  // Live mode
+                    if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.player.Equals(Player)))  // Live mode
                     {
 						GameObject mygo = CTlist[ctobject.id].gameObject;
 						if (mygo == null)
@@ -229,7 +229,7 @@ public class CTunity : MonoBehaviour
                     }
 
                     // instantiate new players and objects
-                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !world.name.Equals(Player)))
+                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !world.player.Equals(Player)))
                     {
                         newGameObject(ctobject);
                     }
@@ -250,7 +250,7 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
 	void printCTworld(CTworld ctworld) {
 		String p = "CTworld:\n";
-        p += ("name: " + ctworld.name + "\n");      // redundant Key, name?
+        p += ("name: " + ctworld.player + "\n");      // redundant Key, name?
         p += ("mode: " + ctworld.mode + "\n");
         p += ("time: " + ctworld.time + "\n");
         p += ("Objects:" + "\n");

@@ -22,7 +22,7 @@ namespace CTworldNS
 {
     public class CTworld
     {
-        public string name { get; set; }
+        public string player { get; set; }
         public double time { get; set; }
         public string mode { get; set; }
         //        public List<CTobject> objects;

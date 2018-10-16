@@ -53,9 +53,9 @@ public class CTserdes
 	[Serializable]
 	public class CTworldJson
 	{
-		public string mode;
-		public string name;
-		public double time;
+		public string player;
+		public double time = 0F;
+		public string mode = "Live";        // default mode
 		public List<CTobjectJson> objects;
 	}
 	[Serializable]
@@ -63,12 +63,12 @@ public class CTserdes
 	{
 		public string id;
 		public string prefab;
-		public Boolean state;
-		public List<Double> pos;
-		public List<Double> rot;
-		public List<Double> scale;
+		public Boolean state = true;        // default state
+		public List<Double> pos = new List<Double> { 0, 0, 0 };
+		public List<Double> rot = new List<Double> { 0, 0, 0 };
+		public List<Double> scale = new List<Double> { 0, 0, 0 };
 		public string link;
-		public List<Double> color;
+		public List<Double> color = new List<Double> { 0, 0, 0, 0 };
 	}
 
 	/// <summary>
@@ -163,7 +163,7 @@ public class CTserdes
 
 			CTW.mode = header[0];
 			CTW.time = Double.Parse(header[1]);
-			CTW.name = header[2];
+			CTW.player = header[2];
 
 			foreach (String line in lines)
 			{
@@ -216,8 +216,8 @@ public class CTserdes
 		List<CTworld> worlds = new List<CTworld>();
 
 		// Break up the given string into different "world" objects
-		// NOTE: This assumes that "mode" is the first field in the JSON string
-		List<int> indexes = AllIndexesOf(strI, @"{""mode"":""");
+		// NOTE: This assumes that "player" is the first field in the JSON string
+		List<int> indexes = AllIndexesOf(strI, @"{""player"":""");
 		if (indexes.Count == 0) return null;
 		for (int i = 0; i < indexes.Count; ++i)
 		{
@@ -244,7 +244,7 @@ public class CTserdes
 			}
 			// Create CTworld object from CTworldJson (these classes are very similar but there are differences, see definitions above)
 			CTworld jCTW = new CTworld();
-			jCTW.name = dataFromJson.name;
+			jCTW.player = dataFromJson.player;
 			jCTW.time = dataFromJson.time;
 			jCTW.mode = dataFromJson.mode;
 			jCTW.objects = new Dictionary<String, CTobject>();
@@ -342,7 +342,7 @@ public class CTserdes
 	{
 
 		CTworldJson world = new CTworldJson();
-		world.name = ctunityI.Player;
+		world.player = ctunityI.Player;
 		world.time = ctunityI.ServerTime();
 		world.mode = ctunityI.replayText;
 		world.objects = new List<CTobjectJson>();
