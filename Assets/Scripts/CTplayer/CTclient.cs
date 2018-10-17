@@ -27,14 +27,15 @@ public class CTclient : MonoBehaviour
 	public Boolean smoothTrack = false;
 	public Boolean smoothReplay = false;
 
-	public float TrackSpeed = 2F;         // multiplier on how fast to Lerp to position/rotation
-	public float RotateSpeed = 1F;          // rotation speed multiplier
-    public float OverShoot = 0.5F;        // how much to shoot past known position for dead reckoning
+	public float TrackSpeed = 2F;               // multiplier on how fast to Lerp to position/rotation
+	public float RotateSpeed = 1F;              // rotation speed multiplier
+    public float OverShoot = 0.5F;              // how much to shoot past known position for dead reckoning
 
-	internal String prefab="Player";          // programmatically set; reference value
-	internal String link = "";            // for sending custom info via CTstates.txt
-    
-	private Boolean ChildOfPlayer = false;    // global or child of (connected to) player object
+	internal String prefab="Player";            // programmatically set; reference value
+	internal String link = "";                  // for sending custom info via CTstates.txt
+	internal String custom = "";                // catch-all custom string
+
+	private Boolean ChildOfPlayer = false;      // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
 	private Vector3 myScale = Vector3.one;
 
@@ -70,19 +71,18 @@ public class CTclient : MonoBehaviour
     // setState called from CTunity, works on active/inactive
     
 	public void setState(CTobject cto, Boolean ireplay) {
-		setState(cto.state, cto.pos, cto.rot, cto.scale, cto.link, cto.color, ireplay);
-	}
-
-	private void setState(Boolean state, Vector3 pos, Quaternion rot, Vector3 scale, String ilink, Color icolor, Boolean ireplay)
-	{
-		myPos = pos;
-		myRot = rot;
-		myScale = scale;
-		myState = state;
+		
+		// globals to share with Update() loop:
+		myPos = cto.pos;
+		myRot = cto.rot;
+		myScale = cto.scale;
 		replayMode = ireplay;
-		link = ilink;
+		custom = cto.custom;
 
-		if(replayMode || !isLocalObject()) gameObject.SetActive(state);         // need to activate here (vs Update callback)
+		// locals for immediate action:
+		Color icolor = cto.color;
+
+		if(replayMode || !isLocalObject()) gameObject.SetActive(cto.state);         // need to activate here (vs Update callback)
         
 		if (rb != null)
 		{

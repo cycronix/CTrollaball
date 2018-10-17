@@ -69,6 +69,7 @@ public class CTserdes
 		public List<Double> scale = new List<Double> { 0, 0, 0 };       // default Vector3.zero means no change native scale
 		public string link;
 		public List<Double> color = new List<Double> { 0, 0, 0, 0 };    // default Color.clear means use native object-color
+		public string custom;
 	}
 
 	/// <summary>
@@ -259,6 +260,7 @@ public class CTserdes
 				cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
 				cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
 				cto.color = new Color((float)ctobject.color[0], (float)ctobject.color[1], (float)ctobject.color[2], (float)ctobject.color[3]);
+				cto.custom = ctobject.custom;
 				jCTW.objects.Add(cto.id, cto);
 			}
 			worlds.Add(jCTW);
@@ -381,10 +383,9 @@ public class CTserdes
 				obj.color.Add(LimitPrecision(mycolor.a, 4));
 			}
 
-			if (ctp.link != null && ctp.link.Length > 0)
-			{
-				obj.link = ctp.link;
-			}
+			if (ctp.link != null && ctp.link.Length > 0) obj.link = ctp.link;
+			if (ctp.custom != null && ctp.custom.Length > 0) obj.custom = ctp.custom;
+
 			world.objects.Add(obj);
 		}
 		string jsonData = null;

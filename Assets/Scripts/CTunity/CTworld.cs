@@ -39,5 +39,7 @@ namespace CTworldNS
 		public Vector3 scale { get; set; }
         public string link { get; set; }
 		public Color color { get; set; }
+		public List<Vector3> points { get; set; }
+		public string custom { set; get; }
     }
 }
