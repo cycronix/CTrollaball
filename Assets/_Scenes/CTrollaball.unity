@@ -6916,8 +6916,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackDur: 10
   SyncTime: 0
-  BlockPts: 5
-  JSON_Format: 1
+  sendRate: 10
   debugText: {fileID: 411027160}
 --- !u!1 &1713389157
 GameObject:

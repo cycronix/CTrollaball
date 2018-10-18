@@ -47,7 +47,7 @@ public class CTvideo : MonoBehaviour {
 	IEnumerator DownloadImage()
 	{
 		while (true) {
-			yield return new WaitForSeconds (pollInterval);
+			yield return new WaitForSeconds (ctunity.pollInterval);
 
 			if (showImage) {
 

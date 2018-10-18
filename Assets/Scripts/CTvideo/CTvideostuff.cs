@@ -71,7 +71,7 @@ public class CTreplay : MonoBehaviour, IPointerDownHandler {		// required interf
 	{
 		while (true) {
 			if (!showImage || ctunity.showMenu) {
-				yield return new WaitForSeconds (pollInterval);
+				yield return new WaitForSeconds (ctunity.pollInterval);
 //				GetComponent<Renderer> ().material.mainTexture = startTexture;
 			} 
 			else {

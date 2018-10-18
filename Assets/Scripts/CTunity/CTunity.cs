@@ -33,9 +33,10 @@ public class CTunity : MonoBehaviour
 	#region Globals
 	public float TrackDur = 10f;
 	public float SyncTime = 600.0F;        // nix inactive players beyond this time (sec)
-	public int BlockPts = 5;                        // 5/50 = 0.1s
-	public Boolean JSON_Format = false;
-	public Text debugText;
+//	public int BlockPts = 5;                        // 5/50 = 0.1s
+	internal float pollInterval = 0.1F;       // global update-interval (sets BlockPts)
+	[Range(1,50)]
+	public int sendRate = 10;                   // rate to send updates (Hz)
 
     // internal variable accessible from other scripts but not Editor Inspector
     internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
@@ -64,9 +65,12 @@ public class CTunity : MonoBehaviour
 
 	internal string user = "CloudTurbine";
 	internal String password = "RBNB";
-
+    
+	public Text debugText;
 	//	public Boolean commanderMode = false;       // commander-mode asserts remote-control on replay (not working)
 	#endregion
+
+	private Boolean JSON_Format = true;
 
 	private readonly object objectLock = new object();
 	private Boolean clearWorldsFlag = false;
@@ -76,6 +80,7 @@ public class CTunity : MonoBehaviour
 	// Use this for initialization
 	void Start()
     {
+		pollInterval = 1F / sendRate;
 		CTchannel = JSON_Format ? "CTstates.json" : "CTstates.txt";
         StartCoroutine("getWorldState");
     }
@@ -109,6 +114,8 @@ public class CTunity : MonoBehaviour
         ctplayer.setTime(ServerTime());
         ctplayer.putData(CTchannel, CTstateString);
 
+		pollInterval = 1F / sendRate;  // catch any updates
+		int BlockPts = (int)Math.Round(pollInterval * 50F);  // 50 Hz nominal update rate
         if ((++PtCounter % BlockPts) == 0)     // BlockPts per CT block
             ctplayer.flush();
     }
@@ -485,7 +492,8 @@ public class CTunity : MonoBehaviour
     {
 		while (true)
 		{
-			yield return new WaitForSeconds(BlockPts / 50.0f);     // sleep for block duration
+//			yield return new WaitForSeconds(BlockPts / 50.0f);     // sleep for block duration
+			yield return new WaitForSeconds(pollInterval);          // sleep for pollInterval
          
 			if (showMenu) continue;                                                // no-op unless run-mode
 			if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)

@@ -120,7 +120,7 @@ public class CTchart : MonoBehaviour {
 		float ymin = 10000F;
 
 		while (true) {
-			yield return new WaitForSeconds (pollInterval);
+			yield return new WaitForSeconds (ctunity.pollInterval);
 			if (chartOptions==null || chartOptions.showMenu) continue;
 //			Debug.Log("CTchart chartOptions.showMenu: " + chartOptions.showMenu);
 

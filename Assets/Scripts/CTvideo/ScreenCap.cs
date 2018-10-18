@@ -46,7 +46,7 @@ public class ScreenCap : MonoBehaviour, IPointerDownHandler
 	IEnumerator SaveJPG()
 	{
 		while (true) {
-			yield return new WaitForSeconds (pollInterval);	
+			yield return new WaitForSeconds (ctunity.pollInterval);	
 			yield return new WaitForEndOfFrame ();
 
 			if (ctunity.ctvideo == null) continue;	    // not ready to record
