@@ -490,8 +490,8 @@ MonoBehaviour:
   TrackSpeed: 2
   RotateSpeed: 2
   OverShoot: 0.5
-  prefab: Player
-  custom: 
+  autoColor: 1
+  isGhost: 0
 --- !u!135 &135046639274049852
 SphereCollider:
   m_ObjectHideFlags: 1

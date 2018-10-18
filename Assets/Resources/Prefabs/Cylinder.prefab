@@ -112,6 +112,8 @@ MonoBehaviour:
   TrackSpeed: 2
   RotateSpeed: 1
   OverShoot: 0.5
+  autoColor: 1
+  isGhost: 0
 --- !u!136 &136558523656596964
 CapsuleCollider:
   m_ObjectHideFlags: 1

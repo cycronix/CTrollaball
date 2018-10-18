@@ -15,8 +15,6 @@ limitations under the License.
 */
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using CTworldNS;
 
@@ -31,9 +29,14 @@ public class CTclient : MonoBehaviour
 	public float RotateSpeed = 1F;              // rotation speed multiplier
     public float OverShoot = 0.5F;              // how much to shoot past known position for dead reckoning
 
+	public Boolean autoColor = true;            // set object color based on naming convention
+	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
+
 	internal String prefab="Player";            // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
 	internal String custom = "";                // catch-all custom string
+
+	internal Color myColor = Color.clear;       // keep track of own color setting
 
 	private Boolean ChildOfPlayer = false;      // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
@@ -57,6 +60,17 @@ public class CTclient : MonoBehaviour
 
 		// see if this client object is child-of-player (set in ToggleGameObject)
 		if (gameObject.name.Contains("/")) ChildOfPlayer = true;
+        
+		if (autoColor) setColor();          // set default color based on object name
+
+		if (isGhost)
+        {
+            Physics.IgnoreCollision(                    // no self-bump
+                 GetComponent<Collider>(),
+                 GameObject.Find(ctunity.Player).GetComponent<Collider>(),
+                 true
+            );
+        }
 
 		ctunity.CTregister(gameObject);     // register with CTunity...
 	}
@@ -80,8 +94,6 @@ public class CTclient : MonoBehaviour
 		custom = cto.custom;
 
 		// locals for immediate action:
-		Color icolor = cto.color;
-
 		if(replayMode || !isLocalObject()) gameObject.SetActive(cto.state);         // need to activate here (vs Update callback)
         
 		if (rb != null)
@@ -90,16 +102,8 @@ public class CTclient : MonoBehaviour
 			else            { rb.isKinematic = false; rb.useGravity = true; }
 		}
 
-		if(icolor != null && icolor != Color.clear) {
-			Renderer renderer = transform.gameObject.GetComponent<Renderer>();
-			if (renderer != null)
-			{
-				renderer.material.color = icolor;
-                // difficult to change rendering mode in script...  following NG
-//				if (icolor.a >= 1.0F)   renderer.material.SetFloat("_Mode", 0f);    // opaque
-//				else                    renderer.material.SetFloat("_Mode", 2f);    // fade
-			}
-		}
+		if (!isLocalControl()) setColor(cto.color);   // set color for non-local objects
+
 		startup = false;
 	}
     
@@ -175,6 +179,33 @@ public class CTclient : MonoBehaviour
     {
         return replayMode;
     }
-    
+
+	//----------------------------------------------------------------------------------------------------------------
+	// set object color
+
+	void setColor(Color color) {
+//		Debug.Log("setColor: " + name + ", isGhost: " + isGhost + ", color: " + color);
+		if (color == myColor) return;          // save some effort
+		myColor = color;
+
+		if (isGhost) color.a = 0.4F;                                // force ghost to be translucent
+		Renderer rend = gameObject.GetComponent<Renderer>();
+        if (rend != null) rend.material.color = color;
+
+        // apply color to any model component labelled "Trim":
+        Component[] renderers = GetComponentsInChildren(typeof(Renderer));
+        foreach (Renderer childRenderer in renderers)
+        {
+            if (childRenderer.material.name.StartsWith("Trim"))    // clugy
+                childRenderer.material.color = color;
+        }
+	}
+
+	// set color based on object name
+	void setColor() {
+		// set new object trim colors to match player
+        Color color = ctunity.Text2Color(name, isGhost ? 0.4F : 1.0F);
+		setColor(color);
+	}
 }
 

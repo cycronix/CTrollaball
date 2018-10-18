@@ -121,6 +121,8 @@ MonoBehaviour:
   TrackSpeed: 2
   RotateSpeed: 1
   OverShoot: 0.5
+  autoColor: 1
+  isGhost: 0
 --- !u!114 &114507881918989148
 MonoBehaviour:
   m_ObjectHideFlags: 1

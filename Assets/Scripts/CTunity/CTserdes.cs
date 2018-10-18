@@ -375,7 +375,8 @@ public class CTserdes
 			Renderer renderer = ct.transform.gameObject.GetComponent<Renderer>();
 			if (renderer != null)
 			{
-				Color mycolor = renderer.material.color;
+//				Color mycolor = renderer.material.color;
+				Color mycolor = ctp.myColor;
 				obj.color = new List<Double>();
 				obj.color.Add(LimitPrecision(mycolor.r, 4));
 				obj.color.Add(LimitPrecision(mycolor.g, 4));

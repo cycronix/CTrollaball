@@ -212,8 +212,8 @@ public class CTunity : MonoBehaviour
             {
 				CTobject ctobject = ctpair.Value;
                 //  UnityEngine.Debug.Log("line: " + line+", world.name: "+world.name+", objectID: "+ctobject.id+", remoteReplay: "+remoteReplay);
-                if (remoteReplay                                // remotePlay: this is master world get all objects
-                    || ctobject.id.StartsWith(world.player))         // Live mode:  accumulate objects owned by each world      
+                if (remoteReplay                                        // remotePlay: this is master world get all objects
+                    || ctobject.id.StartsWith(world.player))            // Live mode:  accumulate objects owned by each world      
                 {               
                     CTW.objects.Add(ctobject.id, ctobject);
 
@@ -298,7 +298,6 @@ public class CTunity : MonoBehaviour
 			string ctpf = CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
 			if (!ctpf.Equals(prefab) || scale==Vector3.zero)
 			{
-//				Debug.Log(playerName + ": newPlayer prefab: " + ctpf + " --> " + prefab);
 				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
 				clearObject(playerName);    
 			}
@@ -351,30 +350,6 @@ public class CTunity : MonoBehaviour
 		if (!CTlist.ContainsKey(playerName))
 		{
 			CTlist.Add(newp.name, newp.gameObject);
-//			UnityEngine.Debug.Log("CTlist.Add: " + playerName+", prefab: "+prefab);
-		}
-        
-        // from here to end of method split into 2 new methods...
-		if (ghost)
-		{
-			Physics.IgnoreCollision(                    // no self-bump
-				 GameObject.Find(pName).GetComponent<Collider>(),
-				 GameObject.Find(playerName).GetComponent<Collider>(),
-				 true
-			);
-		}
-
-        // set new object trim colors to match player
-		Color color = Text2Color(playerName, ghost ? 0.4F : 1.0F);
-		Renderer renderer = newp.gameObject.GetComponent<Renderer>();
-		if (renderer != null) renderer.material.color = color;
-
-		// apply color to any model component labelled "Trim":
-		Component[] renderers = newp.GetComponentsInChildren(typeof(Renderer));
-		foreach (Renderer childRenderer in renderers)
-		{
-			if(childRenderer.material.name.StartsWith("Trim"))    // clugy
-			    childRenderer.material.color = color;
 		}
 
 		return newp.gameObject;
@@ -467,21 +442,7 @@ public class CTunity : MonoBehaviour
 //				CTlist.Remove(go.name);             // can't change CTlist in CTlist-iterator
 			}
         }
-/*
-		foreach (KeyValuePair<String, CTobject> ctpair in ctworld.objects)
-		{
-			CTobject go = ctpair.Value;
-			string ctname = ctpair.Key;
-			if(go == null) {
-				Debug.Log("oops: CTlist null gameObject: "+ctname);
-				CTlist.Remove(ctname);
-			}
-			else if(!ctworld.objects.ContainsKey(ctname)) {
-				Debug.Log("CTlist clear missing: " + ctname);
-				CTlist[ctname].SetActive(false);
-			}
-		}
-*/
+
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -510,10 +471,6 @@ public class CTunity : MonoBehaviour
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
             yield return www1.Send();
-
-//			WWW www1 = new WWW(url1);
-//			yield return www1;          // wait for results to HTTP GET
-//			CTdebug("www.text: " + www1.text);
             
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
@@ -561,30 +518,22 @@ public class CTunity : MonoBehaviour
     
 	public Boolean setTime(double ireplayTime, String ireplayText) {
 		replayTime = ireplayTime;
-//		replayActive = ireplayActive;
 		replayText = ireplayText;
-
-//		if (commanderMode)  
 		return replayActive;
-//		else   return replayActive || observerFlag;
 	}
 
 	public void toggleReplay() {
 		replayActive = !replayActive;
-//		if (!commanderMode) observerFlag = replayActive;
 	}
 
 	public void setReplay(bool ireplayActive)
     {
         replayActive = ireplayActive;
-//		if (!commanderMode) observerFlag = replayActive;
     }
 
     // return True if this object should be written to CT
 	public Boolean doCTwrite(String objName) {
-//		if(commanderMode) 
 		return (replayActive || objName.StartsWith(Player));
-//		else    return (objName.StartsWith(Player));
 	}
 
 	public string CTauthorization() {
@@ -629,7 +578,6 @@ public class CTunity : MonoBehaviour
 	}
  
 	private IEnumerator getSyncClock()
-//    public Boolean doSyncClock()
     {
         string url1 = Server + "/sysclock";
 		syncError = true;
@@ -643,11 +591,7 @@ public class CTunity : MonoBehaviour
 			www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
 			www1.chunkedTransfer = false;           // unity bug work-around?
 			yield return www1.SendWebRequest();     // wait for results to HTTP GET
-
-			//        WWW www1 = new WWW(url1);
-//			yield return www1;          // wait for results to HTTP GET
-//			UnityEngine.Debug.Log("getSyncClock, text: " + www1.downloadHandler.text);
-
+                     
 			//			UnityEngine.Debug.Log("text: " + www1.downloadHandler.text);
 			if (!string.IsNullOrEmpty(www1.error) || www1.isHttpError || www1.isNetworkError || www1.responseCode != 200)
 			{
@@ -680,9 +624,7 @@ public class CTunity : MonoBehaviour
 				UnityEngine.Debug.Log("maxTry: " + maxTry+", syncError: "+syncError+", url1: "+url1);
 				continue;
 			}
-
-//			syncError = false;  // foo
-//			UnityEngine.Debug.Log("sync!");
+            
 			yield break;
 		}
     }
