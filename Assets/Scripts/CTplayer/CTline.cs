@@ -62,7 +62,7 @@ public class CTline : MonoBehaviour {
 		lineR.positionCount = 0;
 		lineR.loop = false;
 		lineR.useWorldSpace = true;
-		lineR.widthMultiplier = 0.03f;
+		lineR.widthMultiplier = 0.04f;
 		lineR.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
 		lineR.receiveShadows = false;
 		lineR.material = new Material(Shader.Find("Sprites/Default"));
