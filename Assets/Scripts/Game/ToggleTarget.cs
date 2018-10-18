@@ -32,8 +32,6 @@ public class ToggleTarget : MonoBehaviour {
     public void OnMouseDown()
     {
 //        Debug.Log("toggle target: " + transform.name);
-//		if (ctunity.observerFlag)                     // only observers toggle targets
-
 		if(!EventSystem.current.IsPointerOverGameObject())  // avoid "click through" from UI elements
             GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
 	}

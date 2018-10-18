@@ -190,6 +190,7 @@ public class CTsetup: MonoBehaviour
 
 	//----------------------------------------------------------------------------------------------------------------
     // Connect to CTweb server
+	// can't connect to CTweb until Play/Observe is committed (need Session to build source name)
 
 	public void serverConnect() 
 	{

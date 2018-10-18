@@ -1,11 +1,20 @@
-Adding a CTclient prefab model:
 
-Build or import model, convert to prefab per standard Unity instructions.
+How to Add CTclient model:
 
-Add CTclient.cs script to associated prefab.
+- add new model file to Assets/Resources/Models folder
+… drag new model onto editor world window
+- make new (empty) prefab in Assets/Resources/Prefabs
+- from editor Hierarchy panel, drag new in-world model onto prefab created above
+- add scripts to prefab (Inspector Panel, Add Component, Scripts): 
+	CTclient (required to register with CT)
+	CTtrackset (optional)
+	ToggleTarget (optional, requires Collider & RigidBody components to catch clicks)
 
 
 
-Add parameter to CTworld:
+
+CTworld parameter:
 
 - add field to CTworld.cs
+… <more>
+

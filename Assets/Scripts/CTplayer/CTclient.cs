@@ -94,16 +94,18 @@ public class CTclient : MonoBehaviour
 		custom = cto.custom;
 
 		// locals for immediate action:
-		if(replayMode || !isLocalObject()) gameObject.SetActive(cto.state);         // need to activate here (vs Update callback)
-        
+		if (replayMode || !isLocalObject())
+		{
+			gameObject.SetActive(cto.state);            // need to activate here (vs Update callback)
+			setColor(cto.color);                        // set color for non-local objects
+		}
+
 		if (rb != null)
 		{
 			if (replayMode) { rb.isKinematic = true; rb.useGravity = false; }
 			else            { rb.isKinematic = false; rb.useGravity = true; }
 		}
-
-		if (!isLocalControl()) setColor(cto.color);   // set color for non-local objects
-
+        
 		startup = false;
 	}
     

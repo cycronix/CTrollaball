@@ -82,7 +82,7 @@ public class ScreenCap : MonoBehaviour, IPointerDownHandler
         if (Input.GetMouseButton(0) /* && !ctunity.observerFlag */)
         {
             VidCapMode = !VidCapMode;
-//			Debug.Log("VidCapMode: " + VidCapMode);
+//			Debug.Log("VidCapMode: " + VidCapMode+", ctvideo: "+ctunity.ctvideo);
 			if(VidCapMode)  GetComponent<RawImage>().color = Color.red;
 			else            GetComponent<RawImage>().color = Color.white;
         }
