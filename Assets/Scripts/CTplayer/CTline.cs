@@ -22,6 +22,9 @@ using UnityEngine;
 
 //----------------------------------------------------------------------------------------------------------------
 public class CTline : MonoBehaviour {
+	public Boolean smoothTrack = true;
+    public float TrackSpeed = 2f;
+
 	private CTunity ctunity;
 	private CTclient ctclient;
 
@@ -45,13 +48,22 @@ public class CTline : MonoBehaviour {
 			Vector3[] points;       // parse string into list of 3d points
 //			Debug.Log("Lines: " + ctclient.custom);
 			string[] spoints = ctclient.custom.Split(';');
-			lineR1.positionCount = 0;
-            
+			lineR1.positionCount = spoints.Length;
+
+            // build line 
 			for (int j = 0; j < spoints.Length; j++) {
 				string sv = spoints[j].Substring(1, spoints[j].Length - 2);     // remove the braces
 				string[] sa = sv.Split(',');                                    // split x,y,z
-				lineR1.positionCount++;
-				lineR1.SetPosition(j, new Vector3(float.Parse(sa[0]), float.Parse(sa[1]), float.Parse(sa[2])));
+//				lineR1.positionCount++;
+				Vector3 newpoint = new Vector3(float.Parse(sa[0]), float.Parse(sa[1]), float.Parse(sa[2]));
+				if (smoothTrack)
+				{
+					lineR1.SetPosition(j, Vector3.Lerp(lineR1.GetPosition(j), newpoint, Time.deltaTime * TrackSpeed));
+				}
+				else
+				{
+					lineR1.SetPosition(j, newpoint);
+				}
 			}
 		}
 	}
