@@ -52,7 +52,7 @@ public class CTtrackset : MonoBehaviour {
 		if (!trackEnabled) return;
         
 //		if (ctunity.isReplayMode())
-		if (!ctunity.trackEnabled)
+		if (!ctunity.trackEnabled || ctunity.playPaused)
         {          
             XYplayer.Clear();
 			lineR1.positionCount = 0;  // clears old 3D line

@@ -53,7 +53,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothTrack: 1
-  smoothReplay: 1
+  smoothReplay: 0
   TrackSpeed: 2
   RotateSpeed: 1
   OverShoot: 0.5
@@ -70,5 +70,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 961a2f79b1d754899b4690a9215400e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTrack: 1
-  TrackSpeed: 2

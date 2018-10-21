@@ -22,14 +22,13 @@ using UnityEngine;
 
 //----------------------------------------------------------------------------------------------------------------
 public class CTline : MonoBehaviour {
-	public Boolean smoothTrack = true;
-    public float TrackSpeed = 2f;
 
 	private CTunity ctunity;
 	private CTclient ctclient;
 
 	private LineRenderer lineR1;
-    
+	private Boolean startup = true;
+
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
@@ -56,9 +55,10 @@ public class CTline : MonoBehaviour {
 				string[] sa = sv.Split(',');                                    // split x,y,z
 //				lineR1.positionCount++;
 				Vector3 newpoint = new Vector3(float.Parse(sa[0]), float.Parse(sa[1]), float.Parse(sa[2]));
-				if (smoothTrack)
+//				if (smoothTrack && !startup)
+				if (!startup && ((ctclient.smoothTrack && !ctclient.replayMode) || (ctclient.smoothReplay && ctclient.replayMode)))
 				{
-					lineR1.SetPosition(j, Vector3.Lerp(lineR1.GetPosition(j), newpoint, Time.deltaTime * TrackSpeed));
+					lineR1.SetPosition(j, Vector3.Lerp(lineR1.GetPosition(j), newpoint, Time.deltaTime * ctclient.TrackSpeed));
 				}
 				else
 				{
@@ -66,6 +66,7 @@ public class CTline : MonoBehaviour {
 				}
 			}
 		}
+		startup = false;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------

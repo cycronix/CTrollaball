@@ -6844,7 +6844,7 @@ MonoBehaviour:
   replayText: {fileID: 404935729}
   timeText: {fileID: 1013838713}
   shortReplayDuration: 60
-  longReplayDuration: 600
+  longReplayDuration: 300
   playFactor: 0
 --- !u!23 &1676886687
 MeshRenderer:

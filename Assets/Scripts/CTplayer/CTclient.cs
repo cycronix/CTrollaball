@@ -46,7 +46,7 @@ public class CTclient : MonoBehaviour
 	private Boolean myState = true;
 
 	private Boolean startup = true;
-	private Boolean replayMode = false;
+	internal Boolean replayMode = false;
     
 	private Rigidbody rb;
 	private CTunity ctunity;
@@ -127,6 +127,7 @@ public class CTclient : MonoBehaviour
 		}
         
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
+//		Debug.Log("doTrack, smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode);
 
 		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode))
 		{

@@ -2838,7 +2838,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   smoothTrack: 1
-  smoothReplay: 1
+  smoothReplay: 0
   TrackSpeed: 2
   RotateSpeed: 2
   OverShoot: 0.5

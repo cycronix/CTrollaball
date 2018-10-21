@@ -61,7 +61,7 @@ public class CTtimecontrol : MonoBehaviour {
 
 	void Update () {
 
-        Boolean ractive = ctunity.setTime(masterTime, stateString);     // interface to CTunity
+        Boolean ractive = ctunity.setTime(masterTime, stateString, playFactor==0);     // interface to CTunity
 		if (ractive != replayActive)
 		{
 			replayActive = ractive;

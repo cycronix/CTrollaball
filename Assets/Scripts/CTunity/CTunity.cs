@@ -55,6 +55,7 @@ public class CTunity : MonoBehaviour
     internal double lastSubmitTime = 0;
     internal Boolean observerFlag = true;
 	internal Boolean trackEnabled = true;             // enable player-tracks
+	internal Boolean playPaused = true;
 
     internal CTlib.CThttp ctplayer = null;            // storage
     internal CTlib.CThttp ctvideo = null;
@@ -506,7 +507,9 @@ public class CTunity : MonoBehaviour
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)
-            ctp.setState(ctobject, isReplayMode());
+            ctp.setState(ctobject, isReplayMode() && playPaused);
+
+//		Debug.Log("setState playPaused: " + playPaused);
 	}
 
 	public Boolean isReplayMode() {
@@ -516,9 +519,12 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
     // set timeControl time/state
     
-	public Boolean setTime(double ireplayTime, String ireplayText) {
+	public Boolean setTime(double ireplayTime, String ireplayText, Boolean iPlayPaused) {
 		replayTime = ireplayTime;
 		replayText = ireplayText;
+		playPaused = iPlayPaused;          // to detect auto-replay vs slider pause/drag
+//		Debug.Log("setTime playPaused: " + playPaused);
+
 		return replayActive;
 	}
 
