@@ -97,9 +97,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTrack: 1
   smoothReplay: 0
-  TrackSpeed: 2
-  RotateSpeed: 2
-  OverShoot: 0
   autoColor: 1
   isGhost: 0
 --- !u!136 &136558523656596964

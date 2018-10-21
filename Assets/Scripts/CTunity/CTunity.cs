@@ -55,7 +55,6 @@ public class CTunity : MonoBehaviour
     internal double lastSubmitTime = 0;
     internal Boolean observerFlag = true;
 	internal Boolean trackEnabled = true;             // enable player-tracks
-	internal Boolean playPaused = true;
 
     internal CTlib.CThttp ctplayer = null;            // storage
     internal CTlib.CThttp ctvideo = null;
@@ -76,6 +75,7 @@ public class CTunity : MonoBehaviour
 	private readonly object objectLock = new object();
 	private Boolean clearWorldsFlag = false;
 	private String CTchannel = "CTstates.txt";
+	private Boolean playPaused = false;
 
 	//-------------------------------------------------------------------------------------------------------
 	// Use this for initialization
@@ -335,6 +335,7 @@ public class CTunity : MonoBehaviour
 		Transform tparent = GameObject.Find(parent).transform;
 
 		Transform pf = go.transform;
+//		Debug.Log("instantiate: " + playerName + ", position: " + position);
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
 
 		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
@@ -350,6 +351,7 @@ public class CTunity : MonoBehaviour
 		// make sure in CTlist (inactive objects won't call CTregister...)
 		if (!CTlist.ContainsKey(playerName))
 		{
+//			Debug.Log("CTlist add: " + playerName);
 			CTlist.Add(newp.name, newp.gameObject);
 		}
 
@@ -512,8 +514,13 @@ public class CTunity : MonoBehaviour
 //		Debug.Log("setState playPaused: " + playPaused);
 	}
 
+	//-------------------------------------------------------------------------------------------------------
 	public Boolean isReplayMode() {
 		return replayActive || remoteReplay;
+	}
+
+	public Boolean isPaused() {
+		return replayActive && playPaused;
 	}
 
 	//-------------------------------------------------------------------------------------------------------

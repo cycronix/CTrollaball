@@ -25,9 +25,9 @@ public class CTclient : MonoBehaviour
 	public Boolean smoothTrack = false;
 	public Boolean smoothReplay = false;
 
-	public float TrackSpeed = 2F;               // multiplier on how fast to Lerp to position/rotation
-	public float RotateSpeed = 1F;              // rotation speed multiplier
-    public float OverShoot = 0.5F;              // how much to shoot past known position for dead reckoning
+	internal float TrackSpeed = 5F;               // multiplier on how fast to Lerp to position/rotation
+//	internal float RotateSpeed = 1F;              // rotation speed multiplier
+    internal float OverShoot = 0F;              // how much to shoot past known position for dead reckoning
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
@@ -35,7 +35,7 @@ public class CTclient : MonoBehaviour
 	internal String prefab="Player";            // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
 	internal String custom = "";                // catch-all custom string
-
+    
 	internal Color myColor = Color.clear;       // keep track of own color setting
 
 	private Boolean ChildOfPlayer = false;      // global or child of (connected to) player object
@@ -85,13 +85,26 @@ public class CTclient : MonoBehaviour
     // setState called from CTunity, works on active/inactive
     
 	public void setState(CTobject cto, Boolean ireplay) {
-		
+
 		// globals to share with Update() loop:
+
+        // set baseline for Lerp going forward to next step
+		oldPos = myPos;
+		oldRot = myRot;
+		if(stopWatch > 0F) TrackSpeed =  (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
+//		if(name.Equals("Traveler"))Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed+", dRot: "+(cto.rot.eulerAngles.y-myRot.eulerAngles.y));
+
+        // update targets
+		stopWatch = 0F;
 		myPos = cto.pos;
 		myRot = cto.rot;
 		myScale = cto.scale;
 		replayMode = ireplay;
 		custom = cto.custom;
+		if(startup) {
+			oldPos = myPos;
+			oldRot = myRot;
+		}
 
 		// locals for immediate action:
 		if (replayMode || !isLocalObject())
@@ -112,7 +125,9 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	private Vector3 targetPos = Vector3.zero;
 	private Vector3 oldPos = Vector3.zero;
+	private Quaternion oldRot = Quaternion.identity;
 	private Vector3 velocity = Vector3.zero;
+	private float stopWatch = 0F;
 
 	// doTrack runs under Update(), enables smooth Lerp's
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
@@ -125,21 +140,24 @@ public class CTclient : MonoBehaviour
 			if(rb != null) rb.useGravity = true;
 			return;
 		}
-        
+
+		stopWatch += Time.deltaTime;
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
 //		Debug.Log("doTrack, smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode);
-
+        
 		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode))
 		{
 			targetPos = myPos + OverShoot * (myPos - transform.position);    // dead reckoning
-			oldPos = myPos;
-
+																			 //			oldPos = myPos;
+//			Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed);
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
-			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
-//			transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime * TrackSpeed);
-			transform.rotation = Quaternion.Lerp(transform.rotation, myRot, Time.deltaTime * RotateSpeed);
+//			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
+			transform.position = Vector3.Lerp(oldPos, targetPos, stopWatch * TrackSpeed);
+//			transform.rotation = Quaternion.Lerp(transform.rotation, myRot, Time.deltaTime * RotateSpeed);
+			transform.rotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
+
 			if(myScale != Vector3.zero)
-				transform.localScale = Vector3.Lerp(transform.localScale, myScale, Time.deltaTime * RotateSpeed);
+				transform.localScale = Vector3.Lerp(transform.localScale, myScale, Time.deltaTime * TrackSpeed);
 		}
 		else
 		{
