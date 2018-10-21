@@ -91,6 +91,7 @@ public class CTclient : MonoBehaviour
         // set baseline for Lerp going forward to next step
 		oldPos = myPos;
 		oldRot = myRot;
+		oldScale = myScale;
 		if(stopWatch > 0F) TrackSpeed =  (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
 //		if(name.Equals("Traveler"))Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed+", dRot: "+(cto.rot.eulerAngles.y-myRot.eulerAngles.y));
 
@@ -104,6 +105,7 @@ public class CTclient : MonoBehaviour
 		if(startup) {
 			oldPos = myPos;
 			oldRot = myRot;
+			oldScale = myScale;
 		}
 
 		// locals for immediate action:
@@ -125,6 +127,7 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	private Vector3 targetPos = Vector3.zero;
 	private Vector3 oldPos = Vector3.zero;
+	private Vector3 oldScale = Vector3.one;
 	private Quaternion oldRot = Quaternion.identity;
 	private Vector3 velocity = Vector3.zero;
 	private float stopWatch = 0F;
@@ -157,7 +160,7 @@ public class CTclient : MonoBehaviour
 			transform.rotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
 
 			if(myScale != Vector3.zero)
-				transform.localScale = Vector3.Lerp(transform.localScale, myScale, Time.deltaTime * TrackSpeed);
+				transform.localScale = Vector3.Lerp(oldScale, myScale, stopWatch * TrackSpeed);
 		}
 		else
 		{
