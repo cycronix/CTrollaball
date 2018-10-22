@@ -104,6 +104,8 @@ public class CTunity : MonoBehaviour
     void Update()
     {
         if (ctplayer == null || observerFlag) return;
+		if (replayActive) return;    // disable remote-logic
+
         if (showMenu)
         {
             PtCounter = 0;
@@ -139,7 +141,8 @@ public class CTunity : MonoBehaviour
 
 		double masterTime = ServerTime();
         double updateTime = 0F;
-        
+   
+        /*
         //  first pass:  screen for replay/master world
         if (replayActive)
 //        if (replayActive || !commanderMode)             // Replay mode:  we are the master
@@ -179,6 +182,7 @@ public class CTunity : MonoBehaviour
                 }
             }
         }
+        */
 
         // second pass:  build CTWorld structure:
         //                  - from replay master
@@ -187,7 +191,7 @@ public class CTunity : MonoBehaviour
 		CTworld CTW = new CTworld();
 		CTW.player = masterWorldName;                 // nominal CTW header values (not actually used)
         CTW.time = masterTime;
-		CTW.mode = replayActive?"Replay":(remoteReplay?"Remote":"Live");
+//		CTW.mode = replayActive?"Replay":(remoteReplay?"Remote":"Live");
 
         CTW.objects = new Dictionary<String, CTobject>();
         List<String> tsourceList = new List<String>();
@@ -439,10 +443,8 @@ public class CTunity : MonoBehaviour
 			}
 			if (!ctworld.objects.ContainsKey(go.name))  
 			{
-				if(!go.name.StartsWith(Player))     //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
+				if(!go.name.StartsWith(Player) || replayActive)     //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
 				    go.SetActive(false);
-//				Destroy(go);                        // ??
-//				CTlist.Remove(go.name);             // can't change CTlist in CTlist-iterator
 			}
         }
 
@@ -509,7 +511,7 @@ public class CTunity : MonoBehaviour
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)
-            ctp.setState(ctobject, isReplayMode() && playPaused);
+            ctp.setState(ctobject, isReplayMode(), playPaused);
 
 //		Debug.Log("setState playPaused: " + playPaused);
 	}
@@ -546,7 +548,8 @@ public class CTunity : MonoBehaviour
 
     // return True if this object should be written to CT
 	public Boolean doCTwrite(String objName) {
-		return (replayActive || objName.StartsWith(Player));
+//		return (replayActive || objName.StartsWith(Player));
+		return (!replayActive && objName.StartsWith(Player));
 	}
 
 	public string CTauthorization() {

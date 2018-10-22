@@ -270,7 +270,7 @@ public class CTsetup: MonoBehaviour
 		gameObject.SetActive(false);
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
-		replayControl.SetActive(ctunity.observerFlag);
+//		replayControl.SetActive(ctunity.observerFlag);
 		ctunity.CTdebug(null);                // clear warnings/debug text
 	}
 
@@ -307,7 +307,7 @@ public class CTsetup: MonoBehaviour
 				break;
 		}
 
-		replayControl.SetActive(ctunity.observerFlag);
+//		replayControl.SetActive(ctunity.observerFlag);
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -324,7 +324,7 @@ public class CTsetup: MonoBehaviour
 		serverConnect();
 		ctunity.Player = "Observer";
 		ctunity.lastSubmitTime = ctunity.ServerTime();
-		replayControl.SetActive(true);
+//		replayControl.SetActive(true);
 		ctunity.CTdebug(null);                // clear warnings/debug te
 		ctunity.showMenu = false;
 		gameObject.SetActive(ctunity.showMenu);

@@ -47,7 +47,8 @@ public class CTclient : MonoBehaviour
 
 	private Boolean startup = true;
 	internal Boolean replayMode = false;
-    
+	private Boolean playPaused = true;
+
 	private Rigidbody rb;
 	private CTunity ctunity;
 
@@ -84,7 +85,7 @@ public class CTclient : MonoBehaviour
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
-	void FixedUpdate()
+	void Update()
 	{
 		doTrack();
 	}
@@ -92,7 +93,7 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     // setState called from CTunity, works on active/inactive
     
-	public void setState(CTobject cto, Boolean ireplay) {
+	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused) {
 
 		// globals to share with Update() loop:
 
@@ -110,6 +111,7 @@ public class CTclient : MonoBehaviour
 		myRot = cto.rot;
 		myScale = cto.scale;
 		replayMode = ireplay;
+		playPaused = iplayPaused;
 		custom = cto.custom;
 
 		// locals for immediate action:
@@ -133,6 +135,8 @@ public class CTclient : MonoBehaviour
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
 	private void doTrack()
 	{
+//		if (name.Equals("Red")) Debug.Log("doTrack, isLocal: " + isLocalControl());
+
 		if (ChildOfPlayer) return;                      // relative "attached" child object go for ride with parent
         
 		if (isLocalControl() || startup)
@@ -143,9 +147,10 @@ public class CTclient : MonoBehaviour
 
 		stopWatch += Time.deltaTime;
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
-//		Debug.Log("doTrack, smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode);
         
-		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode))
+//		if (name.Equals("Traveler.Jeep")) Debug.Log("doTrack, name: " + name + ", smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode+", myPos: "+myPos);
+
+		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode) || (smoothTrack && replayMode && !playPaused))
 		{
 //			targetPos = myPos + OverShoot * (myPos - transform.position);    // dead reckoning
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)
@@ -153,7 +158,7 @@ public class CTclient : MonoBehaviour
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
 			//			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
 
-			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, 2f);          // custom clamp to 2x expected interval
+			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, 2f);          // custom clamp extrapolated interval
 			transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			transform.rotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
 			if(myScale != Vector3.zero)
