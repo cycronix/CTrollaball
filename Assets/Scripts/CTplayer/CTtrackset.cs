@@ -65,12 +65,7 @@ public class CTtrackset : MonoBehaviour {
 		XYplayer.Enqueue(transform.position);
 		while (XYplayer.Count > MaxPts) XYplayer.Dequeue(); // limit size of queue
 
-		if (ctclient.myColor != myColor)
-		{
-			myColor = ctclient.myColor;
-			setLineProps(lineR1, myColor, myColor);
-		}
-
+		setLineProps(lineR1, ctclient.myColor, ctclient.myColor);
 		lineR1.positionCount = XYplayer.Count;
 		lineR1.SetPositions(XYplayer.ToArray());
 

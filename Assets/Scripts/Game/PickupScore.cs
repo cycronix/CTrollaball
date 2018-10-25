@@ -87,11 +87,12 @@ public class PickupScore : MonoBehaviour {
 //				GameOver = true;
 			}
 		}
-
+        
 		countText.text = scoreboard;
-//		winText.text = wintext;
-//		winText.text = "";   // need to sort out how to win...
-		winText.text = ctunity.Player;  // not the right place to set this...
+		//		winText.text = wintext;
+		//		winText.text = "";   // need to sort out how to win...
+		winText.text = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
+//		winText.text = ctunity.Player;  // not the right place to set this...
 	}
 
 }

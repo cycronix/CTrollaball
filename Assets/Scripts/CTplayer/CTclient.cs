@@ -27,7 +27,7 @@ public class CTclient : MonoBehaviour
 
 	internal float TrackSpeed = 5F;               // multiplier on how fast to Lerp to position/rotation
 //	internal float RotateSpeed = 1F;              // rotation speed multiplier
-    internal float DeadReckon = 1.5F;              // how much to shoot past known position for dead reckoning
+    public float DeadReckon = 1.5F;              // how much to shoot past known position for dead reckoning
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
@@ -218,7 +218,8 @@ public class CTclient : MonoBehaviour
 	// set object color
 
 	void setColor(Color color) {
-//		if(name.Equals("Yellow.Ground"))Debug.Log("client: "+name+", setColor: " + name + ", isGhost: " + isGhost + ", color: " + color);
+//		if(name.Equals("Red"))Debug.Log("client: "+name+", setColor: " + color );
+
 		if (color == Color.clear) return;          // use default color
 		myColor = color;
 
