@@ -166,7 +166,7 @@ public class CTclient : MonoBehaviour
 			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, SmoothDamp/TrackSpeed);
 
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)
-			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, 1.5f);          // custom clamp extrapolated interval
+			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);          // custom clamp extrapolated interval
 //			transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			transform.rotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
 			if(myScale != Vector3.zero)
