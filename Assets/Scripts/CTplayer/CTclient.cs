@@ -27,7 +27,7 @@ public class CTclient : MonoBehaviour
 
 	internal float TrackSpeed = 5F;               // multiplier on how fast to Lerp to position/rotation
 //	internal float RotateSpeed = 1F;              // rotation speed multiplier
-//    internal float OverShoot = 0F;              // how much to shoot past known position for dead reckoning
+    internal float DeadReckon = 1.5F;              // how much to shoot past known position for dead reckoning
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
@@ -41,7 +41,6 @@ public class CTclient : MonoBehaviour
 	private Boolean ChildOfPlayer = false;      // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
 	private Vector3 myScale = Vector3.one;
-
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
 	private Boolean myState = true;
 
@@ -54,11 +53,12 @@ public class CTclient : MonoBehaviour
 
 	// Lerp helper params:
 	private Vector3 targetPos = Vector3.zero;
-    private Vector3 oldPos = Vector3.zero;
-    private Vector3 oldScale = Vector3.one;
-    private Quaternion oldRot = Quaternion.identity;
     private Vector3 velocity = Vector3.zero;
     private float stopWatch = 0F;
+
+	private Vector3 oldPos = Vector3.zero;
+    private Vector3 oldScale = Vector3.one;
+    private Quaternion oldRot = Quaternion.identity;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
@@ -91,25 +91,26 @@ public class CTclient : MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
-    // setState called from CTunity, works on active/inactive
-    
-	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused) {
+	// setState called from CTunity, works on active/inactive
 
+	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
+	{
 		// globals to share with Update() loop:
 
 		// set baseline for Lerp going forward to next step
 		oldPos = transform.position;
 		oldRot = transform.rotation;
 		oldScale = transform.localScale;
-		if(stopWatch > 0F) TrackSpeed =  (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
 
-//		if(name.Equals("Red")) Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed+", dRot: "+(cto.rot.eulerAngles.y-myRot.eulerAngles.y));
+		if (stopWatch > 0F) TrackSpeed = (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
 
-        // update targets
+		// update targets
 		stopWatch = 0F;
 		myPos = cto.pos;
 		myRot = cto.rot;
 		myScale = cto.scale;
+		myColor = cto.color;
+
 		replayMode = ireplay;
 		playPaused = iplayPaused;
 		custom = cto.custom;
@@ -123,10 +124,16 @@ public class CTclient : MonoBehaviour
 
 		if (rb != null)
 		{
-			if (replayMode) { rb.isKinematic = true; rb.useGravity = false; }
-			else            { rb.isKinematic = false; rb.useGravity = true; }
+			if (replayMode || !isLocalControl()) { 
+				rb.isKinematic = true; 
+				rb.useGravity = false; 
+			}
+			else { 
+				rb.isKinematic = false; 
+				rb.useGravity = true; 
+			}
 		}
-        
+              
 		startup = false;
 	}
     
@@ -152,14 +159,15 @@ public class CTclient : MonoBehaviour
 
 		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode) || (smoothTrack && replayMode && !playPaused))
 		{
-//			targetPos = myPos + OverShoot * (myPos - transform.position);    // dead reckoning
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)
-			//			Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed);
+//			Debug.Log("stopWatch: "+stopWatch+", TrackSpeed: " +TrackSpeed);
+			// SmoothDamp is smoother than linear motion between updates...
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
-			//			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 1F/TrackSpeed);
-
-			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, 2f);          // custom clamp extrapolated interval
-			transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
+			targetPos = transform.position + DeadReckon * (myPos - transform.position);    // dead reckoning
+			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, 2F/TrackSpeed);
+//			if(name.Equals("Traveler")) Debug.Log("targetPos: " + targetPos + ", tpos: " + transform.position+", vel: "+velocity);
+			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, 1.5f);          // custom clamp extrapolated interval
+//			transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			transform.rotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
 			if(myScale != Vector3.zero)
 				transform.localScale = Vector3.LerpUnclamped(oldScale, myScale, Tclamp);
@@ -210,8 +218,8 @@ public class CTclient : MonoBehaviour
 	// set object color
 
 	void setColor(Color color) {
-//		Debug.Log("setColor: " + name + ", isGhost: " + isGhost + ", color: " + color);
-		if (color == myColor || color == Color.clear) return;          // save some effort
+//		if(name.Equals("Yellow.Ground"))Debug.Log("client: "+name+", setColor: " + name + ", isGhost: " + isGhost + ", color: " + color);
+		if (color == Color.clear) return;          // use default color
 		myColor = color;
 
 		if (isGhost) color.a = 0.4F;                                // force ghost to be translucent

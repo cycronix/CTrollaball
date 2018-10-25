@@ -458,10 +458,9 @@ public class CTunity : MonoBehaviour
     {
 		while (true)
 		{
-//			yield return new WaitForSeconds(BlockPts / 50.0f);     // sleep for block duration
-			yield return new WaitForSeconds(pollInterval);          // sleep for pollInterval
+			yield return new WaitForSeconds(pollInterval);      // sleep for pollInterval (/2 for faster response)
          
-			if (showMenu) continue;                                                // no-op unless run-mode
+			if (showMenu) continue;                                     // no-op unless run-mode
 			if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
 
 			if (clearWorldsFlag) clearWorld(null);

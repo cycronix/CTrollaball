@@ -26,18 +26,21 @@ public class CTtrackset : MonoBehaviour {
 	public int MaxPts = 500;
     
 	private CTunity ctunity;
+	private CTclient ctclient;
 
 	private Queue<Vector3> XYplayer = new Queue<Vector3>();     // player ball track
 	private LineRenderer lineR1;
-    
+
+	private Color myColor = Color.clear;  // clear means use default color
+
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-        
-		lineR1 = gameObject.AddComponent<LineRenderer>();
-		Color myColor = ctunity.Text2Color(name, 1F);
+		ctclient = GetComponent<CTclient>();
 
-		setLineProps(lineR1, myColor, myColor);
+		lineR1 = gameObject.AddComponent<LineRenderer>();
+		//		Color myColor = ctunity.Text2Color(name, 1F);
+//		setLineProps(lineR1, myColor, myColor);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -61,6 +64,12 @@ public class CTtrackset : MonoBehaviour {
 
 		XYplayer.Enqueue(transform.position);
 		while (XYplayer.Count > MaxPts) XYplayer.Dequeue(); // limit size of queue
+
+		if (ctclient.myColor != myColor)
+		{
+			myColor = ctclient.myColor;
+			setLineProps(lineR1, myColor, myColor);
+		}
 
 		lineR1.positionCount = XYplayer.Count;
 		lineR1.SetPositions(XYplayer.ToArray());
