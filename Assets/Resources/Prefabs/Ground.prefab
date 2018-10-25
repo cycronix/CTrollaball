@@ -113,6 +113,7 @@ MonoBehaviour:
   smoothTrack: 0
   smoothReplay: 0
   DeadReckon: 1.5
+  SmoothDamp: 4
   autoColor: 1
   isGhost: 0
 --- !u!114 &114675334305582848
