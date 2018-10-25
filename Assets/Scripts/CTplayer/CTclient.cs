@@ -211,7 +211,7 @@ public class CTclient : MonoBehaviour
 
 	void setColor(Color color) {
 //		Debug.Log("setColor: " + name + ", isGhost: " + isGhost + ", color: " + color);
-		if (color == myColor) return;          // save some effort
+		if (color == myColor || color == Color.clear) return;          // save some effort
 		myColor = color;
 
 		if (isGhost) color.a = 0.4F;                                // force ghost to be translucent
