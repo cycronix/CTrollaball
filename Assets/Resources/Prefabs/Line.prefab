@@ -54,6 +54,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTrack: 1
   smoothReplay: 0
+  DeadReckon: 1.5
+  SmoothTime: 0.4
   autoColor: 1
   isGhost: 0
 --- !u!114 &114915737040423800

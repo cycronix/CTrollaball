@@ -53,10 +53,9 @@ public class CTline : MonoBehaviour {
 			for (int j = 0; j < spoints.Length; j++) {
 				string sv = spoints[j].Substring(1, spoints[j].Length - 2);     // remove the braces
 				string[] sa = sv.Split(',');                                    // split x,y,z
-//				lineR1.positionCount++;
 				Vector3 newpoint = new Vector3(float.Parse(sa[0]), float.Parse(sa[1]), float.Parse(sa[2]));
-//				if (smoothTrack && !startup)
-				if (!startup && ((ctclient.smoothTrack && !ctclient.replayMode) || (ctclient.smoothReplay && ctclient.replayMode)))
+                
+				if (!startup && ctclient.playSmooth())
 				{
 					lineR1.SetPosition(j, Vector3.Lerp(lineR1.GetPosition(j), newpoint, Time.deltaTime * ctclient.TrackSpeed));
 				}

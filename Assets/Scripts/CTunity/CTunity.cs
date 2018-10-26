@@ -469,9 +469,10 @@ public class CTunity : MonoBehaviour
 
 			// form HTTP GET URL
 			String urlparams = "";    // "?f=d" is no-op for wildcard request
-			if (replayActive) urlparams = "?t=" + replayTime;     // replay at masterTime
+			if (replayActive)   urlparams = "?t=" + replayTime;     // replay at masterTime
+			else                urlparams = "?c=" + Math.Round(pollInterval * 1000F);        //  set cache interval 
 			string url1 = Server + "/CT/" + Session + "/GamePlay/*/"+CTchannel + urlparams;
-
+//			Debug.Log("url1: " + url1);
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
             yield return www1.Send();

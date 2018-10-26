@@ -25,10 +25,10 @@ public class CTclient : MonoBehaviour
 	public Boolean smoothTrack = false;
 	public Boolean smoothReplay = false;
 
-	internal float TrackSpeed = 5F;               // multiplier on how fast to Lerp to position/rotation
-//	internal float RotateSpeed = 1F;              // rotation speed multiplier
-    public float DeadReckon = 1.5F;              // how much to shoot past known position for dead reckoning
-	public float SmoothDamp = 4F;               // SmoothDamp time factor (greater is more damping)
+	internal float TrackSpeed = 5F;             // multiplier on how fast to Lerp to position/rotation
+//	internal float RotateSpeed = 1F;            // rotation speed multiplier
+    public float DeadReckon = 1.5F;             // how much to shoot past known position for dead reckoning
+	public float SmoothTime = 0.4F;             // SmoothDamp time (sec)
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
@@ -158,16 +158,23 @@ public class CTclient : MonoBehaviour
         
 //		if (name.Equals("Traveler.Jeep")) Debug.Log("doTrack, name: " + name + ", smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode+", myPos: "+myPos);
 
-		if ((smoothTrack && !replayMode) || (smoothReplay && replayMode) || (smoothTrack && replayMode && !playPaused))
+		if (playSmooth())
 		{
 			// SmoothDamp is smoother than linear motion between updates...
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
-			targetPos = transform.position + DeadReckon * (myPos - transform.position);    // dead reckoning
-			transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, SmoothDamp/TrackSpeed);
+
+			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);  // custom clamp extrapolated interval
+
+			if (SmoothTime > 0F)
+			{
+				targetPos = transform.position + DeadReckon * (myPos - transform.position);    // dead reckoning
+				transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, SmoothTime);
+			}
+			else {
+				transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
+			}
 
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)
-			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);          // custom clamp extrapolated interval
-//			transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			transform.rotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
 			if(myScale != Vector3.zero)
 				transform.localScale = Vector3.LerpUnclamped(oldScale, myScale, Tclamp);
@@ -182,6 +189,12 @@ public class CTclient : MonoBehaviour
 		}
 	}
        
+	//----------------------------------------------------------------------------------------------------------------
+    // apply smoothing to position updates?
+	public Boolean playSmooth() {
+		return (smoothTrack && !replayMode) || (smoothReplay && replayMode) || (smoothTrack && replayMode && !playPaused);
+	}
+
 	//----------------------------------------------------------------------------------------------------------------
 	public void stopMoving() {
 		if(rb != null) rb.velocity = rb.angularVelocity = Vector3.zero;
