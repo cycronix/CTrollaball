@@ -31,8 +31,12 @@ public class ToggleTarget : MonoBehaviour {
     //----------------------------------------------------------------------------------------------------------------
     public void OnMouseDown()
     {
-//        Debug.Log("toggle target: " + transform.name);
-		if(!EventSystem.current.IsPointerOverGameObject())  // avoid "click through" from UI elements
-            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
+		//        Debug.Log("toggle target: " + transform.name);
+		if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
+		{
+			GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
+			Cursor.lockState = CursorLockMode.Locked;       // center mouse cursor (good for subsequent orbit-drag)
+			Cursor.lockState = CursorLockMode.None;
+		}
 	}
 }
