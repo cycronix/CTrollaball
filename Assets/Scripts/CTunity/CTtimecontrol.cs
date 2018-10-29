@@ -125,8 +125,7 @@ public class CTtimecontrol : MonoBehaviour {
 			slider.gameObject.SetActive(false);
 
 			// check for downArrow double-click enter Replay mode
-
-			if (ctunity.observerFlag && Input.GetKeyDown(KeyCode.DownArrow)) {
+			if (/* ctunity.observerFlag &&  */ Input.GetKeyDown(KeyCode.DownArrow)) {
 				if((nowTime()-clickTime) < 0.5F) ctunity.toggleReplay();
 				clickTime = nowTime();
 			}        
@@ -135,10 +134,7 @@ public class CTtimecontrol : MonoBehaviour {
 			playFactor = 0F;
 
             // update info labels
-			if (ctunity.remoteReplay) 
-				  setStateText(remoteLabel);
-			else  setStateText(liveLabel);
-
+            setStateText(liveLabel);
 			timeText.text = "";
 		}
         

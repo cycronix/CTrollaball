@@ -36,6 +36,8 @@ public class CTsetup: MonoBehaviour
 	private CTunity ctunity;
 	private GameObject replayControl;
     
+	public Boolean AsyncMode = true;
+
 	private enum MenuPass
     {
         Connection,
@@ -201,7 +203,7 @@ public class CTsetup: MonoBehaviour
         ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
 //        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
 		ctunity.ctvideo.login(ctunity.user, ctunity.password);
-        ctunity.ctvideo.setAsync(true);
+        ctunity.ctvideo.setAsync(AsyncMode);
         
 		if (!ctunity.observerFlag)
 		{
@@ -209,7 +211,7 @@ public class CTsetup: MonoBehaviour
 			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
 //			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
 			ctunity.ctplayer.login(ctunity.user, ctunity.password);
-			ctunity.ctplayer.setAsync(true);
+			ctunity.ctplayer.setAsync(AsyncMode);
 		}
 	}
 

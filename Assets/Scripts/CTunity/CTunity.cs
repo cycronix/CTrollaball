@@ -42,7 +42,7 @@ public class CTunity : MonoBehaviour
     internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
 	internal List<String> PlayerList = new List<String>();
 
-    internal Boolean remoteReplay = false;            // ghost (Player2) replay mode?
+//    internal Boolean remoteReplay = false;            // ghost (Player2) replay mode?
 	internal double latestTime = 0F;
 	internal Boolean showMenu = true;
     internal string Server = "http://localhost:8000";
@@ -141,57 +141,12 @@ public class CTunity : MonoBehaviour
 
 		double masterTime = ServerTime();
         double updateTime = 0F;
-   
-        /*
-        //  first pass:  screen for replay/master world
-        if (replayActive)
-//        if (replayActive || !commanderMode)             // Replay mode:  we are the master
-        {
-            masterWorldName = Player;
-            masterTime = latestTime = replayTime;
-            remoteReplay = false;
-        }
-        else if(!observerFlag)
-        {
-            remoteReplay = false;  // mjm 9-12-18: default out of remoteReplay if no active Replay mode
-            foreach (CTworld world in worlds)            // scan worlds for possible remote Replay
-            {
-                // check for end of Remote mode
-                if (remoteReplay)
-                {
-                    if (world.player.Equals(masterWorldName) && !world.mode.Equals("Replay"))
-                    {
-                        remoteReplay = false;
-                        break;
-                    }
-                }
-
-                // check for someone asserting Replay
-                else if (world.mode.Equals("Replay"))                    // world mode
-                {
-                    double delta = Math.Abs(world.time - ServerTime());   // replay leader needs current TOD time        
-                    if ((SyncTime > 0) && (delta > SyncTime))
-                    {
-                        continue;
-                    }
-
-                    masterWorldName = world.player;                   // world name
-                    masterTime = world.time;          // world time
-                    remoteReplay = true;
-                    break;
-                }
-            }
-        }
-        */
-
-        // second pass:  build CTWorld structure:
-        //                  - from replay master
-        //                  - or from consolidated objects as owned (prefix) by each world
+       
+        // build CTWorld structure from consolidated objects as owned (prefix) by each world
 
 		CTworld CTW = new CTworld();
 		CTW.player = masterWorldName;                 // nominal CTW header values (not actually used)
         CTW.time = masterTime;
-//		CTW.mode = replayActive?"Replay":(remoteReplay?"Remote":"Live");
 
         CTW.objects = new Dictionary<String, CTobject>();
         List<String> tsourceList = new List<String>();
@@ -200,8 +155,6 @@ public class CTunity : MonoBehaviour
         // second pass, screen masterTime, consolidate masterWorld
         foreach (CTworld world in worlds)
         {
-            if (remoteReplay && !world.player.Equals(masterWorldName)) continue;        // consolidate to replayWorld
-
             if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
 
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
@@ -216,9 +169,7 @@ public class CTunity : MonoBehaviour
 			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
 				CTobject ctobject = ctpair.Value;
-                //  UnityEngine.Debug.Log("line: " + line+", world.name: "+world.name+", objectID: "+ctobject.id+", remoteReplay: "+remoteReplay);
-                if (remoteReplay                                        // remotePlay: this is master world get all objects
-                    || ctobject.id.StartsWith(world.player))            // Live mode:  accumulate objects owned by each world      
+                if (ctobject.id.StartsWith(world.player))            // accumulate objects owned by each world      
                 {               
                     CTW.objects.Add(ctobject.id, ctobject);
 
@@ -234,8 +185,6 @@ public class CTunity : MonoBehaviour
                         string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
                         if (!pf.Equals(ctobject.model))   // recheck showMenu for async newPlayer
                         {
-//                            Debug.Log(ctobject.id + ": change prefab: " + pf + " --> " + ctobject.prefab);
-//                            clearObject(ctobject.id);
                             newGameObject(ctobject);
                         }
                     }
@@ -518,7 +467,7 @@ public class CTunity : MonoBehaviour
 
 	//-------------------------------------------------------------------------------------------------------
 	public Boolean isReplayMode() {
-		return replayActive || remoteReplay;
+		return replayActive;
 	}
 
 	public Boolean isPaused() {
