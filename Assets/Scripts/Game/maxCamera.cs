@@ -26,6 +26,7 @@ using UnityEngine;
 using System;
 using System.Collections;
 //using System.Diagnostics;
+using UnityEngine.EventSystems;
 
 [AddComponentMenu("Camera-Control/3dsMax Camera Style")]
 public class maxCamera : MonoBehaviour
@@ -222,29 +223,40 @@ public class maxCamera : MonoBehaviour
 	Vector3 deltaPos = Vector3.zero;
 	Quaternion startRotation = Quaternion.identity;
 	Vector3 startCameraRotation = Vector3.zero;
-
+   
 	void OnGUI()
 	{
 		Event m_Event = Event.current;
-		if (m_Event.button != 1) return;					// only check right-mouse button
+		//		if (m_Event.button != 1) return;					// only check right-mouse button
+		if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
+        {
+//            Debug.Log("Clicked on the UI");
+			return;
+        }
 
 		if (m_Event.type == EventType.MouseDown)
 		{
+			rightMouseDown = true;
+
 			startPos = Input.mousePosition;
 			startRotation = transform.rotation;
 			startCameraRotation = cameraRotation.eulerAngles;
+//			m_Event.Use();
 		}
 
-		if (m_Event.type == EventType.MouseDrag)
+//		if (!rightMouseDown) return;
+
+		if (m_Event.type == EventType.MouseDrag && rightMouseDown)
 		{
-			rightMouseDown = true;
+//			rightMouseDown = true;
 			deltaPos = (Input.mousePosition - startPos) / Screen.width;
 			if (deltaPos.magnitude < 0.001F) deltaPos = Vector3.zero;
 		}
-		else
+		else if (m_Event.type == EventType.MouseUp)
 		{
 			rightMouseDown = false;
 			deltaPos = Vector3.zero;   // cancel
+//			m_Event.Use();
 		}
 	}
 
