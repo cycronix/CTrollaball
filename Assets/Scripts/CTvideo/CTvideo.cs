@@ -42,12 +42,13 @@ public class CTvideo : MonoBehaviour {
     {
 		StartCoroutine("DownloadImage");
     }
-
+   
 	String oldCustom = "";
 	IEnumerator DownloadImage()
 	{
 		while (true) {
-			yield return new WaitForSeconds (ctunity.pollInterval);
+			float pollInterval = (ctunity == null) ? 0.1F : ctunity.pollInterval;       // wait for ctunity init
+			yield return new WaitForSeconds (pollInterval);
 
 			if (showImage) {
 

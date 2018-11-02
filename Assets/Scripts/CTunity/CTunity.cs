@@ -169,6 +169,7 @@ public class CTunity : MonoBehaviour
 			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
 				CTobject ctobject = ctpair.Value;
+
                 if (ctobject.id.StartsWith(world.player))            // accumulate objects owned by each world      
                 {               
                     CTW.objects.Add(ctobject.id, ctobject);
@@ -190,7 +191,7 @@ public class CTunity : MonoBehaviour
                     }
 
                     // instantiate new players and objects
-                    if (!CTlist.ContainsKey(ctobject.id) && (observerFlag || !world.player.Equals(Player)))
+                    if (!CTlist.ContainsKey(ctobject.id) /* && (observerFlag || !world.player.Equals(Player)) */)  // mjm 11/2/18
                     {
                         newGameObject(ctobject);
                     }
