@@ -375,8 +375,8 @@ public class CTserdes
 			Renderer renderer = ct.transform.gameObject.GetComponent<Renderer>();
 			if (renderer != null)
 			{
-//				Color mycolor = renderer.material.color;
-				Color mycolor = ctp.myColor;
+//				Color mycolor = renderer.material.color;    // this NG for multi-part prefabs (e.g. biplane)
+				Color mycolor = ctp.myColor;                // NG?
 				obj.color = new List<Double>();
 				obj.color.Add(LimitPrecision(mycolor.r, 4));
 				obj.color.Add(LimitPrecision(mycolor.g, 4));

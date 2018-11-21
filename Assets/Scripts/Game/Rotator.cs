@@ -35,8 +35,8 @@ public class Rotator : MonoBehaviour {
 		{
 			Quaternion targetRotation = Quaternion.Euler(new Vector3(15, 30, 45)) * transform.rotation;
 			transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 1F);
-			if (transform.localScale.x < 0.1F) sizeFactor = 1.01F;
-			else if (transform.localScale.x > 0.5F) sizeFactor = 0.99F;
+			if (transform.localScale.x < 0.1F) sizeFactor = 1.001F;
+			else if (transform.localScale.x > 0.5F) sizeFactor = 0.999F;
 			transform.localScale *= sizeFactor;
 				                                                       
 		}

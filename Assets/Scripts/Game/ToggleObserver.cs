@@ -20,7 +20,7 @@ using UnityEngine.EventSystems;
 
 public class ToggleObserver : MonoBehaviour, IPointerDownHandler {
 	private CTsetup ctsetup;
-	static Boolean showMenu = true;
+//	static Boolean showMenu = true;
 	private CTunity ctunity;
 	private GameObject replayControl;
 	private GameObject gameOptions;

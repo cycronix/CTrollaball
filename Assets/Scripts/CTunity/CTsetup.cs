@@ -45,7 +45,7 @@ public class CTsetup: MonoBehaviour
         PlayerSelect
     }
 	private MenuPass menuPass = MenuPass.Connection;
-	private GameObject Server, Session, Player, Avatar, Play, View, Login, User, Password;
+	private GameObject Server, Session, Player, Avatar, Deploy, Play, View, Login, User, Password;
 
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
@@ -103,6 +103,7 @@ public class CTsetup: MonoBehaviour
 		Session = GameObject.Find("Session");
 		Player = GameObject.Find("Player1");
 		Avatar = GameObject.Find("Model");
+		Deploy = GameObject.Find("Deploy");
 		Play = GameObject.Find("Submit");
 		View = GameObject.Find("View");
 		Login = GameObject.Find("Login");
@@ -200,7 +201,7 @@ public class CTsetup: MonoBehaviour
 
 		// setup for video players and observers both
         if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, ctunity.blocksPerSegment, true, true, true, ctunity.Server);
 //        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
 		ctunity.ctvideo.login(ctunity.user, ctunity.password);
         ctunity.ctvideo.setAsync(AsyncMode);
@@ -208,7 +209,7 @@ public class CTsetup: MonoBehaviour
 		if (!ctunity.observerFlag)
 		{
 			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
-			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, 100, true, true, true, ctunity.Server);
+			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, ctunity.blocksPerSegment, true, true, true, ctunity.Server);
 //			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
 			ctunity.ctplayer.login(ctunity.user, ctunity.password);
 			ctunity.ctplayer.setAsync(AsyncMode);
@@ -241,6 +242,7 @@ public class CTsetup: MonoBehaviour
 
 	void submitButton()
 	{
+		String deploy = "";
 		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
 		foreach (Dropdown d in drops)
 		{
@@ -255,13 +257,19 @@ public class CTsetup: MonoBehaviour
 				case "Model":
 					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
+				case "Deploy":
+                    deploy = d.GetComponent<Dropdown>().options[d.value].text;
+                    break;
 			}
 		}
 
 		// connect to CTweb server
 		serverConnect();
 
-		GameObject go = ctunity.newPlayer(ctunity.Player, ctunity.Model, false);              // instantiate local player
+		GameObject go = ctunity.newPlayer(ctunity.Player, ctunity.Model, false);    // instantiate local player
+//		GameObject go = ctunity.newPlayer(ctunity.Player+"."+ctunity.Model, ctunity.Model, false);
+		if(!deploy.Equals(""))
+			ctunity.newPlayer(ctunity.Player+"."+deploy, deploy, false);
 
 		// kick new player to launch its playerObjects:
 		PlayerObjects po = go.GetComponent<PlayerObjects>();
@@ -272,7 +280,7 @@ public class CTsetup: MonoBehaviour
 		gameObject.SetActive(false);
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 		ctunity.showMenu = false;
-//		replayControl.SetActive(ctunity.observerFlag);
+		//		replayControl.SetActive(ctunity.observerFlag);
 		ctunity.CTdebug(null);                // clear warnings/debug text
 	}
 
@@ -289,6 +297,7 @@ public class CTsetup: MonoBehaviour
 				Session.SetActive(false);
 				Player.SetActive(false);
 				Avatar.SetActive(false);
+				Deploy.SetActive(false);
 				Play.SetActive(false);
 				View.SetActive(false);
 				break;
@@ -301,6 +310,7 @@ public class CTsetup: MonoBehaviour
 				Session.SetActive(true);
 				Player.SetActive(true);
 				Avatar.SetActive(true);
+				Deploy.SetActive(true);
 				Play.SetActive(true);
 				View.SetActive(true);
 				break;

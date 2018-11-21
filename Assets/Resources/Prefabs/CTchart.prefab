@@ -1736,11 +1736,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   smoothTrack: 0
   smoothReplay: 0
-  TrackSpeed: 2
-  RotateSpeed: 1
-  OverShoot: 0.5
-  prefab: CTchart
-  custom: 
+  DeadReckon: 1.5
+  SmoothTime: 0.4
+  autoColor: 1
+  isGhost: 0
+  isPlayer: 1
 --- !u!114 &114212295010965986
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -32,7 +32,7 @@ public class ToggleGameObject : MonoBehaviour, IPointerDownHandler
 	public Boolean ChildOfPlayer = false;
 	public Boolean UiLayer = false;
 
-	private Boolean Active = false;
+//	private Boolean Active = false;
 	private CTunity ctunity;
 	private GameObject thisObject=null;
 

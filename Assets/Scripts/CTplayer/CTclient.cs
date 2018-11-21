@@ -32,8 +32,9 @@ public class CTclient : MonoBehaviour
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
+//	public Boolean isPlayer = true;             // set if player-controlled (new instances replace old)
 
-	internal String prefab="Player";            // programmatically set; reference value
+	internal String prefab="";                  // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
 	internal String custom = "";                // catch-all custom string
     
@@ -43,7 +44,7 @@ public class CTclient : MonoBehaviour
 	private Vector3 myPos = Vector3.zero;
 	private Vector3 myScale = Vector3.one;
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
-	private Boolean myState = true;
+//	private Boolean myState = true;
 
 	private Boolean startup = true;
 	internal Boolean replayMode = false;
@@ -87,7 +88,9 @@ public class CTclient : MonoBehaviour
     
 	//----------------------------------------------------------------------------------------------------------------
 	void Update()
+//    void FixedUpdate()
 	{
+//		Debug.Log("dt: " + Time.deltaTime);
 		doTrack();
 	}
 
@@ -115,6 +118,9 @@ public class CTclient : MonoBehaviour
 		replayMode = ireplay;
 		playPaused = iplayPaused;
 		custom = cto.custom;
+
+//		if (name.StartsWith("Custom")) Debug.Log(name + ": " + cto.pos);
+//		if (name.Equals("Red")) Debug.Log(name + ": " + cto.pos);
 
 		// locals for immediate action:
 		if (replayMode || !isLocalObject())
@@ -209,9 +215,9 @@ public class CTclient : MonoBehaviour
 	public Boolean isLocalControl() {
 		return (isLocalObject() && !replayMode && !ctunity.showMenu);
 	}
-
+    
 	//----------------------------------------------------------------------------------------------------------------
-	private Boolean isLocalObject()
+	public Boolean isLocalObject()
     {
 		Boolean localObject = false;
 		if (ctunity == null) return false;

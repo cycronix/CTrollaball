@@ -56,27 +56,24 @@ public class PlayerObjects : MonoBehaviour {
 
 		// Ground platform:
 		Vector3 gpos = ctunity.groundPos(ctunity.Player);
-        Ground = ctunity.newGameObject(ctunity.Player + ".Ground", "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
+		if (!gpos.Equals(Vector3.zero))  // no Ground for other than R,B,G,Y players
+		{
+			Ground = ctunity.newGameObject(ctunity.Player + ".Ground", "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
+//			Ground = ctunity.newGameObject(ctunity.Player, "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
 
-		// adjust ground object color (needs to be centralized)
-        Renderer renderer = Ground.GetComponent<Renderer>();
-        if (renderer != null)
-        {
-            Color c = ctunity.Text2Color(gameObject.name, 1F);   // ref original color (avoid accumulated changes)
-            float H, S, V;
-            Color.RGBToHSV(c, out H, out S, out V);
-            renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
-        }
+			// adjust ground object color (needs to be centralized)
+			Renderer renderer = Ground.GetComponent<Renderer>();
+			if (renderer != null)
+			{
+				Color c = ctunity.Text2Color(gameObject.name, 1F);   // ref original color (avoid accumulated changes)
+				float H, S, V;
+				Color.RGBToHSV(c, out H, out S, out V);
+				renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
+			}
 
-        // Pickup objects:
-        if (npickups(ctunity.Player) == 0) dispensePickups();                    // init
-	}
-
-	void Update()
-	{
-//		if (ctunity == null) return;
-//		if (!gameObject.name.Equals(ctunity.Player)) return; 
-//		if (Ground != null && !Ground.activeSelf) Ground.SetActive(true);             // Ground stays enabled with player
+			// Pickup objects:
+			if (npickups(ctunity.Player) == 0) dispensePickups();                    // init
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -103,7 +100,8 @@ public class PlayerObjects : MonoBehaviour {
             if (ctunity.Model.Equals("Ball")) zrand = 0.4F;                 // fixed elevation if ball
 //			Debug.Log("PlayerObjects dispensePickups, i: " + i);
 
-            ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
+			ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
+//			ctunity.newGameObject(ctunity.Player + "." + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
         }
     }
 

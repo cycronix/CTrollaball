@@ -66,15 +66,15 @@ public class CTvideo : MonoBehaviour {
                     oldCustom = "";
                 }
 
-				String urlparams = "";
+//				String urlparams = "";
 				//				if (ctunity.isReplayMode()) urlparams = "?t=" + ctunity.replayTime;
-
+                
 				WWW www;
 				try
 				{
 					www = new WWW(url);
 				} catch (Exception e) {
-					UnityEngine.Debug.Log("CTvideo exception: " + url);
+					UnityEngine.Debug.Log("CTvideo exception: " + url+", Exception: "+e);
 					continue;
 				}
 				yield return www;

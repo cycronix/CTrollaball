@@ -36,7 +36,10 @@ public class CTunity : MonoBehaviour
 //	public int BlockPts = 5;                        // 5/50 = 0.1s
 	internal float pollInterval = 0.1F;       // global update-interval (sets BlockPts)
 	[Range(1,50)]
-	public int sendRate = 10;                   // rate to send updates (Hz)
+	public int blockRate = 10;                   // rate to send file updates (Hz)
+	[Range(1, 200)]
+	public int maxPointRate = 50;                 // (max) rate to update points
+	public int blocksPerSegment = 200;          // CTlib.CThttp setting
 
     // internal variable accessible from other scripts but not Editor Inspector
     internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
@@ -81,7 +84,7 @@ public class CTunity : MonoBehaviour
 	// Use this for initialization
 	void Start()
     {
-		pollInterval = 1F / sendRate;
+		pollInterval = 1F / blockRate;
 		CTchannel = JSON_Format ? "CTstates.json" : "CTstates.txt";
         StartCoroutine("getWorldState");
     }
@@ -89,11 +92,11 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
     // build list of players/CT objects
     
-	public void CTregister(GameObject go) {
-		if (!CTlist.ContainsKey(go.name))
+	public void CTregister(GameObject go) {        
+		if (go.GetComponent<CTclient>()!=null && !CTlist.ContainsKey(go.name))  // only register objects with CTclient
 		{
 			CTlist.Add(go.name, go);
-			UnityEngine.Debug.Log("CTregister: " + go.name);
+//			if(go.name.StartsWith("Red")) Debug.Log("CTregister: " + go.name);
 		}
 	}
 
@@ -101,6 +104,9 @@ public class CTunity : MonoBehaviour
     // get States from objects, putData to CT as CTstates.txt (pb or rt)
 
     int PtCounter = 0;
+	float stopWatchB = 0f;          // block timer
+	float stopWatchP = 0f;          // point timer
+
     void Update()
     {
         if (ctplayer == null || observerFlag) return;
@@ -112,15 +118,29 @@ public class CTunity : MonoBehaviour
             return;
         }
 
-		string CTstateString = CTserdes.serialize(this, JSON_Format?CTserdes.Format.JSON:CTserdes.Format.CSV);
+		if (maxPointRate < blockRate) maxPointRate = blockRate;   // firewall
+		float pointInterval = 1f / maxPointRate;
+		stopWatchP += Time.deltaTime;
+		if (stopWatchP >= pointInterval)
+		{
+			string CTstateString = CTserdes.serialize(this, JSON_Format ? CTserdes.Format.JSON : CTserdes.Format.CSV);
+			ctplayer.setTime(ServerTime());
+			ctplayer.putData(CTchannel, CTstateString);
+			stopWatchP = 0f;
+		}
 
-        ctplayer.setTime(ServerTime());
-        ctplayer.putData(CTchannel, CTstateString);
+		float blockInterval = 1f / blockRate;
+		pollInterval = blockInterval;          // CTget poll at fraction of block interval?
+//		int BlockPts = (int)Math.Round(pollInterval * 50F);  // 50 Hz nominal update rate
+//		Debug.Log("pollInterval: " + pollInterval + ", BlockPts: " + BlockPts+", PtCounter: "+PtCounter);
+//        if ((++PtCounter % BlockPts) == 0)      // BlockPts per CT block
+//            ctplayer.flush();
 
-		pollInterval = 1F / sendRate;  // catch any updates
-		int BlockPts = (int)Math.Round(pollInterval * 50F);  // 50 Hz nominal update rate
-        if ((++PtCounter % BlockPts) == 0)     // BlockPts per CT block
-            ctplayer.flush();
+		stopWatchB += Time.deltaTime;
+		if(stopWatchB >= pollInterval) {
+			stopWatchB = 0f;
+			ctplayer.flush();
+		}
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -171,8 +191,13 @@ public class CTunity : MonoBehaviour
 				CTobject ctobject = ctpair.Value;
 
                 if (ctobject.id.StartsWith(world.player))            // accumulate objects owned by each world      
-                {               
-                    CTW.objects.Add(ctobject.id, ctobject);
+                {
+					try
+					{
+						CTW.objects.Add(ctobject.id, ctobject);
+					} catch(Exception e) {
+						Debug.Log("CTW exception on object: " + ctobject.id+", e: "+e);
+					}
 
 					// check for change of prefab
                     if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.player.Equals(Player)))  // Live mode
@@ -245,12 +270,28 @@ public class CTunity : MonoBehaviour
     
 	public GameObject newGameObject(String pName, String prefab, Vector3 position, Quaternion rotation, Vector3 scale, Boolean ghost, Boolean isactive)
 	{
-//		UnityEngine.Debug.Log("newGameObject: " + pName+", prefab: "+prefab);
+		//		UnityEngine.Debug.Log("newGameObject: " + pName+", prefab: "+prefab);
+		if (prefab.Equals("")) return null;         // in-game player without prefab
+
 		String playerName = pName + (ghost ? "g" : "");
+
+		// figure out if prefab is player-controller:
+//		GameObject pfgo = ((GameObject)getPrefab(prefab));
+ //       Boolean isPlayer = false;
+ //       if (pfgo != null)
+ //       {
+ //           CTclient ctc = pfgo.GetComponent<CTclient>();
+ //           if (ctc != null && ctc.isPlayer) isPlayer = true;
+ //       }
+//		if (!isPlayer && !playerName.Contains(".")) playerName = playerName + "." + prefab;
+//		Debug.Log("newGameObject: " + playerName + ", Model: " + prefab + ", isPlayer: " + isPlayer);
+
 		if (CTlist.ContainsKey(playerName))
 		{
 			CTlist[playerName].SetActive(true);     // let setState activate?
-			string ctpf = CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
+            
+			CTclient ctc = CTlist[playerName].gameObject.transform.GetComponent<CTclient>();
+			string ctpf = (ctc==null)?"":CTlist[playerName].gameObject.transform.GetComponent<CTclient>().prefab;
 			if (!ctpf.Equals(prefab) || scale==Vector3.zero)
 			{
 				position = CTlist[playerName].transform.position;   // rebuild to new prefab (in-place)
@@ -269,13 +310,13 @@ public class CTunity : MonoBehaviour
 			return tgo;
 		}
 
-		GameObject go = ((GameObject)getPrefab(prefab));
-		if (go == null)
+		GameObject pfgo = ((GameObject)getPrefab(prefab));
+		if (pfgo == null)
 		{
 			UnityEngine.Debug.Log("NULL prefab: " + prefab);
 			return null;
 		}
-		go.SetActive(isactive);
+		pfgo.SetActive(isactive);
 		String parent = "Players";
 
 		String[] pathparts = playerName.Split('/');
@@ -288,7 +329,7 @@ public class CTunity : MonoBehaviour
 		}
 		Transform tparent = GameObject.Find(parent).transform;
 
-		Transform pf = go.transform;
+		Transform pf = pfgo.transform;
 //		Debug.Log("instantiate: " + playerName + ", position: " + position);
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
 
@@ -303,11 +344,8 @@ public class CTunity : MonoBehaviour
 		    newp.GetComponent<CTclient>().prefab = prefab;
 
 		// make sure in CTlist (inactive objects won't call CTregister...)
-		if (!CTlist.ContainsKey(playerName))
-		{
-//			Debug.Log("CTlist add: " + playerName);
-			CTlist.Add(newp.name, newp.gameObject);
-		}
+		CTregister(newp.gameObject);
+//		if (!CTlist.ContainsKey(playerName)) CTlist.Add(newp.name, newp.gameObject);
 
 		return newp.gameObject;
 	}
@@ -321,7 +359,7 @@ public class CTunity : MonoBehaviour
 		GameObject go = GameObject.Find(objectName);
 		if (go != null)
 		{
-//			UnityEngine.Debug.Log("clearObject: " + objectName);
+//			UnityEngine.Debug.Log("clearObject1: " + objectName);
 			foreach (Transform c in go.transform)
 			{
 //				UnityEngine.Debug.Log("clear child: " + c.name);
@@ -338,6 +376,7 @@ public class CTunity : MonoBehaviour
 	public void clearObject(GameObject go) {
         if (go != null)
         {
+//			UnityEngine.Debug.Log("clearObject2: " + go.name);
 			string objectName = go.name;
             if (!CTlist.ContainsKey(objectName)) return;            // not already there
             
@@ -368,6 +407,8 @@ public class CTunity : MonoBehaviour
 		{
 			if (worldName == null || go.name.StartsWith(worldName))
 			{
+//				UnityEngine.Debug.Log("clearWorld: " + worldName+", object: "+go.name);
+
 				go.SetActive(false);
 				Destroy(go);                 // keep object; inactivate it only?
 				CTlist.Remove(go.name);
@@ -388,13 +429,16 @@ public class CTunity : MonoBehaviour
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
 			if(go == null) {
-				Debug.Log("oops: CTlist go missing!");
+				Debug.Log("Oops: CTlist gameObject missing!");
 				continue;
 			}
 			if (!ctworld.objects.ContainsKey(go.name))  
 			{
-				if(!go.name.StartsWith(Player) || replayActive)     //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
-				    go.SetActive(false);
+				if (!go.name.StartsWith(Player) || replayActive)
+				{    //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
+					go.SetActive(false);
+//					Debug.Log("clearMissing: " + go.name);
+				}
 			}
         }
 
@@ -425,8 +469,9 @@ public class CTunity : MonoBehaviour
 //			Debug.Log("url1: " + url1);
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
-            yield return www1.Send();
-            
+//            yield return www1.Send();
+			yield return www1.SendWebRequest();
+
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
 			{

@@ -227,10 +227,11 @@ public class maxCamera : MonoBehaviour
 	void OnGUI()
 	{
 		Event m_Event = Event.current;
+		deltaPos = Vector3.zero;   // no floating
+
 		//		if (m_Event.button != 1) return;					// only check right-mouse button
 		if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
         {
-//            Debug.Log("Clicked on the UI");
 			return;
         }
 
@@ -241,22 +242,18 @@ public class maxCamera : MonoBehaviour
 			startPos = Input.mousePosition;
 			startRotation = transform.rotation;
 			startCameraRotation = cameraRotation.eulerAngles;
-//			m_Event.Use();
 		}
-
-//		if (!rightMouseDown) return;
 
 		if (m_Event.type == EventType.MouseDrag && rightMouseDown)
 		{
-//			rightMouseDown = true;
+			//			rightMouseDown = true;
 			deltaPos = (Input.mousePosition - startPos) / Screen.width;
-			if (deltaPos.magnitude < 0.001F) deltaPos = Vector3.zero;
+			if (deltaPos.magnitude < 0.0001F) deltaPos = Vector3.zero;
 		}
 		else if (m_Event.type == EventType.MouseUp)
 		{
 			rightMouseDown = false;
 			deltaPos = Vector3.zero;   // cancel
-//			m_Event.Use();
 		}
 	}
 

@@ -26,7 +26,7 @@ public class PlayerController : MonoBehaviour {
 	public float liftForce = 0F;
 	public Boolean isVehicle = true;
 
-	private CTclient ctplayer;
+	private CTclient ctclient;
 	private Quaternion baseRotation = new Quaternion(0,0,0,0);
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour {
 	void Start () {
 		Debug.Log (gameObject.name+": Hello World!");
 
-		ctplayer = GetComponent<CTclient>();
+		ctclient = GetComponent<CTclient>();
 		rb = GetComponent<Rigidbody>();
 		baseRotation = transform.rotation;          // for relative rotation setting
 	}
@@ -45,7 +45,7 @@ public class PlayerController : MonoBehaviour {
 	//	void Update() 
 	void FixedUpdate()
         {
-		if (!ctplayer.isLocalControl())	return;                 // notta unless under local-control
+		if (!ctclient.isLocalControl())	return;                 // notta unless under local-control
 
 		float moveHorizontal = Input.GetAxis ("Horizontal");	// Right Left arrow keys +/- 1
 		float moveVertical = Input.GetAxis ("Vertical");		// Up Down arrow keys
