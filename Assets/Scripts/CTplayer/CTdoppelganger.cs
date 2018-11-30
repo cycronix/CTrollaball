@@ -50,11 +50,14 @@ public class CTdoppelganger : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	void Update()
 	{
-//		if (!ctclient.isLocalObject()) return;   // notta unless locally recorded object
-//		Debug.Log(name + ": TrackTarget: " + TrackTarget + ", active: " + (trackobject != null));
+		//		if (!ctclient.isLocalObject()) return;   // notta unless locally recorded object
+		TrackTarget = ctclient.custom;
+		if (TrackTarget.Equals("")) TrackTarget = ctunity.Player;                   // default to track parent
+		if (trackobject == null || !TrackTarget.Equals(trackobject.name)) 
+			trackobject = GameObject.Find(TrackTarget);     // child-init
 
-		if (trackobject == null) trackobject = GameObject.Find(TrackTarget);     // child-init
-        
+//		Debug.Log("Doppel me: "+transform.name+", TrackTarget: " + TrackTarget + ", ctclient.custom: " + ctclient.custom+", trackobject: "+trackobject);
+
 		if (ctunity.isReplayMode())
 		{
 			transform.localScale = myScale;                             // appear, let ctclient drive
@@ -62,7 +65,7 @@ public class CTdoppelganger : MonoBehaviour {
 		else 
 		{
 			transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);    // hide
-			if (trackobject != null && ctclient.isLocalObject())        // follow if local target
+			if (trackobject != null /* && ctclient.isLocalObject() */)        // follow if local target
 			{
 				transform.position = trackobject.transform.position;   
 				transform.rotation = trackobject.transform.rotation;

@@ -32,7 +32,9 @@ public class CTclient : MonoBehaviour
 
 	public Boolean autoColor = true;            // set object color based on naming convention
 	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
-//	public Boolean isPlayer = true;             // set if player-controlled (new instances replace old)
+	public Boolean isRogue = false;             // "rogue" clients flag ignore local controls
+    
+	public CTobject ctobject = null;            // for public ref
 
 	internal String prefab="";                  // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
@@ -40,7 +42,7 @@ public class CTclient : MonoBehaviour
     
 	internal Color myColor = Color.clear;       // keep track of own color setting
 
-	private Boolean ChildOfPlayer = false;      // global or child of (connected to) player object
+	private Boolean noTrack = false;      // global or child of (connected to) player object
 	private Vector3 myPos = Vector3.zero;
 	private Vector3 myScale = Vector3.one;
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
@@ -68,10 +70,9 @@ public class CTclient : MonoBehaviour
 	{
 		rb = GetComponent<Rigidbody>();
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-
-		// see if this client object is child-of-player (set in ToggleGameObject)
-		if (gameObject.name.Contains("/")) ChildOfPlayer = true;
         
+		if (gameObject.name.Contains("/")) noTrack = true;      // see if this client object is child-of-player (set in ToggleGameObject)
+
 		if (autoColor) setColor();          // set default color based on object name
 
 		if (isGhost)
@@ -99,8 +100,8 @@ public class CTclient : MonoBehaviour
 
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
-		// globals to share with Update() loop:
-
+		ctobject = cto;                             // for public ref
+        
 		// set baseline for Lerp going forward to next step
 		oldPos = transform.position;
 		oldRot = transform.rotation;
@@ -119,9 +120,6 @@ public class CTclient : MonoBehaviour
 		playPaused = iplayPaused;
 		custom = cto.custom;
 
-//		if (name.StartsWith("Custom")) Debug.Log(name + ": " + cto.pos);
-//		if (name.Equals("Red")) Debug.Log(name + ": " + cto.pos);
-
 		// locals for immediate action:
 		if (replayMode || !isLocalObject())
 		{
@@ -129,6 +127,7 @@ public class CTclient : MonoBehaviour
 			setColor(cto.color);                        // set color for non-local objects
 		}
 
+		if(rb==null) rb = GetComponent<Rigidbody>();    // try again; async issue?
 		if (rb != null)
 		{
 			if (replayMode || !isLocalControl()) { 
@@ -140,7 +139,8 @@ public class CTclient : MonoBehaviour
 				rb.useGravity = true; 
 			}
 		}
-              
+//		if (name.Equals("World.Plane")) Debug.Log("setState, replayMode: " + replayMode + ", rb: " + rb);
+
 		startup = false;
 	}
     
@@ -149,20 +149,18 @@ public class CTclient : MonoBehaviour
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
 	private void doTrack()
 	{
-//		if (name.Equals("Red")) Debug.Log("doTrack, isLocal: " + isLocalControl());
-
-		if (ChildOfPlayer) return;                      // relative "attached" child object go for ride with parent
-        
+//		Debug.Log("doTrack: " + name+", noTrack: "+noTrack+", localC: "+isLocalControl()+", startup: "+startup);
+		if (noTrack) return;                 // relative "attached" child object go for ride with parent
+		    
 		if (isLocalControl() || startup)
 		{
 			if(rb != null) rb.useGravity = true;
 			return;
 		}
+//		Debug.Log(name+": doTrack!!!");
 
 		stopWatch += Time.deltaTime;
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
-        
-//		if (name.Equals("Traveler.Jeep")) Debug.Log("doTrack, name: " + name + ", smoothTrack: " + smoothTrack + ", smoothReplay: " + smoothReplay + ", replayMode: " + replayMode+", myPos: "+myPos);
 
 		if (playSmooth())
 		{
@@ -213,7 +211,7 @@ public class CTclient : MonoBehaviour
     
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalControl() {
-		return (isLocalObject() && !replayMode && !ctunity.showMenu);
+		return (isRogue || (isLocalObject() && !replayMode && !ctunity.showMenu));
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -224,6 +222,7 @@ public class CTclient : MonoBehaviour
 		if (gameObject.name.StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
 			    localObject = true;
 
+//		Debug.Log("isLocalObject: "+localObject+", name: " + gameObject.name + ", ctu.p: " + ctunity.Player+", oflag: "+ctunity.observerFlag);
 		return localObject;
     }
 
@@ -237,8 +236,6 @@ public class CTclient : MonoBehaviour
 	// set object color
 
 	void setColor(Color color) {
-//		if(name.Equals("Red"))Debug.Log("client: "+name+", setColor: " + color );
-
 		if (color == Color.clear) return;          // use default color
 		myColor = color;
 
@@ -257,9 +254,8 @@ public class CTclient : MonoBehaviour
 
 	// set color based on object name
 	void setColor() {
-		// set new object trim colors to match player
         Color color = ctunity.Text2Color(name, isGhost ? 0.4F : 1.0F);
-		setColor(color);
+		if(!color.Equals(Color.gray)) setColor(color);      // don't set if default (no name match)
 	}
 }
 

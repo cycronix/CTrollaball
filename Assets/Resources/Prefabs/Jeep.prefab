@@ -9468,6 +9468,7 @@ MonoBehaviour:
   SmoothTime: 0.4
   autoColor: 1
   isGhost: 0
+  isRogue: 0
 --- !u!114 &114566232262650156
 MonoBehaviour:
   m_ObjectHideFlags: 1

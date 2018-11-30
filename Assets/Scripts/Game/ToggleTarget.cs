@@ -25,7 +25,7 @@ public class ToggleTarget : MonoBehaviour {
     // Use this for initialization
     void Start()
     {
-		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
+//		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
     }
 
     //----------------------------------------------------------------------------------------------------------------

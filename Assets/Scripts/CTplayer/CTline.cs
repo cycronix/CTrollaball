@@ -44,7 +44,6 @@ public class CTline : MonoBehaviour {
 	void Update() {
         
 		if(ctclient.custom != null && ctclient.custom.Length > 6) {     // sanity checks
-//			Vector3[] points;       // parse string into list of 3d points
 //			Debug.Log("Lines: " + ctclient.custom);
 			string[] spoints = ctclient.custom.Split(';');
 			lineR1.positionCount = spoints.Length;

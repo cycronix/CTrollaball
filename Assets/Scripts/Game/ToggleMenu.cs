@@ -48,11 +48,13 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 	}
 
 	private void doit() {
-		GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
-        showMenu = !gameOptions.activeSelf;
+		showMenu = !gameOptions.activeSelf;
+
         ctunity.setReplay(false);
-//        ctunity.observerFlag = true;  // ??
-//		ctunity.showMenu = false;   // observer mode while in menu...
 		gameOptions.SetActive(showMenu);
+
+        if(showMenu)       // if turning menu on, auto-target Ground
+            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
+        
 	}
 }

@@ -22,37 +22,46 @@ using UnityEngine;
 using System;
 
 public class JitterBug : MonoBehaviour {
-	private Vector3 myPos = Vector3.zero;
 	private System.Random random;
-	public float UpdateInterval = 1f;
+	public float UpdateInterval = 0.1f;
+	public float rangeLimit = 20f;
+	public float speedFactor = 1f;
+
 	private float stopWatch = 0f;
+
+	private CTclient ctclient;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
-		random = new System.Random();
+		ctclient = GetComponent<CTclient>();
+
+//		random = new System.Random();
+		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
 	}
    
 	//----------------------------------------------------------------------------------------------------------------
 	// Update is called once per frame
 	Vector3 velocity = Vector3.zero;
 	Vector3 newPos = Vector3.zero;
-
+    
 	void Update()
 	{
+		if (!ctclient.isLocalControl()) return;                 // notta unless under local-control
+
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= UpdateInterval)
 		{
 			stopWatch = 0f;
 
-			float xrand = (float)(random.Next(-95, 95)) / 10F;
-			float yrand = (float)(random.Next(-95, 95)) / 10F;
-			float zrand = (float)(random.Next(-50, 20)) / 10F;
+			float xrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
+			float yrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
+			float zrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
 			newPos = transform.position + new Vector3(xrand, zrand, yrand);
 
-			newPos.x = Mathf.Clamp(newPos.x, -10f, 10f);
-			newPos.y = Mathf.Clamp(newPos.y, 1f, 10f);
-			newPos.z = Mathf.Clamp(newPos.z, -10f, 10f);
+			newPos.x = Mathf.Clamp(newPos.x, -rangeLimit, rangeLimit);
+			newPos.y = Mathf.Clamp(newPos.y, 0f, rangeLimit/2f);
+			newPos.z = Mathf.Clamp(newPos.z, -rangeLimit, rangeLimit);
 		}
 
 //		transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime);

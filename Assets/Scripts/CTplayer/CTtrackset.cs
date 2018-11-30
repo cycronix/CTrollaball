@@ -40,7 +40,7 @@ public class CTtrackset : MonoBehaviour {
 
 		lineR1 = gameObject.AddComponent<LineRenderer>();
 		//		Color myColor = ctunity.Text2Color(name, 1F);
-//		setLineProps(lineR1, myColor, myColor);
+		setLineProps(lineR1, Color.black, Color.clear);             // KISS
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ public class CTtrackset : MonoBehaviour {
 		XYplayer.Enqueue(transform.position);
 		while (XYplayer.Count > MaxPts) XYplayer.Dequeue(); // limit size of queue
 
-		setLineProps(lineR1, ctclient.myColor, ctclient.myColor);
+//		setLineProps(lineR1, ctclient.myColor, ctclient.myColor);
 		lineR1.positionCount = XYplayer.Count;
 		lineR1.SetPositions(XYplayer.ToArray());
 

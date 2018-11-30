@@ -87,12 +87,15 @@ public class CTsetup: MonoBehaviour
 			{
 				case "Session":
                     ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
+//					updateSession();
+
+                    // add listener to update session settings
 					d.onValueChanged.AddListener(delegate
 					{
-						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
-//						updateServer();
+						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
 						updateSession();
 					});
+
                     break;
 			}
 		}
@@ -148,7 +151,8 @@ public class CTsetup: MonoBehaviour
 //		UnityEngine.Debug.Log("updateServer!");
 
 		//		ctunity.clearWorld(ctunity.Player);  // clean slate?
-		ctunity.clearWorlds();  // clean slate all worlds
+		ctunity.clearWorlds(true);      // clean slate all worlds
+		ctunity.doGetWorldState();      // reset any static world state
 
         InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
         foreach (InputField c in fields)
@@ -170,6 +174,8 @@ public class CTsetup: MonoBehaviour
         }
         
 		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
+//		StartCoroutine("getSourceList");       // get list of current GamePlay Sources
+
 		ctunity.doSyncClock();                  // sync client/server clocks
     }
 
@@ -178,17 +184,13 @@ public class CTsetup: MonoBehaviour
 
 	private void updateSession()
 	{
-		ctunity.showMenu = true;                                                // turn off CTstates recording while clear world
-		ctunity.clearWorlds();                                                  // clean slate all worlds
-
-//		serverConnect();                                                        // reconnect new server/session/player
-
-		//		UnityEngine.Debug.Log("updateSession!");
-		ctunity.observerFlag = true;
-//		transform.Find("Mode").gameObject.GetComponent<Dropdown>().value = 0;   // reset mode to observer
-		ctunity.setReplay(false);
-		ctunity.CTdebug(null);
-		ctunity.showMenu = false;                                               // start updating world
+		ctunity.showMenu = true;                // turn off CTstates recording while clear world
+		ctunity.clearWorlds(true);                  // clean slate all worlds
+		ctunity.observerFlag = true;            // we are observer
+		ctunity.setReplay(false);               // live
+		ctunity.CTdebug(null);                  // clear debug msg
+		ctunity.doGetWorldState();              // get (any) "World" states
+		ctunity.showMenu = false;               // start updating world (set at completion of async getWorldState)
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -201,7 +203,7 @@ public class CTsetup: MonoBehaviour
 
 		// setup for video players and observers both
         if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, ctunity.blocksPerSegment, true, true, true, ctunity.Server);
+        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, ctunity.blocksPerSegment, true, false, false, ctunity.Server);
 //        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
 		ctunity.ctvideo.login(ctunity.user, ctunity.password);
         ctunity.ctvideo.setAsync(AsyncMode);
@@ -392,8 +394,8 @@ public class CTsetup: MonoBehaviour
                     String gstring = group.ToString();
 					String prefix = "\"/CT/";
 					String gamePlay = "/GamePlay/";
-                    
-                    if (gstring.StartsWith(prefix) && gstring.Contains(gamePlay))
+					String world = "/World/";
+					if (gstring.StartsWith(prefix) && (gstring.Contains(gamePlay) || gstring.Contains(world)))
                     {
 						String thisSession = gstring.Split('/')[2];
                         if(!sessionList.Contains(thisSession)) sessionList.Add(thisSession);
@@ -412,7 +414,7 @@ public class CTsetup: MonoBehaviour
     }
 
 	// out-of-service code follows...
-    /*
+    
     //----------------------------------------------------------------------------------------------------------------
     // get source list
     List<String> sourceList = new List<String>();
@@ -436,6 +438,8 @@ public class CTsetup: MonoBehaviour
 
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
+			sourceList.Add("Red"); sourceList.Add("Blue"); sourceList.Add("Green"); sourceList.Add("Yellow");       // for now: init to RBGY
+
             Match match;
             for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
             {
@@ -449,16 +453,23 @@ public class CTsetup: MonoBehaviour
                     {
                         //UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
                         String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);
-                        sourceList.Add(thisSource);
+                        if(!sourceList.Contains(thisSource)) sourceList.Add(thisSource);
                     }
                 }
             }
 
-            foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
+//            foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
+
+			// reset Player dropdown option list:
+            Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
+            d.ClearOptions();
+            d.AddOptions(sourceList);
+            d.value = 0;
             yield break;
         }
     }
-      
+     
+    /*
     //----------------------------------------------------------------------------------------------------------------
     // establish route for remote to local CTweb proxy-connection
     private void CTroute()

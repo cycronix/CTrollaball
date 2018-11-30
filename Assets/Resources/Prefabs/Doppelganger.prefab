@@ -101,6 +101,7 @@ MonoBehaviour:
   SmoothTime: 0.25
   autoColor: 1
   isGhost: 0
+  isRogue: 0
 --- !u!114 &114861351426759904
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -112,4 +113,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38a0eaf1e2e564357802b08504599578, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  TrackTarget: Red.JitterBug
+  TrackTarget: 
