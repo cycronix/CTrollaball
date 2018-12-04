@@ -48,7 +48,7 @@ public class CTunity : MonoBehaviour
 
 //    internal Boolean remoteReplay = false;            // ghost (Player2) replay mode?
 	internal double latestTime = 0F;
-	internal Boolean showMenu = true;
+	internal Boolean gamePaused = true;
     internal string Server = "http://localhost:8000";
     internal string Player = "Observer";
     internal Boolean Ghost = false;
@@ -79,7 +79,8 @@ public class CTunity : MonoBehaviour
 	private Boolean JSON_Format = true;
 
 //	private readonly object objectLock = new object();
-	private Boolean clearWorldsFlag = false;
+	private Boolean clearWorldFlag = false;
+	private String clearWorldTBD = null;
 	private String CTchannel = "CTstates.txt";
 	private Boolean playPaused = false;
 
@@ -121,7 +122,7 @@ public class CTunity : MonoBehaviour
 		nups++;
 		stopWatchF += Time.deltaTime;
 
-		if (ctplayer == null || observerFlag || replayActive || showMenu) {
+		if (ctplayer == null || observerFlag || replayActive || gamePaused) {
 			if (stopWatchF > fpsInterval)
 			{
 				fpsText.text = "FPS: " + Math.Round(nups / stopWatchF);           // info
@@ -236,8 +237,10 @@ public class CTunity : MonoBehaviour
                     }
 
                     // instantiate new players and objects
+//				    if (!CTlist.ContainsKey(ctobject.id)  && (observerFlag || !world.player.Equals(Player)))  // mjm 12/3/18
                     if (!CTlist.ContainsKey(ctobject.id) /* && (observerFlag || !world.player.Equals(Player)) */)  // mjm 11/2/18
                     {
+//					    Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
                         newGameObject(ctobject);
                     }
 //                }
@@ -286,7 +289,11 @@ public class CTunity : MonoBehaviour
 	public GameObject newGameObject(CTobject ctobject)
     {
 		GameObject go = newGameObject(ctobject.id, ctobject.model, ctobject.pos, ctobject.rot, ctobject.scale, false, ctobject.state);
-        
+		if(go == null) {
+			Debug.Log("oops, missing gameobject " + ctobject.id);
+			return null;
+		}
+
 		CTclient ctc = go.GetComponent<CTclient>();
 		if (ctc != null) ctc.setState(ctobject, true, false);  // set ctobject color and custom params in CTclient
 
@@ -410,16 +417,24 @@ public class CTunity : MonoBehaviour
     
 	public void clearWorlds(Boolean syncFlag)
 	{
-		if (syncFlag) 
-			clearWorld(null);                       // do it now
-		else
-			clearWorldsFlag = true;                 // async
-
+		clearWorld(null, syncFlag);
 	}
+
+	public void clearWorld(String worldName, Boolean syncFlag)
+    {
+		if (syncFlag)
+		{
+			clearWorld(worldName);                       // do it now
+		}
+		else
+		{
+			clearWorldTBD = worldName;                 // async
+			clearWorldFlag = true;
+		}
+    }
 
 	public void clearWorld(String worldName)
 	{
-		
 		List<GameObject> gos = new List<GameObject>(CTlist.Values);     // make copy; avoid sync error
 
 		foreach (GameObject go in gos)
@@ -433,7 +448,7 @@ public class CTunity : MonoBehaviour
 			}
 		}
 
-		clearWorldsFlag = false;        // done
+		clearWorldFlag = false;        // done
 	}
     
 	//-------------------------------------------------------------------------------------------------------
@@ -479,11 +494,11 @@ public class CTunity : MonoBehaviour
 		{
 			yield return new WaitForSeconds(pollInterval);      // sleep for pollInterval (/2 for faster response)
          
-			if (showMenu) continue;                                     // no-op unless run-mode
+			if (gamePaused) continue;                                     // no-op unless run-mode
 			if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
 
-			if (clearWorldsFlag) clearWorld(null);
-
+			if (clearWorldFlag) clearWorld(clearWorldTBD);
+            
 			oldTime = replayTime;
 
 			// form HTTP GET URL
@@ -524,19 +539,29 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
     // getWorldState: GET <Session>/World/* from CT, update world objects (all modes)
     
-	public void doGetWorldState()
+	public void deployWorld(String world)           // get specific world or "*" for all
     {
-        StartCoroutine(getWorldState());
+		if (world.Equals("<Clear>"))
+		{
+			clearWorld(Player, false);              // NG, how to force a clear???  Can't write non-player CTstates.json...  ???
+		}
+		else
+		{
+			StartCoroutine(loadWorlds(world));
+		}
     }
 
-    public IEnumerator getWorldState()
+	public IEnumerator loadWorlds(String deploy)
     {
+		Debug.Log("loadWorld: " + deploy);
         while (true)
         {
             yield return new WaitForSeconds(pollInterval); 
 
             // form HTTP GET URL
-            string url1 = Server + "/CT/" + Session + "/World/*/" + CTchannel;
+//            string url1 = Server + "/CT/" + Session + "/World/*/" + CTchannel;
+			string url1 = Server + "/CT/" + Session + "/World/" +deploy +"/" + CTchannel+"?f=d";
+
             UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
             yield return www1.SendWebRequest();
@@ -551,19 +576,26 @@ public class CTunity : MonoBehaviour
 
             // parse to class structure...
             List<CTworld> worlds = CTserdes.deserialize(www1.downloadHandler.text);
-            
+			if(worlds == null) {
+				Debug.Log("Null worlds found for: " + url1);
+				yield break;
+			}
+
+//			Debug.Log("getWorldState, url1: " + url1 + ", text: " + www1.downloadHandler.text);
 			// instantiate World objects here (vs waiting for CT GET loop)
 			foreach (CTworld world in worlds)
             {
 				foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
 				{
 					CTobject ctobject = ctpair.Value;
-					if (!ctobject.id.StartsWith(world.player)) ctobject.id = world.player + "." + ctobject.id;      // auto-prepend world name to object
+//					if (!ctobject.id.StartsWith(world.player)) ctobject.id = world.player + "." + ctobject.id;      // auto-prepend world name to object
+					if (!ctobject.id.StartsWith(Player)) ctobject.id = Player + "." + ctobject.id;      // auto-prepend Player name to object
+
 //                    ctobject.isWorld = true;        // world objects are "static"
 
 					GameObject go = newGameObject(ctobject);
-					CTclient ctc = go.GetComponent<CTclient>();
-					if (ctc != null) ctc.isRogue = true;                // world objects are Rogue by default
+//					CTclient ctc = go.GetComponent<CTclient>();
+//					if (ctc != null) ctc.isRogue = true;                // world objects are Rogue by default
 				}
             }
 //			Debug.Log("getWorldState, Nworlds: "+worlds.Count+", Player: "+Player);

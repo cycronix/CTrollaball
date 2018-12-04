@@ -71,7 +71,7 @@ public class CTtimecontrol : MonoBehaviour {
 			oldSliderValue = 1F;    // init
 		}
 
-		if (ctunity.showMenu)
+		if (ctunity.gamePaused)
 		{
 			setStateText(pausedLabel);
 			slider.gameObject.SetActive(false);

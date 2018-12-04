@@ -41,7 +41,7 @@ public class ToggleGhost : MonoBehaviour
 	public void OnMouseDown()
 	{
 		if (ctunity == null) return;   // not launched yet
-		if (ctunity.observerFlag || ctunity.showMenu) return;     // observers don't get ghost-followers
+		if (ctunity.observerFlag || ctunity.gamePaused) return;     // observers don't get ghost-followers
       
 		if (clickTime > 0F)
 		{

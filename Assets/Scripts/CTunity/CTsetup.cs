@@ -87,7 +87,6 @@ public class CTsetup: MonoBehaviour
 			{
 				case "Session":
                     ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
-//					updateSession();
 
                     // add listener to update session settings
 					d.onValueChanged.AddListener(delegate
@@ -96,6 +95,28 @@ public class CTsetup: MonoBehaviour
 						updateSession();
 					});
 
+                    break;
+
+				case "Deploy":
+					StartCoroutine("getWorldList");         // init list of "World" prefabs
+
+                    // add listener to deploy new world 
+                    d.onValueChanged.AddListener(delegate
+					{   if (d.value != 0)
+						{
+							ctunity.deployWorld(d.GetComponent<Dropdown>().options[d.value].text);
+							d.value = 0;        // reset to blank
+						}
+                    });
+
+                    break;
+                   
+				case "Player1":
+					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init
+					d.onValueChanged.AddListener(delegate
+					{
+						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
+					});
                     break;
 			}
 		}
@@ -122,7 +143,7 @@ public class CTsetup: MonoBehaviour
 		{
 			menuPass = MenuPass.Session;
 			ctunity.observerFlag = true;
-			ctunity.showMenu = false;
+			ctunity.gamePaused = false;
 		}
 		modeSelect();
 	}
@@ -133,8 +154,9 @@ public class CTsetup: MonoBehaviour
 		if (ctunity != null)  // on startup, async ctunity my not yet be defined
 		{
 			//			ctunity.showMenu = true;                
-			ctunity.Player = "Observer";            // be in live observer mode while in menu
+//			ctunity.Player = "Observer";            // be in live observer mode while in menu
 			ctunity.observerFlag = true;
+//			ctunity.showMenu = true;
 		}
 	}
 
@@ -152,7 +174,7 @@ public class CTsetup: MonoBehaviour
 
 		//		ctunity.clearWorld(ctunity.Player);  // clean slate?
 		ctunity.clearWorlds(true);      // clean slate all worlds
-		ctunity.doGetWorldState();      // reset any static world state
+//		ctunity.doGetWorldState("*");      // reset any static world state
 
         InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
         foreach (InputField c in fields)
@@ -184,15 +206,19 @@ public class CTsetup: MonoBehaviour
 
 	private void updateSession()
 	{
-		ctunity.showMenu = true;                // turn off CTstates recording while clear world
-		ctunity.clearWorlds(true);                  // clean slate all worlds
+		ctunity.gamePaused = true;                // turn off CTstates recording while clear world
+		StartCoroutine("getWorldList");         // get list of "World" prefabs
+
+//		ctunity.clearWorlds(true);              // clean slate all worlds
+		ctunity.clearWorlds(false);              // clean slate all worlds
+
 		ctunity.observerFlag = true;            // we are observer
 		ctunity.setReplay(false);               // live
 		ctunity.CTdebug(null);                  // clear debug msg
-		ctunity.doGetWorldState();              // get (any) "World" states
-		ctunity.showMenu = false;               // start updating world (set at completion of async getWorldState)
+//		ctunity.doGetWorldState("*");           // get (any) "World" states
+		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
 	}
-
+    
 	//----------------------------------------------------------------------------------------------------------------
     // Connect to CTweb server
 	// can't connect to CTweb until Play/Observe is committed (need Session to build source name)
@@ -281,7 +307,7 @@ public class CTsetup: MonoBehaviour
 
 		gameObject.SetActive(false);
 		ctunity.lastSubmitTime = ctunity.ServerTime();
-		ctunity.showMenu = false;
+		ctunity.gamePaused = false;
 		//		replayControl.SetActive(ctunity.observerFlag);
 		ctunity.CTdebug(null);                // clear warnings/debug text
 	}
@@ -327,8 +353,8 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     void cancelButton()
     {
-        ctunity.showMenu = false;
-        gameObject.SetActive(ctunity.showMenu);
+        ctunity.gamePaused = false;
+        gameObject.SetActive(ctunity.gamePaused);
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -340,8 +366,8 @@ public class CTsetup: MonoBehaviour
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 //		replayControl.SetActive(true);
 		ctunity.CTdebug(null);                // clear warnings/debug te
-		ctunity.showMenu = false;
-		gameObject.SetActive(ctunity.showMenu);
+		ctunity.gamePaused = false;
+		gameObject.SetActive(ctunity.gamePaused);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -412,15 +438,73 @@ public class CTsetup: MonoBehaviour
             yield break;
         }
     }
+     
+	//----------------------------------------------------------------------------------------------------------------
+    // get/set world list for dropdown selection
+
+    public IEnumerator getWorldList()
+    {
+		List<String> sourceList = new List<String>();
+
+        while (true)
+        {
+            //          UnityEngine.Debug.Log("getSourceList!");
+            yield return new WaitForSeconds(0.1F);
+
+            string url1 = ctunity.Server + "/CT";
+            WWW www1 = new WWW(url1);
+            yield return www1;          // wait for results to HTTP GET
+
+            if (!string.IsNullOrEmpty(www1.error))
+            {
+                ctunity.CTdebug("getWorldList www1 error: " + www1.error + ", url: " + url1);
+                yield break;
+            }
+
+            Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
+            sourceList.Clear();
+			sourceList.Add("");             // seed with blank
+			sourceList.Add("<Clear>");
+
+            Match match;
+            for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+            {
+                foreach (Group group in match.Groups)
+                {
+                    //              UnityEngine.Debug.Log ("Group: "+group);
+                    String gstring = group.ToString();
+                    String prefix = "\"/CT/" + ctunity.Session + "/World/";
+
+                    if (gstring.StartsWith(prefix))
+                    {
+                        //UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
+                        String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);
+                        if (!sourceList.Contains(thisSource)) sourceList.Add(thisSource);
+                    }
+                }
+            }
+
+            //            foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
+
+            // reset Player dropdown option list:
+            Dropdown d = transform.Find("Deploy").gameObject.GetComponent<Dropdown>();
+            d.ClearOptions();
+            d.AddOptions(sourceList);
+            d.value = 0;
+            yield break;
+        }
+    }
 
 	// out-of-service code follows...
     
+	/*
     //----------------------------------------------------------------------------------------------------------------
     // get source list
-    List<String> sourceList = new List<String>();
 
     public IEnumerator getSourceList()
     {
+        List<String> sourceList = new List<String>();
+
         while (true)
         {
 //          UnityEngine.Debug.Log("getSourceList!");
@@ -438,7 +522,7 @@ public class CTsetup: MonoBehaviour
 
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
-			sourceList.Add("Red"); sourceList.Add("Blue"); sourceList.Add("Green"); sourceList.Add("Yellow");       // for now: init to RBGY
+            sourceList.Add("Red"); sourceList.Add("Blue"); sourceList.Add("Green"); sourceList.Add("Yellow");       // for now: init to RBGY
 
             Match match;
             for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
@@ -460,7 +544,7 @@ public class CTsetup: MonoBehaviour
 
 //            foreach (String s in sourceList) UnityEngine.Debug.Log("source: " + s);
 
-			// reset Player dropdown option list:
+            // reset Player dropdown option list:
             Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
             d.ClearOptions();
             d.AddOptions(sourceList);
@@ -468,8 +552,7 @@ public class CTsetup: MonoBehaviour
             yield break;
         }
     }
-     
-    /*
+    
     //----------------------------------------------------------------------------------------------------------------
     // establish route for remote to local CTweb proxy-connection
     private void CTroute()

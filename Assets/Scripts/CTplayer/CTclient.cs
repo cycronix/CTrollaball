@@ -100,6 +100,8 @@ public class CTclient : MonoBehaviour
 
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
+//		if (name.Equals("World.JB2")) Debug.Log("setState, replayMode: " + ireplay);
+
 		ctobject = cto;                             // for public ref
         
 		// set baseline for Lerp going forward to next step
@@ -139,7 +141,6 @@ public class CTclient : MonoBehaviour
 				rb.useGravity = true; 
 			}
 		}
-//		if (name.Equals("World.Plane")) Debug.Log("setState, replayMode: " + replayMode + ", rb: " + rb);
 
 		startup = false;
 	}
@@ -206,23 +207,26 @@ public class CTclient : MonoBehaviour
     
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isRemoteControl() {
-		return ( !startup && (replayMode || !isLocalObject() || ctunity.showMenu) );
+		return ( !startup && (replayMode || !isLocalObject() || ctunity.gamePaused) );
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalControl() {
-		return (isRogue || (isLocalObject() && !replayMode && !ctunity.showMenu));
+		Boolean ilc = isRogue || (isLocalObject() && !replayMode && !ctunity.gamePaused);
+//		if(gameObject.name.Equals("World.JB2")) Debug.Log(name+", isLocalControl: "+ilc+", isRogue: "+isRogue+", replayMode: "+replayMode+", showMenu: "+ctunity.showMenu);
+		return ilc;
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalObject()
     {
+//		if (gameObject.name.Equals("World.JB2")) Debug.Log("ilo name: " + gameObject.name);
 		Boolean localObject = false;
 		if (ctunity == null) return false;
 		if (gameObject.name.StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
 			    localObject = true;
 
-//		Debug.Log("isLocalObject: "+localObject+", name: " + gameObject.name + ", ctu.p: " + ctunity.Player+", oflag: "+ctunity.observerFlag);
+//		if (gameObject.name.Equals("World.JB2")) Debug.Log("isLocalObject: "+localObject+", name: " + gameObject.name + ", Player: " + ctunity.Player+", observer: "+ctunity.observerFlag);
 		return localObject;
     }
 

@@ -5016,7 +5016,7 @@ MonoBehaviour:
       m_Image: {fileID: 0}
     - m_Text: Yellow
       m_Image: {fileID: 0}
-    - m_Text: Custom
+    - m_Text: World
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -8362,10 +8362,6 @@ MonoBehaviour:
   m_Options:
     m_Options:
     - m_Text: 
-      m_Image: {fileID: 0}
-    - m_Text: Doppelganger
-      m_Image: {fileID: 0}
-    - m_Text: JitterBug
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

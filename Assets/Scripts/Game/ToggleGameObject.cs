@@ -49,7 +49,7 @@ public class ToggleGameObject : MonoBehaviour, IPointerDownHandler
     {
 //		if (Prefab.Equals("") || ctunity.showMenu || ctunity.isReplayMode()) return;                // not initialized
 		if (Prefab.Equals("")) return;                // not initialized
-		if (ChildOfPlayer && (ctunity.showMenu || ctunity.isReplayMode() || ctunity.observerFlag)) return;
+		if (ChildOfPlayer && (ctunity.gamePaused || ctunity.isReplayMode() || ctunity.observerFlag)) return;
               
 		toggleGameObject();
 

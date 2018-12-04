@@ -51,7 +51,7 @@ public class ToggleObserver : MonoBehaviour, IPointerDownHandler {
 				ctsetup.serverConnect();
 				ctunity.Player = "Observer";
 				ctunity.lastSubmitTime = ctunity.ServerTime();
-				ctunity.showMenu = false;
+				ctunity.gamePaused = false;
 				replayControl.SetActive(true);
 			}
 

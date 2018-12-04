@@ -70,7 +70,7 @@ public class CTreplay : MonoBehaviour, IPointerDownHandler {		// required interf
 	IEnumerator DownloadImage()
 	{
 		while (true) {
-			if (!showImage || ctunity.showMenu) {
+			if (!showImage || ctunity.gamePaused) {
 				yield return new WaitForSeconds (ctunity.pollInterval);
 //				GetComponent<Renderer> ().material.mainTexture = startTexture;
 			} 

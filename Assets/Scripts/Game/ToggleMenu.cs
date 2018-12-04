@@ -57,4 +57,9 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
             GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
         
 	}
+
+//	private void Update()
+//	{
+//		ctunity.showMenu = gameOptions.activeSelf;
+//	}
 }
