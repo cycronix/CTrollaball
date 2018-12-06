@@ -67,9 +67,9 @@ public class CTserdes
 		public List<Double> pos = new List<Double> { 0, 0, 0 };
 		public List<Double> rot = new List<Double> { 0, 0, 0 };
 		public List<Double> scale = new List<Double> { 0, 0, 0 };       // default Vector3.zero means no change native scale
-		public string link;
+		public string link = null;
 		public List<Double> color = new List<Double> { 0, 0, 0, 0 };    // default Color.clear means use native object-color
-		public string custom;
+		public string custom = null;
 	}
 
 	/// <summary>
@@ -253,6 +253,11 @@ public class CTserdes
 			{
 				CTobject cto = new CTobject();
 				cto.id = ctobject.id;
+
+				// legacy format conversion:
+				if (cto.id.Equals(jCTW.player)) cto.id = cto.id + "/" + cto.id;  // convert old top-level player
+				else if (cto.id.StartsWith(jCTW.player + ".")) cto.id = cto.id.Remove(0, jCTW.player.Length + 1);
+
 				cto.model = ctobject.model;
 				cto.state = ctobject.state;
 				cto.link = ctobject.link;
@@ -346,27 +351,38 @@ public class CTserdes
 		world.objects = new List<CTobjectJson>();
 		foreach (GameObject ct in ctunityI.CTlist.Values)
 		{
+			String fullName = CTunity.fullName(ct);
+			if (!ctunityI.doCTwrite(fullName)) continue;          // only save locally owned objects
+         
+//			Debug.Log("CTserdes ct.name: " + fullName);
+
 			if (ct == null) continue;
 			CTclient ctp = ct.GetComponent<CTclient>();
 			if (ctp == null) continue;
 			String prefab = ctp.prefab;
 			if (prefab.Equals("Ghost")) continue;  // no save ghosts												
 //			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
-			if (!ctunityI.doCTwrite(ct.name)) continue;          // only save locally owned objects
+//			if (!ctunityI.doCTwrite(fullName)) continue;          // only save locally owned objects
             
 			CTobjectJson obj = new CTobjectJson();
-			obj.id = ct.name;
+//			obj.id = ct.name;
+
+            // strip leading world-name from embedded object name
+            if (fullName.StartsWith(world.player + "/")) fullName = fullName.Remove(0, world.player.Length + 1);
+			obj.id = fullName;
+//			Debug.Log("CTserdes obj.id: " + obj.id+", world.player: "+world.player);
+                     
 			obj.model = prefab;
 			obj.state = (ct.activeSelf ? true : false);
 			// NOTE: limit floating point values to 4 decimal places
 			obj.pos = new List<Double>();
-			obj.pos.Add(LimitPrecision(ct.transform.localPosition.x, 4));
-			obj.pos.Add(LimitPrecision(ct.transform.localPosition.y, 4));
-			obj.pos.Add(LimitPrecision(ct.transform.localPosition.z, 4));
+			obj.pos.Add(LimitPrecision(ct.transform.position.x, 4));
+			obj.pos.Add(LimitPrecision(ct.transform.position.y, 4));
+			obj.pos.Add(LimitPrecision(ct.transform.position.z, 4));
 			obj.rot = new List<Double>();
-			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.x, 4));
-			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.y, 4));
-			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.z, 4));
+			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.x, 4));
+			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.y, 4));
+			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.z, 4));
 			obj.scale = new List<Double>();
             obj.scale.Add(LimitPrecision(ct.transform.localScale.x, 4));
             obj.scale.Add(LimitPrecision(ct.transform.localScale.y, 4));
@@ -399,6 +415,7 @@ public class CTserdes
 			UnityEngine.Debug.Log("Exception serializing JSON: " + e.Message);
 			return null;
 		}
+		jsonData = jsonData.Replace("},", "},\n");     // for readability
 		return jsonData;
 	}
 

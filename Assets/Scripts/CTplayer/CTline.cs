@@ -28,14 +28,14 @@ public class CTline : MonoBehaviour {
 
 	private LineRenderer lineR1;
 	private Boolean startup = true;
-
+    
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
 		ctclient = GetComponent<CTclient>();
 
 		lineR1 = gameObject.AddComponent<LineRenderer>();
-		Color myColor = ctunity.Text2Color(name, 1F);
+		Color myColor = ctunity.objectColor(gameObject);
 
 		setLineProps(lineR1, myColor, myColor);
 	}

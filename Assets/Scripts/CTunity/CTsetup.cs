@@ -35,8 +35,8 @@ public class CTsetup: MonoBehaviour
     private maxCamera myCamera;
 	private CTunity ctunity;
 	private GameObject replayControl;
-    
-	public Boolean AsyncMode = true;
+	//	public Boolean AsyncMode = true;
+	private Dropdown playerDrop = null;
 
 	private enum MenuPass
     {
@@ -112,7 +112,8 @@ public class CTsetup: MonoBehaviour
                     break;
                    
 				case "Player1":
-					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init
+					playerDrop = d;
+//					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init
 					d.onValueChanged.AddListener(delegate
 					{
 						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
@@ -136,9 +137,15 @@ public class CTsetup: MonoBehaviour
 		modeSelect();
     }
 
+	//----------------------------------------------------------------------------------------------------------------
+	// keep menu state updated (inefficient!)
+
 	private void LateUpdate()
 	{
-		if (ctunity.syncError) menuPass = MenuPass.Connection;
+		if (ctunity.syncError)
+		{
+			menuPass = MenuPass.Connection;
+		}
 		else
 		{
 			menuPass = MenuPass.Session;
@@ -154,7 +161,6 @@ public class CTsetup: MonoBehaviour
 		if (ctunity != null)  // on startup, async ctunity my not yet be defined
 		{
 			//			ctunity.showMenu = true;                
-//			ctunity.Player = "Observer";            // be in live observer mode while in menu
 			ctunity.observerFlag = true;
 //			ctunity.showMenu = true;
 		}
@@ -164,21 +170,17 @@ public class CTsetup: MonoBehaviour
 	{
 //		ctunity.showMenu = false;
 	}
-    
+
 	//----------------------------------------------------------------------------------------------------------------
-    // glean server/session status from menu fields
-    
+	// glean server/session status from menu fields
+
 	void updateServer()
-    {
-//		UnityEngine.Debug.Log("updateServer!");
-
-		//		ctunity.clearWorld(ctunity.Player);  // clean slate?
+	{
 		ctunity.clearWorlds(true);      // clean slate all worlds
-//		ctunity.doGetWorldState("*");      // reset any static world state
 
-        InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
-        foreach (InputField c in fields)
-        {
+		InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
+		foreach (InputField c in fields)
+		{
 			switch (c.name)
 			{
 				case "Server":
@@ -193,13 +195,15 @@ public class CTsetup: MonoBehaviour
 					ctunity.password = c.text;
 					break;
 			}
-        }
-        
-		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
-//		StartCoroutine("getSourceList");       // get list of current GamePlay Sources
+		}
 
+        // update player to current dropdown value
+		ctunity.Player = playerDrop.GetComponent<Dropdown>().options[playerDrop.value].text;      // init
+//		Debug.Log("ctunity.Player: " + ctunity.Player);
+
+		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
 		ctunity.doSyncClock();                  // sync client/server clocks
-    }
+	}
 
 	//----------------------------------------------------------------------------------------------------------------
     // update Session, refresh connection and view
@@ -208,40 +212,14 @@ public class CTsetup: MonoBehaviour
 	{
 		ctunity.gamePaused = true;                // turn off CTstates recording while clear world
 		StartCoroutine("getWorldList");         // get list of "World" prefabs
-
-//		ctunity.clearWorlds(true);              // clean slate all worlds
-		ctunity.clearWorlds(false);              // clean slate all worlds
+        
+		ctunity.clearWorlds(true);              // clean slate all worlds
 
 		ctunity.observerFlag = true;            // we are observer
 		ctunity.setReplay(false);               // live
 		ctunity.CTdebug(null);                  // clear debug msg
 //		ctunity.doGetWorldState("*");           // get (any) "World" states
 		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
-	}
-    
-	//----------------------------------------------------------------------------------------------------------------
-    // Connect to CTweb server
-	// can't connect to CTweb until Play/Observe is committed (need Session to build source name)
-
-	public void serverConnect() 
-	{
-//		UnityEngine.Debug.Log("serverConnect, user: " + ctunity.user + ", pw: " + ctunity.password);
-
-		// setup for video players and observers both
-        if (ctunity.ctvideo != null) ctunity.ctvideo.close();
-        ctunity.ctvideo = new CTlib.CThttp(ctunity.Session + "/ScreenCap/" + ctunity.Player, ctunity.blocksPerSegment, true, false, false, ctunity.Server);
-//        ctunity.ctvideo.login(ctunity.Player, "CloudTurbine");
-		ctunity.ctvideo.login(ctunity.user, ctunity.password);
-        ctunity.ctvideo.setAsync(AsyncMode);
-        
-		if (!ctunity.observerFlag)
-		{
-			if (ctunity.ctplayer != null) ctunity.ctplayer.close();
-			ctunity.ctplayer = new CTlib.CThttp(ctunity.Session + "/GamePlay/" + ctunity.Player, ctunity.blocksPerSegment, true, true, true, ctunity.Server);
-//			ctunity.ctplayer.login(ctunity.Player, "CloudTurbine");
-			ctunity.ctplayer.login(ctunity.user, ctunity.password);
-			ctunity.ctplayer.setAsync(AsyncMode);
-		}
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -271,6 +249,7 @@ public class CTsetup: MonoBehaviour
 	void submitButton()
 	{
 		String deploy = "";
+		String player="unknown", model="unknown";
 		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
 		foreach (Dropdown d in drops)
 		{
@@ -280,10 +259,10 @@ public class CTsetup: MonoBehaviour
 					ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
 				case "Player1":
-					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
+					player = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
 				case "Model":
-					ctunity.Model = d.GetComponent<Dropdown>().options[d.value].text;
+					model = d.GetComponent<Dropdown>().options[d.value].text;
 					break;
 				case "Deploy":
                     deploy = d.GetComponent<Dropdown>().options[d.value].text;
@@ -291,19 +270,20 @@ public class CTsetup: MonoBehaviour
 			}
 		}
 
+		ctunity.Player = player;
+		string playermodel = player + "/" + model;
 		// connect to CTweb server
-		serverConnect();
+		ctunity.serverConnect();
 
-		GameObject go = ctunity.newPlayer(ctunity.Player, ctunity.Model, false);    // instantiate local player
+		GameObject go = ctunity.newPlayer(playermodel, model, false);    // instantiate local player
 //		GameObject go = ctunity.newPlayer(ctunity.Player+"."+ctunity.Model, ctunity.Model, false);
-		if(!deploy.Equals(""))
-			ctunity.newPlayer(ctunity.Player+"."+deploy, deploy, false);
+//		if(!deploy.Equals("")) ctunity.newPlayer(ctunity.Player+"."+deploy, deploy, false);
 
 		// kick new player to launch its playerObjects:
 		PlayerObjects po = go.GetComponent<PlayerObjects>();
 		if (po != null) po.Startup();
 
-		myCamera.setTarget(GameObject.Find(ctunity.Player).transform);
+		myCamera.setTarget(GameObject.Find(playermodel).transform);
 
 		gameObject.SetActive(false);
 		ctunity.lastSubmitTime = ctunity.ServerTime();
@@ -313,8 +293,11 @@ public class CTsetup: MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
+	// modeSelect:  set menu-pass, e.g. login vs setup
+
     void modeSelect()
     {
+//		Debug.Log("modeSelect!");
 		switch (menuPass)
 		{
 			case MenuPass.Connection:
@@ -361,8 +344,8 @@ public class CTsetup: MonoBehaviour
 	void viewButton()
 	{
 		ctunity.observerFlag = true;
-		serverConnect();
-		ctunity.Player = "Observer";
+		ctunity.serverConnect();
+//		ctunity.Player = "Observer";
 		ctunity.lastSubmitTime = ctunity.ServerTime();
 //		replayControl.SetActive(true);
 		ctunity.CTdebug(null);                // clear warnings/debug te
@@ -464,7 +447,7 @@ public class CTsetup: MonoBehaviour
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
 			sourceList.Add("");             // seed with blank
-			sourceList.Add("<Clear>");
+			sourceList.Add(ctunity.Cancel);
 
             Match match;
             for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())

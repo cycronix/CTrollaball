@@ -39,7 +39,9 @@ public class CTdoppelganger : MonoBehaviour {
 
 		//		myScale = transform.localScale;                             // scale not set until enabled?
 		transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);    // hide at startup      
-		ctclient.custom = TrackTarget;
+
+		//		ctclient.custom = TrackTarget;
+		if (TrackTarget == null || TrackTarget.Equals("")) TrackTarget = ctunity.Player + "/Ball";
 	}
 
 	private void OnEnable()
@@ -51,8 +53,8 @@ public class CTdoppelganger : MonoBehaviour {
 	void Update()
 	{
 		//		if (!ctclient.isLocalObject()) return;   // notta unless locally recorded object
-		TrackTarget = ctclient.custom;
-		if (TrackTarget.Equals("")) TrackTarget = ctunity.Player;                   // default to track parent
+//		TrackTarget = ctclient.custom;
+//		if (TrackTarget.Equals("")) TrackTarget = ctunity.Player;                   // default to track parent
 		if (trackobject == null || !TrackTarget.Equals(trackobject.name)) 
 			trackobject = GameObject.Find(TrackTarget);     // child-init
 

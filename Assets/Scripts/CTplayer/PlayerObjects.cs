@@ -42,12 +42,14 @@ public class PlayerObjects : MonoBehaviour {
 
 	// Startup is called by CTsetup on new-player launch (vs object start)
 	public void Startup () {
-//		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + gameObject.name);
         if(ctunity == null)    // async startup possible issue
-			ctunity = GameObject.Find("CTunity").GetComponent<CTunity>(); 
-		
-        if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
-//		if (!gameObject.name.StartsWith(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+			ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
+
+		String fullName = CTunity.fullName(gameObject);
+//		UnityEngine.Debug.Log("PlayerObjects! Player: " + ctunity.Player + ", thisName: " + fullName);
+
+//        if (!gameObject.name.Equals(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
+		if (!fullName.StartsWith(ctunity.Player)) return;            // external or remote player no-spawn local gameObjects
 
         ctplayer = GameObject.Find("Players").transform;                // reference Players container
  //       string Player = gameObject.name;
@@ -58,14 +60,14 @@ public class PlayerObjects : MonoBehaviour {
 		Vector3 gpos = ctunity.groundPos(ctunity.Player);
 		if (!gpos.Equals(Vector3.zero))  // no Ground for other than R,B,G,Y players
 		{
-			Ground = ctunity.newGameObject(ctunity.Player + ".Ground", "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
+			Ground = ctunity.newGameObject(ctunity.Player + "/Ground", "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
 //			Ground = ctunity.newGameObject(ctunity.Player, "Ground", gpos, Quaternion.identity, Vector3.zero, false, true);
 
 			// adjust ground object color (needs to be centralized)
 			Renderer renderer = Ground.GetComponent<Renderer>();
 			if (renderer != null)
 			{
-				Color c = ctunity.Text2Color(gameObject.name, 1F);   // ref original color (avoid accumulated changes)
+				Color c = ctunity.objectColor(gameObject);   // ref original color (avoid accumulated changes)
 				float H, S, V;
 				Color.RGBToHSV(c, out H, out S, out V);
 				renderer.material.color = Color.HSVToRGB(H, (float)(S * 0.8F), (float)(V * 0.8F), false);   // toned-down color
@@ -100,7 +102,7 @@ public class PlayerObjects : MonoBehaviour {
             if (ctunity.Model.Equals("Ball")) zrand = 0.4F;                 // fixed elevation if ball
 //			Debug.Log("PlayerObjects dispensePickups, i: " + i);
 
-			ctunity.newGameObject(ctunity.Player + ".Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
+			ctunity.newGameObject(ctunity.Player + "/Pickup" + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
 //			ctunity.newGameObject(ctunity.Player + "." + nobject++, "Pickup", groundPos + new Vector3(xrand, zrand, yrand), Quaternion.identity, Vector3.zero, false, true);
         }
     }

@@ -32,7 +32,7 @@ public class PlayerController : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
-		Debug.Log (gameObject.name+": Hello World!");
+		Debug.Log (CTunity.fullName(gameObject)+": Hello World!");
 
 		ctclient = GetComponent<CTclient>();
 		rb = GetComponent<Rigidbody>();

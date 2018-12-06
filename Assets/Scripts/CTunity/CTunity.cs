@@ -41,6 +41,7 @@ public class CTunity : MonoBehaviour
 	public int maxPointRate = 50;                 // (max) rate to update points
 	public int blocksPerSegment = 200;          // CTlib.CThttp setting
 	public float fpsInterval = 0.1f;     // update interval for FPS info   
+	public Boolean AsyncMode = true;
 
     // internal variable accessible from other scripts but not Editor Inspector
     internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
@@ -59,9 +60,10 @@ public class CTunity : MonoBehaviour
     internal double lastSubmitTime = 0;
     internal Boolean observerFlag = true;
 	internal Boolean trackEnabled = true;             // enable player-tracks
-
+	internal String Cancel = "<Cancel>";              // dropdown value to cancel/delete un-played deployed objects
     internal CTlib.CThttp ctplayer = null;            // storage
     internal CTlib.CThttp ctvideo = null;
+	internal CTlib.CThttp ctsnapshot = null;
 
 	internal double replayTime = 0;
 	internal Boolean replayActive = false;
@@ -100,11 +102,12 @@ public class CTunity : MonoBehaviour
     // build list of players/CT objects
     
 	public void CTregister(GameObject go) {        
-		if (go.GetComponent<CTclient>()!=null && !CTlist.ContainsKey(go.name))   // only register objects with CTclient
+		if (go.GetComponent<CTclient>()!=null && !CTlist.ContainsKey(fullName(go)))   // only register objects with CTclient
 //		    && !go.name.StartsWith("World."))  // skip "World" objects ?
 		{
-			CTlist.Add(go.name, go);
-//			Debug.Log("CTregister: " + go.name);
+//			CTlist.Add(go.name, go);
+			CTlist.Add(fullName(go), go);
+//			Debug.Log("CTregister, go.name: " +go.name+ ", fullname: "+ fullName(go));
 		}
 	}
 
@@ -130,7 +133,7 @@ public class CTunity : MonoBehaviour
 			}
 			return;
 		}
-
+        
 		if (maxPointRate < blockRate) maxPointRate = blockRate;   // firewall
 		float pointInterval = 1f / maxPointRate;
 		stopWatchP += Time.deltaTime;
@@ -160,8 +163,27 @@ public class CTunity : MonoBehaviour
             fpsText.text = "B/P/FPS: " + BPS + "/" + PPS + "/" + FPS;
 			stopWatchF = nups = 0;
 		}
-
     }
+
+	//-------------------------------------------------------------------------------------------------------
+	// SnapShot:  single-shot save current Player state
+
+	internal void SnapShot() {
+		Debug.Log("Snapshot: " + Player);
+		serverConnect();  // reset Player folder paths
+      
+		string CTstateString = CTserdes.serialize(this, JSON_Format ? CTserdes.Format.JSON : CTserdes.Format.CSV);
+
+        // archive World state
+        ctsnapshot.setTime(ServerTime());
+        ctsnapshot.putData(CTchannel, CTstateString);
+		ctsnapshot.flush();
+        
+		// update GamePlay (disables <Cancel> option)
+		ctplayer.setTime(ServerTime());
+        ctplayer.putData(CTchannel, CTstateString);
+        ctplayer.flush();
+	}
 
     //-------------------------------------------------------------------------------------------------------
     // parseCTworld:  utilities to parse CTworld/CTstates.txt into CTworld/CTobject List structures
@@ -209,7 +231,7 @@ public class CTunity : MonoBehaviour
 			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
 				CTobject ctobject = ctpair.Value;
-				if (!ctobject.id.StartsWith(world.player)) ctobject.id = world.player + "." + ctobject.id;      // auto-prepend world name to object
+				if (!ctobject.id.StartsWith(world.player)) ctobject.id = world.player + "/" + ctobject.id;      // auto-prepend world name to object
 
 //                if (ctobject.id.StartsWith(world.player))            // accumulate objects owned by each world      
 //                {
@@ -247,13 +269,14 @@ public class CTunity : MonoBehaviour
             }
         }
 
+//		printCTworld(CTW);
+
         // scan for missing objects
         clearMissing(CTW);
 
         latestTime = updateTime;                    // for replay reference
         PlayerList = tsourceList;                   // update list of active sources
 
-//        printCTworld(CTW);
         return CTW;                                 // consolidated CTworld
 	}
 
@@ -337,18 +360,36 @@ public class CTunity : MonoBehaviour
 			return null;
 		}
 		pfgo.SetActive(isactive);
+
 		String parent = "Players";
-
-		String[] pathparts = playerName.Split('/');
-		for (int i = 0; i < pathparts.Length - 1; i++) parent += ("/" + pathparts[i]);
-
+		String fullpath = parent + "/" + playerName;
+		char[] delims = { '/', ':' };
+		String[] pathparts = fullpath.Split(delims);
+        
 		GameObject pgo = GameObject.Find(parent);
-		if(pgo == null) {
-			UnityEngine.Debug.Log("Missing parent object: " + parent);  // init issue, catch it next update...
+//		Debug.Log("pathparts.length: " + pathparts.Length+", pp0: "+pathparts[0]);
+		for (int i = 1; i < pathparts.Length-1; i++)
+		{
+//			Debug.Log("<pathparts[" + i + "]: " + pathparts[i] + ", parent: " + parent + ", pgo: " + pgo.name);
+			parent = parent + "/" + pathparts[i];
+			GameObject cgo = GameObject.Find(parent);
+
+			if(cgo == null) {
+				cgo = new GameObject();
+                cgo.name = pathparts[i];
+                cgo.transform.SetParent(pgo.transform, true);
+//				Debug.Log(">parent: " + parent + ", cgo: " + cgo.name+", cfull: "+fullName(cgo));
+			}
+			pgo = cgo;
+		}
+
+		pgo = GameObject.Find(parent);
+//		Debug.Log("pname :"+pName+", parent: " + parent + ", pgo: " + pgo.name + ", pfull: " + fullName(pgo));
+		if(pgo == null) {    // parent missing
+			UnityEngine.Debug.Log("Missing parent: " + parent+", child: "+playerName);  // init issue, catch it next update...
 			return null;
 		}
-		Transform tparent = GameObject.Find(parent).transform;
-
+		Transform tparent = pgo.transform;
 		Transform pf = pfgo.transform;
         Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // parent
 
@@ -358,7 +399,10 @@ public class CTunity : MonoBehaviour
 		//		newp.parent = GameObject.Find(parent).transform;
 		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 
-		newp.name = playerName;
+//		newp.name = playerName;  // for now use full-path name so "StartsWith(Player)" logic works...
+		newp.name = pathparts[pathparts.Length - 1];
+
+//		newp.name = pathparts[pathparts.Length - 1];
         if(newp.GetComponent<CTclient>() != null)
 		    newp.GetComponent<CTclient>().prefab = prefab;
 
@@ -374,23 +418,11 @@ public class CTunity : MonoBehaviour
 	//  clear and destroy a game object by name:
 
 	public void clearObject(String objectName) {
+//		Debug.Log("clearObject: " + objectName);
 		if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
 		GameObject go = GameObject.Find(objectName);
 		clearObject(go);
-        /*
-		if (go != null)
-		{
-			foreach (Transform c in go.transform)
-			{
-				CTlist.Remove(c.name);  // children will be destroyed with parent
-			}
-			go.SetActive(false);
-			Destroy(go);
-		}
-        
-		CTlist.Remove(objectName);
-		*/
 	}
     
 	// more efficient if know the gameObject itself:
@@ -399,12 +431,13 @@ public class CTunity : MonoBehaviour
 
         if (go != null)
         {
-			string objectName = go.name;
+			string objectName = fullName(go);
             if (!CTlist.ContainsKey(objectName)) return;            // not already there
             
             foreach (Transform c in go.transform)
             {
-                CTlist.Remove(c.name);  // children will be destroyed with parent
+//                CTlist.Remove(c.name);  // children will be destroyed with parent
+				CTlist.Remove(fullName(c.gameObject));  // children will be destroyed with parent
             }
             go.SetActive(false);
             Destroy(go);
@@ -435,19 +468,51 @@ public class CTunity : MonoBehaviour
 
 	public void clearWorld(String worldName)
 	{
-		List<GameObject> gos = new List<GameObject>(CTlist.Values);     // make copy; avoid sync error
+		if(worldName == null) {
+			GameObject players = GameObject.Find("Players");
+			List<Transform> destroyList = new List<Transform>();  // make copy; avoid sync error
+
+			Debug.Log("clearWorld all, nworld: " + players.transform.childCount);
+			foreach (Transform player in players.transform)
+            {
+				player.gameObject.SetActive(false);   // hide for starters
+				destroyList.Add(player);
+				Debug.Log("clearWorld all, player: " + player.name);
+//				DestroyImmediate(player.gameObject);
+            }
+			foreach (Transform t in destroyList) DestroyImmediate(t.gameObject);  // destroy while iterating wrecks list
+		}
+		else {
+			Debug.Log("clearWorld: "+worldName);
+			DestroyImmediate(GameObject.Find(worldName));
+		}
+
+		// clean up CTlist
+		List<string> removals = new List<string>();  // make copy; avoid sync error
+		foreach (KeyValuePair<string, GameObject> entry in CTlist)
+        {
+			if (entry.Value == null)
+			{
+//				Debug.Log("CTlist remove: " + entry.Key);
+				removals.Add(entry.Key);
+			}
+        }
+		foreach (string obj in removals) CTlist.Remove(obj);
+        
+    /*
+        List<GameObject> gos = new List<GameObject>(CTlist.Values);     // make copy; avoid sync error
 
 		foreach (GameObject go in gos)
 		{
-			if (worldName == null || go.name.StartsWith(worldName))
+			String fname = fullName(go);
+			if (worldName == null || fname.StartsWith(worldName))
 			{
-//				Debug.Log("clearWorld: " + go.name);
 				go.SetActive(false);
 				Destroy(go);                 // keep object; inactivate it only?
-				CTlist.Remove(go.name);
+				CTlist.Remove(fname);
 			}
 		}
-
+    */
 		clearWorldFlag = false;        // done
 	}
     
@@ -461,22 +526,23 @@ public class CTunity : MonoBehaviour
 
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
-//			if(go == null) {
-			if(go == null || go.name.StartsWith("World.")) {            // World objects persist
+			if(go == null) {
+//			if(go == null || go.name.StartsWith("World.")) {            // World objects persist
 //				Debug.Log("Oops: CTlist gameObject missing!");
 				continue;
 			}
-            
-			if (!ctworld.objects.ContainsKey(go.name))  
+
+			String goName = fullName(go);
+			if (!ctworld.objects.ContainsKey(goName))  
 			{            
 				//  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
-				if (!go.name.StartsWith(Player) || replayActive)
+				if (!goName.StartsWith(Player) || replayActive)
 				{    
 					CTclient ctc = go.GetComponent<CTclient>();
 					if (!(ctc != null && ctc.isRogue))   // let Rogue objects persist
 					{                       
 						go.SetActive(false);
-						Debug.Log("clearMissing: " + go.name);
+//						Debug.Log("clearMissing: " + goName+", Player: "+Player);
 					}
 				}
 			}
@@ -515,7 +581,7 @@ public class CTunity : MonoBehaviour
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
 			{
-				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
+//				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
 				if(isReplayMode()) clearWorlds(false);              // presume problem is empty world...
 				continue;
 			}
@@ -541,7 +607,7 @@ public class CTunity : MonoBehaviour
     
 	public void deployWorld(String world)           // get specific world or "*" for all
     {
-		if (world.Equals("<Clear>"))
+		if (world.Equals(Cancel))
 		{
 			clearWorld(Player, false);              // NG, how to force a clear???  Can't write non-player CTstates.json...  ???
 		}
@@ -589,18 +655,18 @@ public class CTunity : MonoBehaviour
 				{
 					CTobject ctobject = ctpair.Value;
 //					if (!ctobject.id.StartsWith(world.player)) ctobject.id = world.player + "." + ctobject.id;      // auto-prepend world name to object
-					if (!ctobject.id.StartsWith(Player)) ctobject.id = Player + "." + ctobject.id;      // auto-prepend Player name to object
+					if (!ctobject.id.StartsWith(Player)) ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
 
-//                    ctobject.isWorld = true;        // world objects are "static"
-
+					//                    ctobject.isWorld = true;        // world objects are "static"
 					GameObject go = newGameObject(ctobject);
 //					CTclient ctc = go.GetComponent<CTclient>();
 //					if (ctc != null) ctc.isRogue = true;                // world objects are Rogue by default
 				}
             }
-//			Debug.Log("getWorldState, Nworlds: "+worlds.Count+", Player: "+Player);
-//			showMenu = false;               // start updating world
+			//			Debug.Log("getWorldState, Nworlds: "+worlds.Count+", Player: "+Player);
+			//			showMenu = false;               // start updating world
 
+//			SnapShot();                     // save snapshot of current player state
 			yield break;
         }              // end while(true)   
     }
@@ -611,7 +677,11 @@ public class CTunity : MonoBehaviour
 	private void setState(String objectID, CTobject ctobject) {
 		GameObject ct;
         if (!CTlist.TryGetValue(objectID, out ct)) return;
-		if (ct == null) return;         // fire wall
+		if (ct == null)
+		{
+//			Debug.Log("setState missing object: " + objectID);
+			return;         // fire wall
+		}
 
 		CTclient ctp = ct.GetComponent<CTclient>();
         if (ctp != null)
@@ -652,8 +722,10 @@ public class CTunity : MonoBehaviour
 
     // return True if this object should be written to CT
 	public Boolean doCTwrite(String objName) {
-//		return (replayActive || objName.StartsWith(Player));
-		return (!replayActive && objName.StartsWith(Player));
+		//		return (replayActive || objName.StartsWith(Player));
+		Boolean dowrite = !replayActive && objName.StartsWith(Player);
+//		Debug.Log("doCTwrite check: " + objName + ", Player: " + Player+", dowrite: "+dowrite);
+		return dowrite;
 	}
 
 	public string CTauthorization() {
@@ -669,6 +741,33 @@ public class CTunity : MonoBehaviour
 
 	public void getState(String id, ref Vector3 pos) {
 	}
+   
+	//-------------------------------------------------------------------------------------------------------
+	// fullName:  return full hierarchical path name of game object
+
+	public static string fullName(GameObject go)
+    {
+		if (go == null)
+		{
+			Debug.Log("fullName Destroyed object!");
+			return null;
+		}
+		string oname = go.name;
+        string fname = go.name;
+
+		while (go.transform.parent != null)
+//        while (go.transform.parent != null)
+        {
+            go = go.transform.parent.gameObject;
+			if (go.name.Equals("Players")) break;       // got it
+            fname = go.name + "/" + fname;
+//			Debug.Log("parent: " + go.name + ", fname: " + fname);
+        }
+		fname = fname.Replace(".", "/");                  // convert legacy names
+
+//		Debug.Log("fullName, original: " + oname + ", full: " + fname);
+        return fname;
+    }
 
 	//-------------------------------------------------------------------------------------------------------
     // get prefab model from Resources/Prefabs folder
@@ -781,6 +880,10 @@ public class CTunity : MonoBehaviour
         return c;
     }
     
+	public Color objectColor(GameObject go) {
+		return(Text2Color(fullName(go), 1f));
+	}
+
 	//----------------------------------------------------------------------------------------------------------------
     // position of player-owned ground platform
 
@@ -800,4 +903,29 @@ public class CTunity : MonoBehaviour
                 return Vector3.zero;
         }
     }
+
+	//----------------------------------------------------------------------------------------------------------------
+	// Connect to CTweb server
+
+	public void serverConnect()
+	{
+		// CT vidcap source 
+		if (ctvideo != null) ctvideo.close();
+		ctvideo = new CTlib.CThttp(Session + "/ScreenCap/" + Player, blocksPerSegment, true, false, false, Server);
+		ctvideo.login(user, password);
+		ctvideo.setAsync(AsyncMode);
+
+		// CT snapshot source
+		if (ctsnapshot != null) ctsnapshot.close();
+		ctsnapshot = new CTlib.CThttp(Session + "/World/" + Player, blocksPerSegment, true, true, true, Server);
+		ctsnapshot.login(user, password);
+		ctsnapshot.setAsync(AsyncMode);
+
+		// CT player source
+		if (ctplayer != null) ctplayer.close();
+		ctplayer = new CTlib.CThttp(Session + "/GamePlay/" + Player, blocksPerSegment, true, true, true, Server);
+		ctplayer.login(user, password);
+		ctplayer.setAsync(AsyncMode);
+
+	}
 }
