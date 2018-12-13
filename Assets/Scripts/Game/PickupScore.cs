@@ -54,8 +54,21 @@ public class PickupScore : MonoBehaviour {
 
 		Dictionary<String, CTscore> cts = new Dictionary<String, CTscore>();
 		foreach (String player in ctunity.PlayerList) cts.Add(player, new CTscore());   // create
-
+        
 		// pre-filter scores:
+		foreach (GameObject go in ctunity.CTlist.Values)
+		{
+            foreach (String player in ctunity.PlayerList)
+            {
+                Transform c = go.transform;
+                if (CTunity.fullName(go).StartsWith(player + "/"))
+                {
+                    cts[player].npickups++;
+                    if (c.gameObject.activeSelf) cts[player].nactive++;  // delete vs inactivate: npickups == nactive
+                }
+            }
+        }
+/*
 		for (int i = 0; i < transform.childCount; i++)
 		{
 			foreach (String player in ctunity.PlayerList)
@@ -68,31 +81,27 @@ public class PickupScore : MonoBehaviour {
 				}
 			}
 		}
-        
+*/        
 		// build scoreboard:
 		String scoreboard = "";
 		String wintext = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
 		foreach (String player in ctunity.PlayerList)
 		{
-			int npickups = cts[player].npickups;
-			if (npickups == 0) continue;
+//			int npickups = cts[player].npickups;
+//			if (npickups == 0) continue;
 			int nactive = cts[player].nactive;
-			int score = npickups - nactive;
+//			int score = npickups - nactive;
 //			scoreboard += "<color="+player+">"+player + ": " + score.ToString() + " / " + npickups+"</color>   ";
-			scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
+			if(nactive > 0 || ctunity.Player.Equals(player))
+				scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
 
-			if (score > 0 && score >= npickups && !ctunity.isReplayMode() && player.Equals(ctunity.Player))
-			{
-				wintext = "<color=" + player + ">" + player + " Wins!</color>";
-//				GameOver = true;
-			}
+//			if (score > 0 && score >= npickups && !ctunity.isReplayMode() && player.Equals(ctunity.Player)) 
+//				wintext = "<color=" + player + ">" + player + " Wins!</color>";
 		}
-        
+
+//		Debug.Log("scoreboard: " + scoreboard+", plist.len: "+ctunity.PlayerList.Count);
 		countText.text = scoreboard;
-		//		winText.text = wintext;
-		//		winText.text = "";   // need to sort out how to win...
-		winText.text = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
-//		winText.text = ctunity.Player;  // not the right place to set this...
+		winText.text = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";  // right place to set this?
 	}
 
 }

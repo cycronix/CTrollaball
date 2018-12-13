@@ -115,7 +115,6 @@ MonoBehaviour:
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
-  isGhost: 0
   isRogue: 0
 --- !u!135 &135641278135072076
 SphereCollider:

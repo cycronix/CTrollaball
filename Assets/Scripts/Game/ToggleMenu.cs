@@ -50,7 +50,7 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 	private void doit() {
 		showMenu = !gameOptions.activeSelf;
 
-        ctunity.setReplay(false);
+//        ctunity.setReplay(false);
 		gameOptions.SetActive(showMenu);
 
         if(showMenu)       // if turning menu on, auto-target Ground

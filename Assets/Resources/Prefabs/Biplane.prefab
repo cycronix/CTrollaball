@@ -2842,7 +2842,6 @@ MonoBehaviour:
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
-  isGhost: 0
   isRogue: 0
 --- !u!114 &114227329708864840
 MonoBehaviour:

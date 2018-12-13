@@ -113,8 +113,8 @@ public class maxCamera : MonoBehaviour
 		if (Input.GetKeyDown("space") || mouseToggle)        // lock camera on player
 		{
 			// auto-target player
-			if (ctunity.observerFlag)   setTarget(GameObject.Find("Ground").transform, false);
-			else                        setTarget(GameObject.Find(ctunity.Player).transform, false);
+//			if (ctunity.observerFlag)   setTarget(GameObject.Find("Ground").transform, false);
+//			else                        setTarget(GameObject.Find(ctunity.Player).transform, false);
 			
             /*
 			if (cameraNear)

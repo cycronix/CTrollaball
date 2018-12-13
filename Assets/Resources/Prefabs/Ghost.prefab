@@ -117,6 +117,8 @@ MonoBehaviour:
   SmoothTime: 0.25
   autoColor: 1
   isGhost: 1
+  isRogue: 0
+  prefab: 
 --- !u!135 &135569420210187980
 SphereCollider:
   m_ObjectHideFlags: 1

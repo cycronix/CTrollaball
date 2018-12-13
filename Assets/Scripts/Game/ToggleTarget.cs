@@ -20,7 +20,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ToggleTarget : MonoBehaviour {
-	private CTunity ctunity;
+//	private CTunity ctunity;
 
     // Use this for initialization
     void Start()

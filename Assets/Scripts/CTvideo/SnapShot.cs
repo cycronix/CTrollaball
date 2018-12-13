@@ -37,7 +37,7 @@ public class SnapShot : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     //----------------------------------------------------------------------------------------------------------------
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (Input.GetMouseButton(0) && !ctunity.Player.Equals("Observer"))
+        if (Input.GetMouseButton(0))
         {
             rawimage.color = Color.red;
 			ctunity.SnapShot();

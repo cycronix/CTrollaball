@@ -311,6 +311,7 @@ public class CTserdes
 		string CTstateString = "#" + ctunityI.replayText + ":" + ctunityI.ServerTime().ToString() + ":" + ctunityI.Player + "\n";
 
 		string delim = ";";
+		int objectCount = 0;
 		foreach (GameObject ct in ctunityI.CTlist.Values)
 		{
 			if (ct == null) continue;
@@ -321,7 +322,7 @@ public class CTserdes
 			String prefab = ctp.prefab;
 			if (prefab.Equals("Ghost")) continue;                                   // no save ghosts												
 //			if (!ctunityI.replayActive && !ct.name.StartsWith(ctunityI.Player)) continue;  // only save locally owned objects
-			if (!ctunityI.doCTwrite(ct.name)) continue;          // only save locally owned objects
+			if (!ctunityI.localPlayer(ct)) continue;          // only save locally owned objects
 				
 			CTstateString += ct.name;
 			//            CTstateString += (delim + ct.tag);
@@ -331,8 +332,11 @@ public class CTserdes
 			CTstateString += (delim + ct.transform.localRotation.eulerAngles.ToString("F4"));
 			if (ctp.link != null && ctp.link.Length > 0) CTstateString += (delim + ctp.link);
 			CTstateString += "\n";
+
+			objectCount++;
 		}
 
+		if (objectCount == 0) return null;  // no objects, don't bother
 		return CTstateString;
 	}
 
@@ -349,10 +353,11 @@ public class CTserdes
 		world.time = ctunityI.ServerTime();
 		world.mode = ctunityI.replayText;
 		world.objects = new List<CTobjectJson>();
+
+		int objectCount = 0;
 		foreach (GameObject ct in ctunityI.CTlist.Values)
 		{
-			String fullName = CTunity.fullName(ct);
-			if (!ctunityI.doCTwrite(fullName)) continue;          // only save locally owned objects
+			if (!ctunityI.localPlayer(ct)) continue;          // only save locally owned objects
          
 //			Debug.Log("CTserdes ct.name: " + fullName);
 
@@ -368,6 +373,7 @@ public class CTserdes
 //			obj.id = ct.name;
 
             // strip leading world-name from embedded object name
+			String fullName = CTunity.fullName(ct);
             if (fullName.StartsWith(world.player + "/")) fullName = fullName.Remove(0, world.player.Length + 1);
 			obj.id = fullName;
 //			Debug.Log("CTserdes obj.id: " + obj.id+", world.player: "+world.player);
@@ -404,7 +410,11 @@ public class CTserdes
 			if (ctp.custom != null && ctp.custom.Length > 0) obj.custom = ctp.custom;
 
 			world.objects.Add(obj);
+			objectCount++;
 		}
+//		Debug.Log("serialize: "+ world.player+", count: "+ objectCount);
+		//		if (objectCount == 0) return null;  // notta.  (returning no-object string writes header-only)
+
 		string jsonData = null;
 		try
 		{
@@ -415,7 +425,10 @@ public class CTserdes
 			UnityEngine.Debug.Log("Exception serializing JSON: " + e.Message);
 			return null;
 		}
-		jsonData = jsonData.Replace("},", "},\n");     // for readability
+
+//		jsonData = jsonData.Replace("},", "},\n");     // for readability
+		jsonData = jsonData.Replace("{\"id", "\n{\"id");     // for readability
+
 		return jsonData;
 	}
 

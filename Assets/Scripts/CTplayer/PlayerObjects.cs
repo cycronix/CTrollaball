@@ -40,6 +40,7 @@ public class PlayerObjects : MonoBehaviour {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();   // reference CTunity script
 	}
 
+    /*
 	// Startup is called by CTsetup on new-player launch (vs object start)
 	public void Startup () {
         if(ctunity == null)    // async startup possible issue
@@ -122,4 +123,5 @@ public class PlayerObjects : MonoBehaviour {
         }
         return np;
     }
+    */
 }

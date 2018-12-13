@@ -31,6 +31,9 @@ public class ToggleGhost : MonoBehaviour
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
     }
 
+	// obsolete code:
+    /*
+     
 	private void Update()
 	{
 		// unset double-click timer
@@ -59,4 +62,5 @@ public class ToggleGhost : MonoBehaviour
 //        return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
 		return (DateTime.UtcNow - refTime).TotalSeconds;
     }
+    */
 }

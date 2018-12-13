@@ -15,61 +15,50 @@ limitations under the License.
 */
 
 //----------------------------------------------------------------------------------------------------------------
-// JitterBug:  a non-CTclient object that moves around randomly. 
-// Makes a good Doppelganger TrackTarget.
+// Rocket:  CTclient with vertical thrust (and maybe explodes) 
 
 using UnityEngine;
 using System;
 
-public class JitterBug : MonoBehaviour {
+public class Rocket : MonoBehaviour {
 	private System.Random random;
-	public float UpdateInterval = 0.1f;
-	public float rangeLimit = 20f;
-	public float speedFactor = 1f;
-
+	private CTunity ctunity;
+	private Rigidbody rb;
 	private float stopWatch = 0f;
 
-//	private CTclient ctclient;
-	private CTunity ctunity;
+	public float ForceFactor = 10f;
+	public float fuelTime = 5f;                 // seconds of fuel burn
+	public float boomTime = 60f;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
-//		ctclient = GetComponent<CTclient>();
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
-
-//		random = new System.Random();
+		rb = GetComponent<Rigidbody>();
+		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
 	}
    
 	//----------------------------------------------------------------------------------------------------------------
 	// Update is called once per frame
-	Vector3 velocity = Vector3.zero;
-	Vector3 newPos = Vector3.zero;
-    
-	void Update()
+	void FixedUpdate()
 	{
-//		if (!ctclient.isLocalControl()) return;                 // notta unless under local-control
 //		if (!CTunity.activeWrite) return;
-		if (!ctunity.activePlayer(gameObject) /* || !CTunity.activeWrite */) return;   // consolidate to single check...
+		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
-		if (stopWatch >= UpdateInterval)
+		if (stopWatch < fuelTime)
 		{
-			stopWatch = 0f;
-
-			float xrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
-			float yrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
-			float zrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
-			newPos = transform.position + new Vector3(xrand, zrand, yrand);
-
-			newPos.x = Mathf.Clamp(newPos.x, -rangeLimit, rangeLimit);
-			newPos.y = Mathf.Clamp(newPos.y, 0f, rangeLimit/2f);
-			newPos.z = Mathf.Clamp(newPos.z, -rangeLimit, rangeLimit);
+			float noiseX = (float)random.NextDouble() / 100f;   // bit of uncertainty so rockets don't perfectly "stack"
+			float noiseZ = (float)random.NextDouble() / 100f;
+			rb.AddRelativeForce(new Vector3(noiseX, 1f, noiseZ) * ForceFactor);
 		}
-
-//		transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime);
-		transform.position = Vector3.SmoothDamp(transform.position, newPos, ref velocity, UpdateInterval);
+		else if (stopWatch > boomTime) 
+		{
+//			Debug.Log(name + ": BOOM!");
+			ctunity.clearObject(gameObject);
+		}
+			
 	}
     
 }

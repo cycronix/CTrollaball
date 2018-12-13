@@ -128,8 +128,8 @@ public class CTreplay : MonoBehaviour, IPointerDownHandler {		// required interf
 	// onPointerDown for UI objects
 	public void OnPointerDown (PointerEventData eventData) 		
 	{
-		replayInterval = ctunity.MaxPts / 50.0f;			// presumes 50Hz updates
-
+//		replayInterval = ctunity.MaxPts / 50.0f;            // presumes 50Hz updates
+		replayInterval = ctunity.pollInterval;
 		// TO DO:  integrate action and screencap replay logic with CTtimecontrol...
 
 //		if(ctunity.ReplayMode.Equals("Action")) {			// Action replay moves objects

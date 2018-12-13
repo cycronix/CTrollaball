@@ -26,8 +26,8 @@ public class CTtimecontrol : MonoBehaviour {
 	public Text replayText;                     // set via GUI component
 	public Text timeText;
     
-	public double shortReplayDuration = 10F;
-	public double longReplayDuration = 300F;
+	public double replayDuration = 300F;
+//	public double longReplayDuration = 300F;
 
 	private Slider slider;
 	private CTunity ctunity;
@@ -43,7 +43,7 @@ public class CTtimecontrol : MonoBehaviour {
 //	private static string remoteLabel = "Remote";
 	private static string stateString = pausedLabel;
 
-	public double playFactor = 0F;          // factor to auto-play masterTime back, pause, forward
+	internal double playFactor = 0F;          // factor to auto-play masterTime back, pause, forward
 	private double clickTime = 0F;          // double-click timer
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -143,8 +143,8 @@ public class CTtimecontrol : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	private void startReplay() {
 		// to do:  change replayDuration to oldest active CTstates time...
-		double timeDelay = shortReplayDuration;    
-		if (ctunity.observerFlag) timeDelay = longReplayDuration;           
+		double timeDelay = replayDuration;    
+//		if (ctunity.observerFlag) timeDelay = longReplayDuration;           
 
 		endReplayTime = ctunity.latestTime;
 

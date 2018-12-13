@@ -114,8 +114,7 @@ MonoBehaviour:
   smoothReplay: 0
   DeadReckon: 1.5
   SmoothTime: 0.4
-  autoColor: 1
-  isGhost: 0
+  autoColor: 0
   isRogue: 0
 --- !u!136 &136558523656596964
 CapsuleCollider:

@@ -22,7 +22,7 @@ using CTworldNS;
 
 public class CTclient : MonoBehaviour
 {
-	public Boolean smoothTrack = false;
+	public Boolean smoothTrack = true;
 	public Boolean smoothReplay = false;
 
 	internal float TrackSpeed = 5F;             // multiplier on how fast to Lerp to position/rotation
@@ -30,8 +30,7 @@ public class CTclient : MonoBehaviour
     public float DeadReckon = 1.5F;             // how much to shoot past known position for dead reckoning
 	public float SmoothTime = 0.4F;             // SmoothDamp time (sec)
 
-	public Boolean autoColor = true;            // set object color based on naming convention
-	public Boolean isGhost = false;             // set for "ghost" player (affects color-alpha)
+	public Boolean autoColor = false;            // set object color based on naming convention
 	public Boolean isRogue = false;             // "rogue" clients flag ignore local controls
     
 	public CTobject ctobject = null;            // for public ref
@@ -46,7 +45,6 @@ public class CTclient : MonoBehaviour
 	private Vector3 myPos = Vector3.zero;
 	private Vector3 myScale = Vector3.one;
 	private Quaternion myRot = new Quaternion(0, 0, 0, 0);
-//	private Boolean myState = true;
 
 	private Boolean startup = true;
 	internal Boolean replayMode = false;
@@ -65,28 +63,17 @@ public class CTclient : MonoBehaviour
     private Quaternion oldRot = Quaternion.identity;
 
 	private String fullName = "";
+    
+	internal int Generation = 0;                  // keep track of clone-generation
+
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start()
 	{
 		rb = GetComponent<Rigidbody>();
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-        
-//		if (gameObject.name.Contains("/")) noTrack = true;      // see if this client object is child-of-player (set in ToggleGameObject)
-
 		if (autoColor) setColor();          // set default color based on object name
-
-		if (isGhost)
-        {
-            Physics.IgnoreCollision(                    // no self-bump
-                 GetComponent<Collider>(),
-                 GameObject.Find(ctunity.Player).GetComponent<Collider>(),
-                 true
-            );
-        }
-        
 		fullName = CTunity.fullName(gameObject);        // get once in advance
-
 		ctunity.CTregister(gameObject);                 // register with CTunity...
 	}
     
@@ -103,8 +90,7 @@ public class CTclient : MonoBehaviour
 
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
-//		if (name.Contains("Layer")) Debug.Log("setState, replayMode: " + ireplay);
-
+//		Debug.Log(cto.id+": setState, replayMode: " + ireplay);
 		ctobject = cto;                             // for public ref
         
 		// set baseline for Lerp going forward to next step
@@ -119,10 +105,11 @@ public class CTclient : MonoBehaviour
 		myPos = cto.pos;
 		myRot = cto.rot;
 		myScale = cto.scale;
+//		Debug.Log("myScale: " + myScale);
 		myColor = cto.color;
 
 		replayMode = ireplay;
-		playPaused = iplayPaused;
+		playPaused = iplayPaused;           // playPaused used by smooth replay logic
 		custom = cto.custom;
 
 		// locals for immediate action:
@@ -144,7 +131,8 @@ public class CTclient : MonoBehaviour
 				rb.useGravity = true; 
 			}
 		}
-
+        
+//		Debug.Log(name+", ilc: "+isLocalControl());
 		startup = false;
 	}
     
@@ -153,7 +141,6 @@ public class CTclient : MonoBehaviour
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
 	private void doTrack()
 	{
-//		if (name.Contains("Layer")) Debug.Log("doTrack: " + name+", noTrack: "+noTrack+", localC: "+isLocalControl()+", startup: "+startup);
 		if (noTrack) return;                 // relative "attached" child object go for ride with parent
 		    
 		if (isLocalControl() || startup)
@@ -161,13 +148,13 @@ public class CTclient : MonoBehaviour
 			if(rb != null) rb.useGravity = true;
 			return;
 		}
-//		Debug.Log(name+": doTrack!!!");
-
+      
 		stopWatch += Time.deltaTime;
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
 
 		if (playSmooth())
 		{
+//			Debug.Log("playSmooth!");
 			// SmoothDamp is smoother than linear motion between updates...
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
 
@@ -189,6 +176,7 @@ public class CTclient : MonoBehaviour
 		}
 		else
 		{
+//			Debug.Log("playRough.");
 			stopMoving();     // stop moving!
 
             transform.position = myPos;                     // hard-set without smooth
@@ -215,8 +203,9 @@ public class CTclient : MonoBehaviour
     
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalControl() {
-		Boolean ilc = isRogue || (isLocalObject() && !replayMode && !ctunity.gamePaused);
-//		if(gameObject.name.Equals("World.JB2")) Debug.Log(name+", isLocalControl: "+ilc+", isRogue: "+isRogue+", replayMode: "+replayMode+", showMenu: "+ctunity.showMenu);
+		if (ctunity == null) return false;  // async?
+//		Boolean ilc = isRogue || (isLocalObject() && !replayMode && !ctunity.gamePaused);
+		Boolean ilc = isRogue || ctunity.activePlayer(gameObject);
 		return ilc;
 	}
     
@@ -227,10 +216,10 @@ public class CTclient : MonoBehaviour
 		Boolean localObject = false;
 		if (ctunity == null) return false;
 //		if (CTunity.fullName(gameObject).StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
-		if (fullName.StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
+		if (fullName.StartsWith(ctunity.Player+"/") && !prefab.Equals("Ghost") /* && !ctunity.observerFlag */)
 			    localObject = true;
 
-//		if (gameObject.name.Equals("World.JB2")) Debug.Log("isLocalObject: "+localObject+", name: " + gameObject.name + ", Player: " + ctunity.Player+", observer: "+ctunity.observerFlag);
+//		if (gameObject.name.Equals("Avatar")) Debug.Log("isLocalObject: "+localObject+", name: " + gameObject.name + ", Player: " + ctunity.Player+", observer: "+ctunity.observerFlag);
 		return localObject;
     }
 
@@ -243,11 +232,17 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	// set object color
 
-	void setColor(Color color) {
+	internal void setColor(Color color) {
 		if (color == Color.clear) return;          // use default color
+//		Debug.Log("setColor(" + color + "), autoColor: " + autoColor+", ctunity: "+ctunity);
+
+		if (autoColor && ctunity != null)
+		{
+			color = ctunity.objectColor(gameObject);
+//			Debug.Log(">setColor(" + color + "), autoColor: " + autoColor);
+		}
 		myColor = color;
 
-		if (isGhost) color.a = 0.4F;                                // force ghost to be translucent
 		Renderer rend = gameObject.GetComponent<Renderer>();
         if (rend != null) rend.material.color = color;
 
@@ -262,8 +257,9 @@ public class CTclient : MonoBehaviour
 
 	// set color based on object name
 	void setColor() {
-        Color color = ctunity.objectColor(gameObject);
-		if(!color.Equals(Color.gray)) setColor(color);      // don't set if default (no name match)
+		setColor(Color.gray);   // default or auto
+//		Debug.Log("setColor()!");//       Color color = ctunity.objectColor(gameObject);
+//		if(!color.Equals(Color.gray)) setColor(color);      // don't set if default (no name match)
 	}
 }
 

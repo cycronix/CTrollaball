@@ -45,7 +45,8 @@ public class CTsetup: MonoBehaviour
         PlayerSelect
     }
 	private MenuPass menuPass = MenuPass.Connection;
-	private GameObject Server, Session, Player, Avatar, Deploy, Play, View, Login, User, Password;
+//	private GameObject Server, Session, Player, Avatar, Deploy, Play, View, Login, User, Password;
+	private GameObject Server, Session, Player, Deploy, Login, User, Password;
 
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
@@ -53,7 +54,7 @@ public class CTsetup: MonoBehaviour
     {
 		replayControl = GameObject.Find("replayControl");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
-		ctunity.observerFlag = true;   // startup in observer mode
+//		ctunity.observerFlag = true;   // startup in observer mode
 
         // setup callbacks
 
@@ -62,18 +63,21 @@ public class CTsetup: MonoBehaviour
         {
             switch (b.name)
             {
+				/*
                 case "Submit":
                     b.onClick.AddListener(playButton);
                     break;
                 case "View":
                     b.onClick.AddListener(viewButton);
                     break;
+                case "Cancel":
+                    b.onClick.AddListener(cancelButton);
+                    break;
+                */
 				case "Login":
                     b.onClick.AddListener(loginButton);
                     break;
-				case "Cancel":
-                    b.onClick.AddListener(cancelButton);
-                    break;
+
                 case "Quit":
                     b.onClick.AddListener(quitButton);
                     break;
@@ -93,6 +97,14 @@ public class CTsetup: MonoBehaviour
 					{
 						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
 						updateSession();
+
+						if (playerDrop != null)
+						{
+							ctunity.Player = playerDrop.GetComponent<Dropdown>().options[0].text;
+							ctunity.serverConnect();  // reset player path
+							playerDrop.value = 0;
+						}
+
 					});
 
                     break;
@@ -104,7 +116,10 @@ public class CTsetup: MonoBehaviour
                     d.onValueChanged.AddListener(delegate
 					{   if (d.value != 0)
 						{
-							ctunity.deployWorld(d.GetComponent<Dropdown>().options[d.value].text);
+							string svalue = d.GetComponent<Dropdown>().options[d.value].text;
+							if (svalue.Equals(ctunity.Save))        ctunity.SnapShot();
+							else if (svalue.Equals(ctunity.Clear))  ctunity.clearWorld();
+							else                                    ctunity.deployWorld(svalue);
 							d.value = 0;        // reset to blank
 						}
                     });
@@ -113,10 +128,11 @@ public class CTsetup: MonoBehaviour
                    
 				case "Player1":
 					playerDrop = d;
-//					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init
+					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
 					d.onValueChanged.AddListener(delegate
 					{
 						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
+						ctunity.serverConnect();  // reset player path
 					});
                     break;
 			}
@@ -127,10 +143,10 @@ public class CTsetup: MonoBehaviour
 		Server = GameObject.Find("Server");
 		Session = GameObject.Find("Session");
 		Player = GameObject.Find("Player1");
-		Avatar = GameObject.Find("Model");
+//		Avatar = GameObject.Find("Model");
 		Deploy = GameObject.Find("Deploy");
-		Play = GameObject.Find("Submit");
-		View = GameObject.Find("View");
+//		Play = GameObject.Find("Submit");
+//		View = GameObject.Find("View");
 		Login = GameObject.Find("Login");
 		User = GameObject.Find("User");
 		Password = GameObject.Find("Password");
@@ -149,26 +165,10 @@ public class CTsetup: MonoBehaviour
 		else
 		{
 			menuPass = MenuPass.Session;
-			ctunity.observerFlag = true;
+//			ctunity.observerFlag = true;
 			ctunity.gamePaused = false;
 		}
 		modeSelect();
-	}
-
-	//----------------------------------------------------------------------------------------------------------------
-	private void OnEnable()
-	{
-		if (ctunity != null)  // on startup, async ctunity my not yet be defined
-		{
-			//			ctunity.showMenu = true;                
-			ctunity.observerFlag = true;
-//			ctunity.showMenu = true;
-		}
-	}
-
-	private void OnDisable()
-	{
-//		ctunity.showMenu = false;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -176,7 +176,7 @@ public class CTsetup: MonoBehaviour
 
 	void updateServer()
 	{
-		ctunity.clearWorlds(true);      // clean slate all worlds
+		ctunity.clearWorlds();      // clean slate all worlds
 
 		InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
 		foreach (InputField c in fields)
@@ -213,12 +213,12 @@ public class CTsetup: MonoBehaviour
 		ctunity.gamePaused = true;                // turn off CTstates recording while clear world
 		StartCoroutine("getWorldList");         // get list of "World" prefabs
         
-		ctunity.clearWorlds(true);              // clean slate all worlds
+		ctunity.clearWorlds();              // clean slate all worlds
 
-		ctunity.observerFlag = true;            // we are observer
-		ctunity.setReplay(false);               // live
+//		ctunity.observerFlag = true;            // we are observer
+		ctunity.setReplay(false);               // !live
 		ctunity.CTdebug(null);                  // clear debug msg
-//		ctunity.doGetWorldState("*");           // get (any) "World" states
+		ctunity.newSession = true;
 		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
 	}
 
@@ -228,69 +228,7 @@ public class CTsetup: MonoBehaviour
 	void loginButton() {
 		updateServer();
 	}
-
-	//----------------------------------------------------------------------------------------------------------------
-    // Player select
-
-	void playButton() {
-//		if(menuPass == MenuPass.Session) {
-//			menuPass = MenuPass.PlayerSelect;
-//			modeSelect();
-//		}
-//		else {
-			ctunity.observerFlag = false;
-			submitButton();
-//		}
-	}
-
-	//----------------------------------------------------------------------------------------------------------------
-	// Play!
-
-	void submitButton()
-	{
-		String deploy = "";
-		String player="unknown", model="unknown";
-		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
-		foreach (Dropdown d in drops)
-		{
-			switch (d.name)
-			{
-				case "Session":
-					ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
-					break;
-				case "Player1":
-					player = d.GetComponent<Dropdown>().options[d.value].text;
-					break;
-				case "Model":
-					model = d.GetComponent<Dropdown>().options[d.value].text;
-					break;
-				case "Deploy":
-                    deploy = d.GetComponent<Dropdown>().options[d.value].text;
-                    break;
-			}
-		}
-
-		ctunity.Player = player;
-		string playermodel = player + "/" + model;
-		// connect to CTweb server
-		ctunity.serverConnect();
-
-		GameObject go = ctunity.newPlayer(playermodel, model, false);    // instantiate local player
-//		GameObject go = ctunity.newPlayer(ctunity.Player+"."+ctunity.Model, ctunity.Model, false);
-//		if(!deploy.Equals("")) ctunity.newPlayer(ctunity.Player+"."+deploy, deploy, false);
-
-		// kick new player to launch its playerObjects:
-		PlayerObjects po = go.GetComponent<PlayerObjects>();
-		if (po != null) po.Startup();
-
-		myCamera.setTarget(GameObject.Find(playermodel).transform);
-
-		gameObject.SetActive(false);
-		ctunity.lastSubmitTime = ctunity.ServerTime();
-		ctunity.gamePaused = false;
-		//		replayControl.SetActive(ctunity.observerFlag);
-		ctunity.CTdebug(null);                // clear warnings/debug text
-	}
+    
 
 	//----------------------------------------------------------------------------------------------------------------
 	// modeSelect:  set menu-pass, e.g. login vs setup
@@ -307,10 +245,10 @@ public class CTsetup: MonoBehaviour
 				Password.SetActive(true);
 				Session.SetActive(false);
 				Player.SetActive(false);
-				Avatar.SetActive(false);
+//				Avatar.SetActive(false);
 				Deploy.SetActive(false);
-				Play.SetActive(false);
-				View.SetActive(false);
+//				Play.SetActive(false);
+//				View.SetActive(false);
 				break;
                 
 			case MenuPass.Session:
@@ -320,10 +258,10 @@ public class CTsetup: MonoBehaviour
                 Password.SetActive(false);
 				Session.SetActive(true);
 				Player.SetActive(true);
-				Avatar.SetActive(true);
+//				Avatar.SetActive(true);
 				Deploy.SetActive(true);
-				Play.SetActive(true);
-				View.SetActive(true);
+//				Play.SetActive(true);
+//				View.SetActive(true);
 				break;
 
 			case MenuPass.PlayerSelect:                 // not used
@@ -332,27 +270,7 @@ public class CTsetup: MonoBehaviour
 
 //		replayControl.SetActive(ctunity.observerFlag);
     }
-
-	//----------------------------------------------------------------------------------------------------------------
-    void cancelButton()
-    {
-        ctunity.gamePaused = false;
-        gameObject.SetActive(ctunity.gamePaused);
-    }
-
-	//----------------------------------------------------------------------------------------------------------------
-	void viewButton()
-	{
-		ctunity.observerFlag = true;
-		ctunity.serverConnect();
-//		ctunity.Player = "Observer";
-		ctunity.lastSubmitTime = ctunity.ServerTime();
-//		replayControl.SetActive(true);
-		ctunity.CTdebug(null);                // clear warnings/debug te
-		ctunity.gamePaused = false;
-		gameObject.SetActive(ctunity.gamePaused);
-	}
-
+    
 	//----------------------------------------------------------------------------------------------------------------
     void quitButton()
     {
@@ -364,7 +282,6 @@ public class CTsetup: MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-//        ctunity.showMenu = gameObject.activeSelf;
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -392,9 +309,8 @@ public class CTsetup: MonoBehaviour
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sessionList.Clear();
 			sessionList.Add("CTrollaball");         // seed with a default session
-
+            
             Match match;
-//			for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
             for (match = regex.Match(www1.downloadHandler.text); match.Success; match = match.NextMatch())
             {
                 foreach (Group group in match.Groups)
@@ -447,7 +363,9 @@ public class CTsetup: MonoBehaviour
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
 			sourceList.Add("");             // seed with blank
-			sourceList.Add(ctunity.Cancel);
+//			sourceList.Add(ctunity.Cancel);
+			sourceList.Add(ctunity.Clear);
+			sourceList.Add(ctunity.Save);
 
             Match match;
             for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
@@ -478,9 +396,73 @@ public class CTsetup: MonoBehaviour
         }
     }
 
-	// out-of-service code follows...
-    
+	// out-of-service code follows...   
+
 	/*
+
+    //----------------------------------------------------------------------------------------------------------------
+    // Play!
+
+    void submitButton()
+    {
+        String deploy = "";
+        String player = "unknown";
+//      String model="unknown";
+        Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
+        foreach (Dropdown d in drops)
+        {
+            switch (d.name)
+            {
+                case "Session":
+                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;
+                    break;
+                case "Player1":
+                    player = d.GetComponent<Dropdown>().options[d.value].text;
+                    break;
+//              case "Model":
+//                  model = d.GetComponent<Dropdown>().options[d.value].text;
+//                  break;
+                case "Deploy":
+                    deploy = d.GetComponent<Dropdown>().options[d.value].text;
+                    break;
+            }
+        }
+        
+        ctunity.Player = player;
+        ctunity.serverConnect();        // connect to CTweb server
+        
+        gameObject.SetActive(false);                                    // turn menu off (starts play)
+        ctunity.lastSubmitTime = ctunity.ServerTime();
+        ctunity.gamePaused = false;
+        ctunity.CTdebug(null);                // clear warnings/debug text
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    // Player select
+    void playButton() {
+        submitButton();
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    void cancelButton()
+    {
+        ctunity.gamePaused = false;
+        gameObject.SetActive(ctunity.gamePaused);
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    void viewButton()
+    {
+//      ctunity.observerFlag = true;
+        ctunity.serverConnect();
+//      ctunity.Player = "Observer";
+        ctunity.lastSubmitTime = ctunity.ServerTime();
+//      replayControl.SetActive(true);
+        ctunity.CTdebug(null);                // clear warnings/debug te
+        ctunity.gamePaused = false;
+        gameObject.SetActive(ctunity.gamePaused);
+    }
+
     //----------------------------------------------------------------------------------------------------------------
     // get source list
 
