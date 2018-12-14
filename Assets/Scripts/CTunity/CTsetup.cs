@@ -35,7 +35,6 @@ public class CTsetup: MonoBehaviour
     private maxCamera myCamera;
 	private CTunity ctunity;
 	private GameObject replayControl;
-	//	public Boolean AsyncMode = true;
 	private Dropdown playerDrop = null;
 
 	private enum MenuPass
@@ -45,7 +44,6 @@ public class CTsetup: MonoBehaviour
         PlayerSelect
     }
 	private MenuPass menuPass = MenuPass.Connection;
-//	private GameObject Server, Session, Player, Avatar, Deploy, Play, View, Login, User, Password;
 	private GameObject Server, Session, Player, Deploy, Login, User, Password;
 
     //----------------------------------------------------------------------------------------------------------------
@@ -54,7 +52,20 @@ public class CTsetup: MonoBehaviour
     {
 		replayControl = GameObject.Find("replayControl");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
-//		ctunity.observerFlag = true;   // startup in observer mode
+
+        // define menu objects
+		myCamera = GameObject.Find("Main Camera").GetComponent<maxCamera>();
+
+        Server = GameObject.Find("Server");
+        Session = GameObject.Find("Session");
+        Player = GameObject.Find("Player1");
+        //      Avatar = GameObject.Find("Model");
+        Deploy = GameObject.Find("Deploy");
+        //      Play = GameObject.Find("Submit");
+        //      View = GameObject.Find("View");
+        Login = GameObject.Find("Login");
+        User = GameObject.Find("User");
+        Password = GameObject.Find("Password");
 
         // setup callbacks
 
@@ -63,17 +74,6 @@ public class CTsetup: MonoBehaviour
         {
             switch (b.name)
             {
-				/*
-                case "Submit":
-                    b.onClick.AddListener(playButton);
-                    break;
-                case "View":
-                    b.onClick.AddListener(viewButton);
-                    break;
-                case "Cancel":
-                    b.onClick.AddListener(cancelButton);
-                    break;
-                */
 				case "Login":
                     b.onClick.AddListener(loginButton);
                     break;
@@ -138,18 +138,6 @@ public class CTsetup: MonoBehaviour
 			}
 		}
 
-        myCamera = GameObject.Find("Main Camera").GetComponent<maxCamera>();
-
-		Server = GameObject.Find("Server");
-		Session = GameObject.Find("Session");
-		Player = GameObject.Find("Player1");
-//		Avatar = GameObject.Find("Model");
-		Deploy = GameObject.Find("Deploy");
-//		Play = GameObject.Find("Submit");
-//		View = GameObject.Find("View");
-		Login = GameObject.Find("Login");
-		User = GameObject.Find("User");
-		Password = GameObject.Find("Password");
 		modeSelect();
     }
 
@@ -165,7 +153,6 @@ public class CTsetup: MonoBehaviour
 		else
 		{
 			menuPass = MenuPass.Session;
-//			ctunity.observerFlag = true;
 			ctunity.gamePaused = false;
 		}
 		modeSelect();
@@ -199,7 +186,6 @@ public class CTsetup: MonoBehaviour
 
         // update player to current dropdown value
 		ctunity.Player = playerDrop.GetComponent<Dropdown>().options[playerDrop.value].text;      // init
-//		Debug.Log("ctunity.Player: " + ctunity.Player);
 
 		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
 		ctunity.doSyncClock();                  // sync client/server clocks
@@ -215,7 +201,6 @@ public class CTsetup: MonoBehaviour
         
 		ctunity.clearWorlds();              // clean slate all worlds
 
-//		ctunity.observerFlag = true;            // we are observer
 		ctunity.setReplay(false);               // !live
 		ctunity.CTdebug(null);                  // clear debug msg
 		ctunity.newSession = true;
@@ -235,7 +220,7 @@ public class CTsetup: MonoBehaviour
 
     void modeSelect()
     {
-//		Debug.Log("modeSelect!");
+		//		Debug.Log("modeSelect!");
 		switch (menuPass)
 		{
 			case MenuPass.Connection:
@@ -245,10 +230,8 @@ public class CTsetup: MonoBehaviour
 				Password.SetActive(true);
 				Session.SetActive(false);
 				Player.SetActive(false);
-//				Avatar.SetActive(false);
 				Deploy.SetActive(false);
-//				Play.SetActive(false);
-//				View.SetActive(false);
+//				replayControl.SetActive(false);
 				break;
                 
 			case MenuPass.Session:
@@ -258,17 +241,14 @@ public class CTsetup: MonoBehaviour
                 Password.SetActive(false);
 				Session.SetActive(true);
 				Player.SetActive(true);
-//				Avatar.SetActive(true);
-				Deploy.SetActive(true);
-//				Play.SetActive(true);
-//				View.SetActive(true);
+				Deploy.SetActive(!ctunity.observerMode());
+//				replayControl.SetActive(ctunity.observerMode());
 				break;
 
 			case MenuPass.PlayerSelect:                 // not used
 				break;
 		}
 
-//		replayControl.SetActive(ctunity.observerFlag);
     }
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -363,7 +343,6 @@ public class CTsetup: MonoBehaviour
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
 			sourceList.Add("");             // seed with blank
-//			sourceList.Add(ctunity.Cancel);
 			sourceList.Add(ctunity.Clear);
 			sourceList.Add(ctunity.Save);
 

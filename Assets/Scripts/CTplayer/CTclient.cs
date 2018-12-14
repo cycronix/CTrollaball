@@ -56,6 +56,7 @@ public class CTclient : MonoBehaviour
 	// Lerp helper params:
 	private Vector3 targetPos = Vector3.zero;
     private Vector3 velocity = Vector3.zero;
+	private Vector3 rotvel = Vector3.zero;
     private float stopWatch = 0F;
 
 	private Vector3 oldPos = Vector3.zero;
@@ -90,6 +91,7 @@ public class CTclient : MonoBehaviour
 
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
+		if (ctunity == null) return;        // async
 //		Debug.Log(cto.id+": setState, replayMode: " + ireplay);
 		ctobject = cto;                             // for public ref
         
@@ -131,39 +133,51 @@ public class CTclient : MonoBehaviour
 				rb.useGravity = true; 
 			}
 		}
-        
+
 //		Debug.Log(name+", ilc: "+isLocalControl());
 		startup = false;
 	}
     
+	//----------------------------------------------------------------------------------------------------------------
+    // jump to current position
+	public void jumpState() {
+        stopMoving();     // stop moving!
+        transform.position = myPos;                   
+        transform.rotation = myRot;
+        if (myScale != Vector3.zero) transform.localScale = myScale;
+	}
+
 	//----------------------------------------------------------------------------------------------------------------
 	// doTrack runs under Update(), enables smooth Lerp's
 	// note:  doTrack (called from Update) doesn't spin for inactive objects!
 	private void doTrack()
 	{
 		if (noTrack) return;                 // relative "attached" child object go for ride with parent
-		    
-		if (isLocalControl() || startup)
+
+        if (isLocalControl() || startup)
 		{
 			if(rb != null) rb.useGravity = true;
 			return;
 		}
-      
-		stopWatch += Time.deltaTime;
+
+		float dt = Time.deltaTime;
+		stopWatch += dt;
 		if(rb != null) rb.useGravity = false;                  // no gravity if track-following
 
 		if (playSmooth())
 		{
-//			Debug.Log("playSmooth!");
 			// SmoothDamp is smoother than linear motion between updates...
 			// SmoothDamp with t=0.4F is ~smooth, but ~laggy
 
 			float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);  // custom clamp extrapolated interval
+//			Debug.Log(name + ": playSmooth, TrackSpeed: " + TrackSpeed + ", Tclamp: " + Tclamp+", stopWatch: "+stopWatch+", dt: "+dt);
 
 			if (SmoothTime > 0F)
 			{
 				targetPos = transform.position + DeadReckon * (myPos - transform.position);    // dead reckoning
 				transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, SmoothTime);
+//                Vector3 rot = Vector3.SmoothDamp(transform.rotation.ToEuler(), myRot.ToEuler(), ref rotvel, SmoothTime);
+//				transform.rotation = Quaternion.Euler(rot);
 			}
 			else {
 				transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
@@ -176,18 +190,15 @@ public class CTclient : MonoBehaviour
 		}
 		else
 		{
-//			Debug.Log("playRough.");
-			stopMoving();     // stop moving!
-
-            transform.position = myPos;                     // hard-set without smooth
-            transform.rotation = myRot;
-			if (myScale != Vector3.zero) transform.localScale = myScale;
+			//			Debug.Log(name+": playRough.");
+			jumpState();        // hard set without smooth
 		}
 	}
        
 	//----------------------------------------------------------------------------------------------------------------
     // apply smoothing to position updates?
 	public Boolean playSmooth() {
+//		Debug.Log(name + ": smoothTrack: " + smoothTrack + ", replayMode: " + replayMode);
 		return (smoothTrack && !replayMode) || (smoothReplay && replayMode) || (smoothTrack && replayMode && !playPaused);
 	}
 
@@ -204,7 +215,6 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalControl() {
 		if (ctunity == null) return false;  // async?
-//		Boolean ilc = isRogue || (isLocalObject() && !replayMode && !ctunity.gamePaused);
 		Boolean ilc = isRogue || ctunity.activePlayer(gameObject);
 		return ilc;
 	}

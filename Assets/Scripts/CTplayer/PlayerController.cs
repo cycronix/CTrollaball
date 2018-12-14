@@ -95,11 +95,12 @@ public class PlayerController : MonoBehaviour {
 				transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 2F);
 			}
 		}
-
+        
 		movement.y = 0F;
 		movement.Normalize ();
-		movement.y = liftforce;
-		rb.AddForce (movement * ForceFactor); // scale, normalize
+		movement = movement * ForceFactor;
+		movement.y = 10f * liftforce;       // nominal scaling?
+		rb.AddForce (movement);             // scaled, normalized
 
 		// limit max speed
 		if (rb.velocity.magnitude > maxSpeed)

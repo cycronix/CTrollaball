@@ -2854,8 +2854,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181d37156675746bd8a7bd53633fdcf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForceFactor: 10
-  TorqueFactor: 3
+  ForceFactor: 8
+  TorqueFactor: 2
   maxSpeed: 5
   liftForce: 1.1
   isVehicle: 1

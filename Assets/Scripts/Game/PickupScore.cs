@@ -42,15 +42,12 @@ public class PickupScore : MonoBehaviour {
 	class CTscore
     {
         string player { get; set; }
-        public int npickups { get; set; }
         public int nactive { get; set; }
     }
-	Boolean GameOver = false;
 
 	void LateUpdate()
 	{
-		//		if (ctunity.showMenu || ctunity.observerFlag) return; // save effort      
-		if (GameOver) return;
+		// TO DO:  simplify! this is a lot of work (nested loops!)
 
 		Dictionary<String, CTscore> cts = new Dictionary<String, CTscore>();
 		foreach (String player in ctunity.PlayerList) cts.Add(player, new CTscore());   // create
@@ -63,40 +60,20 @@ public class PickupScore : MonoBehaviour {
                 Transform c = go.transform;
                 if (CTunity.fullName(go).StartsWith(player + "/"))
                 {
-                    cts[player].npickups++;
                     if (c.gameObject.activeSelf) cts[player].nactive++;  // delete vs inactivate: npickups == nactive
                 }
             }
         }
-/*
-		for (int i = 0; i < transform.childCount; i++)
-		{
-			foreach (String player in ctunity.PlayerList)
-			{
-				Transform c = transform.GetChild(i);
-				if (c.name.StartsWith(player) && c.name.Contains("Pickup"))
-				{
-					cts[player].npickups++;
-					if (c.gameObject.activeSelf) cts[player].nactive++;  // delete vs inactivate: npickups == nactive
-				}
-			}
-		}
-*/        
+
 		// build scoreboard:
 		String scoreboard = "";
 		String wintext = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
 		foreach (String player in ctunity.PlayerList)
 		{
-//			int npickups = cts[player].npickups;
-//			if (npickups == 0) continue;
+			if (player.Equals(ctunity.Observer)) continue;
 			int nactive = cts[player].nactive;
-//			int score = npickups - nactive;
-//			scoreboard += "<color="+player+">"+player + ": " + score.ToString() + " / " + npickups+"</color>   ";
 			if(nactive > 0 || ctunity.Player.Equals(player))
 				scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
-
-//			if (score > 0 && score >= npickups && !ctunity.isReplayMode() && player.Equals(ctunity.Player)) 
-//				wintext = "<color=" + player + ">" + player + " Wins!</color>";
 		}
 
 //		Debug.Log("scoreboard: " + scoreboard+", plist.len: "+ctunity.PlayerList.Count);

@@ -69,6 +69,7 @@ public class CTunity : MonoBehaviour
 	internal String Cancel = "<Cancel>";        // dropdown value to cancel/delete un-played deployed objects
 	internal String Clear = "<Clear>";          // dropdown value to delete all player objects
 	internal String Save = "<Save>";            // dropdown value to save player world
+	internal String Observer = "Observer";      // reserved player-name for observe-only mode
 
     // CThttp IO classes
     internal CTlib.CThttp ctplayer = null;            // storage
@@ -108,9 +109,7 @@ public class CTunity : MonoBehaviour
     
 	public void CTregister(GameObject go) {        
 		if (go.GetComponent<CTclient>()!=null && !CTlist.ContainsKey(fullName(go)))   // only register objects with CTclient
-//		    && !go.name.StartsWith("World."))  // skip "World" objects ?
 		{
-//			CTlist.Add(go.name, go);
 			CTlist.Add(fullName(go), go);
 //			Debug.Log("CTregister, go.name: " +go.name+ ", fullname: "+ fullName(go));
 		}
@@ -131,7 +130,7 @@ public class CTunity : MonoBehaviour
 		stopWatchF += Time.deltaTime;
 		if (ctplayer == null) serverConnect();
 //		Debug.Log("replayActive: " + replayActive + ", gamePaused: " + gamePaused+", ctplayer: "+ctplayer);
-		if (ctplayer == null || replayActive || gamePaused || Player.Equals("World")) {
+		if (ctplayer == null || replayActive || gamePaused || Player.Equals(Observer)) {
 			if (stopWatchF > fpsInterval)
 			{
 				fpsText.text = "FPS: " + Math.Round(nups / stopWatchF);           // info
@@ -296,7 +295,7 @@ public class CTunity : MonoBehaviour
 				// don't merge local-Player (under user control) except:
                 // - once up front for each new session
                 // - during replay
-				if (!CTlist.ContainsKey(ctobject.id)  && (newSession || replayActive || !world.player.Equals(Player)))  // mjm 12/3/18
+				if (!CTlist.ContainsKey(ctobject.id) && (newSession || replayActive || !world.player.Equals(Player)))  // mjm 12/3/18
 				{
 					// Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
 					newGameObject(ctobject);
@@ -399,7 +398,7 @@ public class CTunity : MonoBehaviour
 		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-//		UnityEngine.Debug.Log("newGameObject: " + objID+", prefab: "+prefab);
+//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
 		if (CTlist.ContainsKey(objID))
@@ -577,7 +576,7 @@ public class CTunity : MonoBehaviour
         }
 		foreach (string obj in removals) CTlist.Remove(obj);
         
-		if (syncFlag && Player.Equals("World")) OneShot();    // update GamePlay with new World-Player objects
+//		if (syncFlag && Player.Equals(Observer)) OneShot();    // update GamePlay with new World-Player objects
 //		if(syncFlag) OneShot();                      // update GamePlay with empty Player world
 	}
     
@@ -641,6 +640,7 @@ public class CTunity : MonoBehaviour
 			else                urlparams = "?c=" + Math.Round(pollInterval * 1000F);        //  set cache interval 
 			string url1 = Server + "/CT/" + Session + "/GamePlay/*/"+CTchannel + urlparams;
 //			Debug.Log("url1: " + url1);
+            
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
 //            yield return www1.Send();
@@ -654,22 +654,16 @@ public class CTunity : MonoBehaviour
 				continue;
 			}
 			CTdebug(null);          // clear error
-
+            
 			// parse to class structure...
             List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
 			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      
             
 			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
-			{            
+			{          
 				setState(ctobject.id, ctobject);
 			}
-
-//			if (clearWorldFlag)     // ignore new CTstates until async world clear
-//           {
-//                clearWorld(clearWorldTBD);
-//                continue;
-//            }
 		}              // end while(true)   
     }
 
@@ -725,7 +719,6 @@ public class CTunity : MonoBehaviour
 			//			Debug.Log("getWorldState, Nworlds: "+worlds.Count+", Player: "+Player);
 			//			showMenu = false;               // start updating world
 
-			if(Player.Equals("World")) OneShot();    // update GamePlay with new World-Player objects
 			yield break;
         }              // end while(true)   
     }
@@ -747,8 +740,7 @@ public class CTunity : MonoBehaviour
 		CTclient ctp = ct.GetComponent<CTclient>();
 		if (ctp != null)
 		{
-//			ctp.setState(ctobject, isReplayMode(), playPaused);
-			ctp.setState(ctobject, !activeWrite, playPaused);
+			ctp.setState(ctobject, replayActive, playPaused);
 		}
 
 //		Debug.Log("setState playPaused: " + playPaused);
@@ -772,32 +764,39 @@ public class CTunity : MonoBehaviour
 		replayText = ireplayText;
 		playPaused = iPlayPaused;          // to detect auto-replay vs slider pause/drag
 //		Debug.Log("setTime playPaused: " + playPaused);
-
+        
 		return replayActive;
 	}
-
+    
 	public void toggleReplay() {
-		replayActive = !replayActive;
+        replayActive = !replayActive;
 	}
 
 	public void setReplay(bool ireplayActive)
     {
-        replayActive = ireplayActive;
+		if (ireplayActive == replayActive) return;
+        toggleReplay();
 
-		activeWrite = !replayActive;  // ???
-		gamePaused = !activeWrite;      // ??
+//        replayActive = ireplayActive;
+
+//		activeWrite = !replayActive;  // ???
+//		gamePaused = !activeWrite;      // ??
 		if (ctplayer == null) serverConnect();  // firewall
     }
     
     // return True if this object should be written to CT
 	public Boolean activePlayer(GameObject go) {
 		Boolean isactive = localPlayer(go) && activeWrite;  // whew
-//		Debug.Log("activePlayer check: " + fullName(go) + ", Player: " + Player+", activeWrite: "+activeWrite+", gamePaused: "+gamePausedg+", replayActive: "+replayActive+", isactive: "+isactive);
+//		Debug.Log("activePlayer check: " + fullName(go) + ", Player: " + Player+", activeWrite: "+activeWrite+", gamePaused: "+gamePaused+", replayActive: "+replayActive+", isactive: "+isactive);
 		return isactive;
 	}
 
 	internal Boolean localPlayer(GameObject go) {
 		return fullName(go).StartsWith(Player);
+	}
+
+	internal Boolean observerMode() {
+		return Player.Equals(Observer);
 	}
 
 	public string CTauthorization() {
