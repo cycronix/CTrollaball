@@ -110,16 +110,22 @@ public class CTsetup: MonoBehaviour
                     break;
 
 				case "Deploy":
-					StartCoroutine("getWorldList");         // init list of "World" prefabs
+					StartCoroutine("getInventoryList");         // init list of "World" prefabs
 
                     // add listener to deploy new world 
                     d.onValueChanged.AddListener(delegate
 					{   if (d.value != 0)
 						{
 							string svalue = d.GetComponent<Dropdown>().options[d.value].text;
-							if (svalue.Equals(ctunity.Save))        ctunity.SnapShot();
+
+							if (svalue.Equals(ctunity.Save))
+							{
+								ctunity.SnapShot();
+								StartCoroutine("getInventoryList");         // update list of "World" prefabs
+							}
 							else if (svalue.Equals(ctunity.Clear))  ctunity.clearWorld();
-							else                                    ctunity.deployWorld(svalue);
+							else                                    ctunity.deployInventory(svalue);
+
 							d.value = 0;        // reset to blank
 						}
                     });
@@ -197,7 +203,7 @@ public class CTsetup: MonoBehaviour
 	private void updateSession()
 	{
 		ctunity.gamePaused = true;                // turn off CTstates recording while clear world
-		StartCoroutine("getWorldList");         // get list of "World" prefabs
+		StartCoroutine("getInventoryList");         // get list of "World" prefabs
         
 		ctunity.clearWorlds();              // clean slate all worlds
 
@@ -299,7 +305,7 @@ public class CTsetup: MonoBehaviour
                     String gstring = group.ToString();
 					String prefix = "\"/CT/";
 					String gamePlay = "/GamePlay/";
-					String world = "/World/";
+					String world = "/" + ctunity.Inventory + "/";
 					if (gstring.StartsWith(prefix) && (gstring.Contains(gamePlay) || gstring.Contains(world)))
                     {
 						String thisSession = gstring.Split('/')[2];
@@ -321,7 +327,7 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     // get/set world list for dropdown selection
 
-    public IEnumerator getWorldList()
+    public IEnumerator getInventoryList()
     {
 		List<String> sourceList = new List<String>();
 
@@ -336,7 +342,7 @@ public class CTsetup: MonoBehaviour
 
             if (!string.IsNullOrEmpty(www1.error))
             {
-                ctunity.CTdebug("getWorldList www1 error: " + www1.error + ", url: " + url1);
+                ctunity.CTdebug("getInventoryList www1 error: " + www1.error + ", url: " + url1);
                 yield break;
             }
 
@@ -351,9 +357,8 @@ public class CTsetup: MonoBehaviour
             {
                 foreach (Group group in match.Groups)
                 {
-                    //              UnityEngine.Debug.Log ("Group: "+group);
                     String gstring = group.ToString();
-                    String prefix = "\"/CT/" + ctunity.Session + "/World/";
+                    String prefix = "\"/CT/" + ctunity.Session + "/" + ctunity.Inventory + "/";
 
                     if (gstring.StartsWith(prefix))
                     {

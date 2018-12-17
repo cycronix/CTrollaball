@@ -222,7 +222,6 @@ public class CTclient : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public Boolean isLocalObject()
     {
-//		if (gameObject.name.Equals("World.JB2")) Debug.Log("ilo name: " + gameObject.name);
 		Boolean localObject = false;
 		if (ctunity == null) return false;
 //		if (CTunity.fullName(gameObject).StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
