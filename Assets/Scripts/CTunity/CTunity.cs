@@ -132,8 +132,7 @@ public class CTunity : MonoBehaviour
 		nups++;
 		stopWatchF += Time.deltaTime;
 		if (ctplayer == null) serverConnect();
-//		Debug.Log("replayActive: " + replayActive + ", gamePaused: " + gamePaused+", ctplayer: "+ctplayer);
-//		if (newSession || CTlist.Count == 0) Debug.Log("newsession: "+newSession+", CTlist.Count: " + CTlist.Count);
+//		if (newSession) Debug.Log("Update RT, newsession: "+newSession);
 
 		if (ctplayer == null || newSession || replayActive || gamePaused || Player.Equals(Observer) /* || CTlist.Count==0 */) {
 			// No writes for you!
@@ -309,7 +308,6 @@ public class CTunity : MonoBehaviour
 				}
 			}
 		}
-//		newSession = false;
         
 		// scan for missing objects
 		clearMissing(CTW);
@@ -474,11 +472,11 @@ public class CTunity : MonoBehaviour
 
         // Instantiate!
 //        Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
+//        newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
-
 		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
-//		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 		newp.name = pathparts[pathparts.Length - 1];
+//		Debug.Log(newp.name+": instantiate at: " + position+", actual pos: "+newp.position);
 
 //		Debug.Log("newp.name: " + newp.name+", parent: "+parent+", pf: "+pf);
 		CTclient myctc = newp.GetComponent<CTclient>();
@@ -677,7 +675,8 @@ public class CTunity : MonoBehaviour
 			if (CTW == null || CTW.objects == null) continue;          // notta      
             
 			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
-			{          
+			{
+//				Debug.Log("get/setState: "+ctobject.id+", position: "+ctobject.pos);
 				setState(ctobject.id, ctobject);
 			}
 
@@ -744,26 +743,20 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
 	// CTsetstate wrapper
 
-	private void setState(String objectID, CTobject ctobject) {
-//		Debug.Log("setState id: " + objectID+", color: "+ctobject.color);
-
+	private void setState(String objectID, CTobject ctobject) 
+	{
 		GameObject ct;
         if (!CTlist.TryGetValue(objectID, out ct)) return;
-		if (ct == null)
-		{
-//			Debug.Log("setState missing object: " + objectID);
-			return;         // fire wall
-		}
+		if (ct == null) return;         // fire wall
 
 		CTclient ctp = ct.GetComponent<CTclient>();
 		if (ctp != null)
 		{
 			ctp.setState(ctobject, replayActive, playPaused);
+			if (newSession) ctp.jumpState();                    // do it now (don't wait for next ctclient.Update cycle)
 		}
-
-//		Debug.Log("setState playPaused: " + playPaused);
 	}
-
+    
 	//-------------------------------------------------------------------------------------------------------
 	public Boolean isReplayMode() {
 		return replayActive;
@@ -790,8 +783,8 @@ public class CTunity : MonoBehaviour
 		if (replayActive)
         {
 			newSession = true;
-            clearWorlds();
-//			Debug.Log("go live, clear worlds done, CTlist.Count: "+CTlist.Count);
+//            clearWorlds();
+//			Debug.Log("Go live! newSession: "+newSession);
         }
 
         replayActive = !replayActive;      
@@ -812,7 +805,7 @@ public class CTunity : MonoBehaviour
     
     // return True if this object should be written to CT
 	public Boolean activePlayer(GameObject go) {
-		Boolean isactive = localPlayer(go) && activeWrite;  // whew
+		Boolean isactive = localPlayer(go) && activeWrite && !newSession;  // whew
 //		Debug.Log("activePlayer check: " + fullName(go) + ", Player: " + Player+", activeWrite: "+activeWrite+", gamePaused: "+gamePaused+", replayActive: "+replayActive+", isactive: "+isactive);
 		return isactive;
 	}
