@@ -247,7 +247,7 @@ public class CTsetup: MonoBehaviour
                 Password.SetActive(false);
 				Session.SetActive(true);
 				Player.SetActive(true);
-				Deploy.SetActive(!ctunity.observerMode());
+				Deploy.SetActive(!ctunity.observerMode() && !ctunity.replayActive);
 //				replayControl.SetActive(ctunity.observerMode());
 				break;
 

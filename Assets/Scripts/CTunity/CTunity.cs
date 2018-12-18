@@ -665,10 +665,11 @@ public class CTunity : MonoBehaviour
 			{
 //				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
 				if(isReplayMode()) clearWorlds();              // presume problem is empty world...
+				pendingSession = newSession = false;            // bail (presume empty all-around)
 				continue;
 			}
 			CTdebug(null);          // clear error
-            
+
 			// parse to class structure...
             List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
 			CTworld CTW = mergeCTworlds(ws);
@@ -681,7 +682,7 @@ public class CTunity : MonoBehaviour
 
 			if(pendingSession) {
 //				Debug.Log("END newSession!");
-				pendingSession = newSession = false;
+				pendingSession = newSession = false;               // (re)enable Update getData
 			}
 		}              // end while(true)   
     }
