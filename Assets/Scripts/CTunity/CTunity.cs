@@ -473,10 +473,11 @@ public class CTunity : MonoBehaviour
 		Transform pf = pfgo.transform;
 
         // Instantiate!
-        Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
+//        Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
+		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
 
 		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
-		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
+//		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 		newp.name = pathparts[pathparts.Length - 1];
 
 //		Debug.Log("newp.name: " + newp.name+", parent: "+parent+", pf: "+pf);
