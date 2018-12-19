@@ -23,6 +23,7 @@ using System;
 public class Rocket : MonoBehaviour {
 	private System.Random random;
 	private CTunity ctunity;
+	private CTclient ctclient;
 	private Rigidbody rb;
 	private float stopWatch = 0f;
 
@@ -34,6 +35,8 @@ public class Rocket : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
+		ctclient = GetComponent<CTclient>();
+
 		rb = GetComponent<Rigidbody>();
 		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
@@ -43,10 +46,24 @@ public class Rocket : MonoBehaviour {
 	// Update is called once per frame
 	void FixedUpdate()
 	{
-//		if (!CTunity.activeWrite) return;
 		if (!ctunity.activePlayer(gameObject)) return;
-
+//		Debug.Log(name + ", custom: " + ctclient.custom + ", stopWatch: " + stopWatch);
 		stopWatch += Time.deltaTime;
+
+		// continue stopwatch from saved state (use CTW player-time?)
+        // store fuel and air vs stopWatch?
+		try
+		{
+			float sw = float.Parse(ctclient.custom);
+			if(sw > stopWatch) {
+//				Debug.Log("skootch stopwatch: " + stopWatch + " -> " + sw);
+				stopWatch = sw;
+			}
+		} 
+		catch (Exception) { };
+
+		ctclient.custom = "" + stopWatch;
+
 		if (stopWatch < fuelTime)
 		{
 			float noiseX = (float)random.NextDouble() / 100f;   // bit of uncertainty so rockets don't perfectly "stack"
@@ -58,7 +75,7 @@ public class Rocket : MonoBehaviour {
 //			Debug.Log(name + ": BOOM!");
 			ctunity.clearObject(gameObject);
 		}
-			
+        
 	}
     
 }

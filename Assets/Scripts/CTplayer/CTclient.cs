@@ -66,6 +66,7 @@ public class CTclient : MonoBehaviour
 	private String fullName = "";
     
 	internal int Generation = 0;                  // keep track of clone-generation
+	internal float runTime = 0f;                    //  keep track of live running time
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
@@ -76,6 +77,7 @@ public class CTclient : MonoBehaviour
 		if (autoColor) setColor();          // set default color based on object name
 		fullName = CTunity.fullName(gameObject);        // get once in advance
 		ctunity.CTregister(gameObject);                 // register with CTunity...
+
 	}
     
 	//----------------------------------------------------------------------------------------------------------------
@@ -124,7 +126,7 @@ public class CTclient : MonoBehaviour
 		if(rb==null) rb = GetComponent<Rigidbody>();    // try again; async issue?
 		if (rb != null)
 		{
-			if (replayMode || !isLocalControl()) { 
+			if (replayMode || !isLocalControl()) {
 				rb.isKinematic = true; 
 				rb.useGravity = false; 
 			}
@@ -147,7 +149,7 @@ public class CTclient : MonoBehaviour
         transform.position = myPos;                   
         transform.rotation = myRot;
         if (myScale != Vector3.zero) transform.localScale = myScale;
-		velocity = Vector3.zero;
+//		velocity = Vector3.zero;
 //		Debug.Log("jumpState to pos: " + myPos);
 	}
 

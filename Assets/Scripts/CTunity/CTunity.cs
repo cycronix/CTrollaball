@@ -473,7 +473,9 @@ public class CTunity : MonoBehaviour
         // Instantiate!
 //        Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
 //        newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
+
 		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
+
 		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
 		newp.name = pathparts[pathparts.Length - 1];
 //		Debug.Log(newp.name+": instantiate at: " + position+", actual pos: "+newp.position);
@@ -587,6 +589,8 @@ public class CTunity : MonoBehaviour
 
 	public void clearMissing(CTworld ctworld)
     {
+		List<GameObject> destroyList = new List<GameObject>();  // make copy; avoid sync error
+
 		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
         {
 //			Debug.Log("clearMissing check: " + fullName(go) + ", state: " + go.activeSelf);
@@ -595,29 +599,37 @@ public class CTunity : MonoBehaviour
 				continue;
 			}
 
-			if (!go.activeSelf)
+			if (!go.activeSelf)         // prune inactive objects
 			{
-//				Debug.Log("clearMissing Destroy: " + fullName(go));
-				clearObject(go);        // inactive?  buh bye
-				return;
+				//				Debug.Log("clearMissing Destroy: " + fullName(go));
+				destroyList.Add(go);
+				//				clearObject(go);        // inactive?  buh bye
+				//				return;
 			}
-
-			String goName = fullName(go);
-			if (!ctworld.objects.ContainsKey(goName))  
-			{            
-				//  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
-				if (!goName.StartsWith(Player) || replayActive)
-				{    
-					CTclient ctc = go.GetComponent<CTclient>();
-					if (!(ctc != null && ctc.isRogue))   // let Rogue objects persist
-					{                       
-						go.SetActive(false);
-//						Debug.Log("clearMissing: " + goName+", Player: "+Player);
+			else
+			{
+				String goName = fullName(go);
+				if (!ctworld.objects.ContainsKey(goName))
+				{
+					//  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
+//					if (!activeWrite)
+//					if (!goName.StartsWith(Player) || replayActive)
+					if (!goName.StartsWith(Player) || !activeWrite)
+					{
+						CTclient ctc = go.GetComponent<CTclient>();
+						if (!(ctc != null && ctc.isRogue))   // let Rogue objects persist
+						{
+							destroyList.Add(go);
+//							go.SetActive(false);
+							//						Debug.Log("clearMissing: " + goName+", Player: "+Player);
+						}
 					}
 				}
 			}
         }
 
+        // clear out destroylist
+		foreach (GameObject t in destroyList) clearObject(t);  // destroy while iterating wrecks list
     }
 
     //-------------------------------------------------------------------------------------------------------

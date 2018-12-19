@@ -143,7 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ForceFactor: 15
   fuelTime: 2
-  boomTime: 50
+  boomTime: 20
 --- !u!136 &136332150455799214
 CapsuleCollider:
   m_ObjectHideFlags: 1
