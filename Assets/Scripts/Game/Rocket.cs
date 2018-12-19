@@ -40,6 +40,7 @@ public class Rocket : MonoBehaviour {
 		rb = GetComponent<Rigidbody>();
 		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
+//		Debug.Log(name + ": new Rocket!");
 	}
    
 	//----------------------------------------------------------------------------------------------------------------
@@ -48,15 +49,16 @@ public class Rocket : MonoBehaviour {
 	{
 		if (!ctunity.activePlayer(gameObject)) return;
 //		Debug.Log(name + ", custom: " + ctclient.custom + ", stopWatch: " + stopWatch);
-		stopWatch += Time.deltaTime;
 
 		// continue stopwatch from saved state (use CTW player-time?)
         // store fuel and air vs stopWatch?
+
+		stopWatch += Time.deltaTime;
 		try
 		{
 			float sw = float.Parse(ctclient.custom);
 			if(sw > stopWatch) {
-//				Debug.Log("skootch stopwatch: " + stopWatch + " -> " + sw);
+//				Debug.Log(name+", skootch stopwatch: " + stopWatch + " -> " + sw);
 				stopWatch = sw;
 			}
 		} 

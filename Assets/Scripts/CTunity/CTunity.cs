@@ -486,6 +486,7 @@ public class CTunity : MonoBehaviour
 		{
 			myctc.prefab = prefab;
             myctc.setColor(color);
+			myctc.custom = ctobject.custom;  // set this now vs waiting for setState
 		}
 
 		// make sure in CTlist (inactive objects won't call CTregister...)
