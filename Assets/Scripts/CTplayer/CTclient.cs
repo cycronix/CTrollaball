@@ -149,6 +149,11 @@ public class CTclient : MonoBehaviour
         transform.position = myPos;                   
         transform.rotation = myRot;
         if (myScale != Vector3.zero) transform.localScale = myScale;
+
+		oldPos = transform.position;        // reset prior-state
+        oldRot = transform.rotation;
+        oldScale = transform.localScale;
+
 //		velocity = Vector3.zero;
 //		Debug.Log("jumpState to pos: " + myPos);
 	}
