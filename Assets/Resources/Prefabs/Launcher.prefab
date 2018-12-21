@@ -97,8 +97,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   launchInterval: 1
-  lingerTime: 3600
-  Nlaunch: 500
 --- !u!114 &114865686813794640
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -125,5 +123,5 @@ MonoBehaviour:
   smoothReplay: 0
   DeadReckon: 1.5
   SmoothTime: 0.4
-  autoColor: 0
+  autoColor: 1
   isRogue: 0

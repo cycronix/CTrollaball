@@ -108,12 +108,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c55319a47bfc4fd3b54388cf8dab12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  smoothTrack: 0
+  smoothTrack: 1
   smoothReplay: 0
   DeadReckon: 1.5
   SmoothTime: 0.25
   autoColor: 1
-  isGhost: 0
   isRogue: 0
 --- !u!114 &114853243911019948
 MonoBehaviour:

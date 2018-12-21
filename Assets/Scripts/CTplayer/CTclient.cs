@@ -98,7 +98,7 @@ public class CTclient : MonoBehaviour
 		ctobject = cto;                             // for public ref
         
 		// set baseline for Lerp going forward to next step
-		oldPos = transform.position;
+		oldPos = transform.localPosition;
 		oldRot = transform.rotation;
 		oldScale = transform.localScale;
 
@@ -146,11 +146,11 @@ public class CTclient : MonoBehaviour
 		if (startup) return; 
 
         stopMoving();     // stop moving!
-        transform.position = myPos;                   
+        transform.localPosition = myPos;                   
         transform.rotation = myRot;
         if (myScale != Vector3.zero) transform.localScale = myScale;
 
-		oldPos = transform.position;        // reset prior-state
+		oldPos = transform.localPosition;        // reset prior-state
         oldRot = transform.rotation;
         oldScale = transform.localScale;
 
@@ -186,14 +186,14 @@ public class CTclient : MonoBehaviour
 
 			if (SmoothTime > 0F)
 			{
-				targetPos = transform.position + DeadReckon * (myPos - transform.position);    // dead reckoning
-				transform.position = Vector3.SmoothDamp(transform.position, targetPos, ref velocity, SmoothTime);
+				targetPos = transform.localPosition + DeadReckon * (myPos - transform.localPosition);    // dead reckoning
+				transform.localPosition = Vector3.SmoothDamp(transform.localPosition, targetPos, ref velocity, SmoothTime);
 				//                Vector3 rot = Vector3.SmoothDamp(transform.rotation.ToEuler(), myRot.ToEuler(), ref rotvel, SmoothTime);
 				//				transform.rotation = Quaternion.Euler(rot);
-//				Debug.Log("smoothTrack from: " + transform.position + ", to: " + targetPos);
+//				Debug.Log("smoothTrack from: " + transform.localPosition + ", to: " + targetPos);
 			}
 			else {
-				transform.position = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
+				transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			}
 
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)

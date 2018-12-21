@@ -55,7 +55,7 @@ public class CTunity : MonoBehaviour
 	private Boolean goingLive = false;                  // flag transition playback to real-time...
 
     // internal variable accessible from other scripts but not Editor Inspector
-    internal Dictionary<String, GameObject> CTlist = new Dictionary<String, GameObject>();
+    internal SortedDictionary<String, GameObject> CTlist = new SortedDictionary<String, GameObject>();
 	internal List<String> PlayerList = new List<String>();
 
 	internal double latestTime = 0F;
@@ -352,8 +352,8 @@ public class CTunity : MonoBehaviour
 			CTobject cto = new CTobject();
 			cto.id = fullName(go)+"X";
 			cto.model = ctc.prefab;
-            cto.pos = go.transform.position;
-            cto.rot = go.transform.rotation;
+            cto.pos = go.transform.localPosition;
+            cto.rot = go.transform.localRotation;
             cto.scale = go.transform.localScale;
             cto.state = true;
             cto.color = ctc.myColor;
@@ -381,7 +381,7 @@ public class CTunity : MonoBehaviour
 		cto.id = objID;
 		cto.model = model;
 		cto.pos = Vector3.zero;
-		cto.rot = transform.rotation;
+		cto.rot = transform.localRotation;
 		cto.scale = Vector3.zero;
 		cto.state = true;
 		cto.color = Color.gray;
@@ -413,10 +413,10 @@ public class CTunity : MonoBehaviour
             
 			CTclient ctc = CTlist[objID].gameObject.transform.GetComponent<CTclient>();
 			string ctpf = (ctc==null)?"":CTlist[objID].gameObject.transform.GetComponent<CTclient>().prefab;
-			if (!ctpf.Equals(prefab) || scale==Vector3.zero)
+			if (!ctpf.Equals(prefab) || scale==Vector3.zero)        // prefab changed!
 			{
-				position = CTlist[objID].transform.position;   // rebuild to new prefab (in-place)
-				rotation = CTlist[objID].transform.rotation;
+				position = CTlist[objID].transform.localPosition;   // rebuild to new prefab (in-place)
+				rotation = CTlist[objID].transform.localRotation;
 				scale = Vector3.zero;   // flag to use native prefab scale
 				clearObject(objID);
 			}
@@ -470,15 +470,17 @@ public class CTunity : MonoBehaviour
 		Transform tparent = pgo.transform;
 		Transform pf = pfgo.transform;
 
-        // Instantiate!
-//        Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
-//        newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
+		// Instantiate!
+//		Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
+//		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
+//		Debug.Log(newp.name + ": instantiate at: " + position + ", mypos: " + mypos);
 
-		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
+		Vector3 mypos = (pathparts.Length <= 1) ? position : (tparent.position + position);
+		Transform newp = Instantiate(pf, mypos, rotation * pf.rotation, tparent);    // rez prefab with set parent
+//		Debug.Log(newp.name + ": instantiate child at: " + position+", mypos: "+mypos);
 
 		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
 		newp.name = pathparts[pathparts.Length - 1];
-//		Debug.Log(newp.name+": instantiate at: " + position+", actual pos: "+newp.position);
 
 //		Debug.Log("newp.name: " + newp.name+", parent: "+parent+", pf: "+pf);
 		CTclient myctc = newp.GetComponent<CTclient>();

@@ -22,14 +22,11 @@ using System;
 
 public class Launcher : MonoBehaviour {
 	private CTunity ctunity;
-    
 	private float stopWatch = 0f;
-	public float launchInterval = 5;                 // seconds of fuel burn
-	public float lingerTime = 10;
-
-	public int Nlaunch = 10;
 	private int Ilaunch = 0;
 	private int myHash = 0;
+
+	public float launchInterval = 5;                 // seconds of fuel burn
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
@@ -44,30 +41,16 @@ public class Launcher : MonoBehaviour {
     
 	void FixedUpdate()
 	{
-//		if (!CTunity.activeWrite) return;
-		if (!ctunity.activePlayer(gameObject) /* || !CTunity.activeWrite */) return;
+		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= launchInterval)
 		{
-			if (Ilaunch >= Nlaunch)
-			{
-				if (stopWatch > lingerTime)
-				{
-					Debug.Log(name+": Buh Bye!");
-					ctunity.clearObject(gameObject);  // poof
-				}
-			}
-			else
-			{
-//				Debug.Log("Launch: " + Ilaunch);
-//				ctunity.newPlayer("Launcher/Rocket" + Ilaunch, "Rocket");
-				ctunity.newPlayer("Launcher/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names
-				Ilaunch++;
-				stopWatch = 0;
-			}
+			//				Debug.Log("Launch: " + Ilaunch);
+//			ctunity.newPlayer("Launcher/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names
+			ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names
+			Ilaunch++;
+			stopWatch = 0;
 		}
-        
 	}
-    
 }

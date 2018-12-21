@@ -110,7 +110,7 @@ public class CTsetup: MonoBehaviour
                     break;
 
 				case "Deploy":
-					StartCoroutine("getInventoryList");         // init list of "World" prefabs
+//					StartCoroutine("getInventoryList");         // init list of "World" prefabs
 
                     // add listener to deploy new world 
                     d.onValueChanged.AddListener(delegate
@@ -194,6 +194,7 @@ public class CTsetup: MonoBehaviour
 		ctunity.Player = playerDrop.GetComponent<Dropdown>().options[playerDrop.value].text;      // init
 
 		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
+		StartCoroutine("getInventoryList");         // init list of "World" prefabs
 		ctunity.doSyncClock();                  // sync client/server clocks
 	}
 
@@ -220,7 +221,6 @@ public class CTsetup: MonoBehaviour
 		updateServer();
 	}
     
-
 	//----------------------------------------------------------------------------------------------------------------
 	// modeSelect:  set menu-pass, e.g. login vs setup
 
@@ -329,11 +329,11 @@ public class CTsetup: MonoBehaviour
 
     public IEnumerator getInventoryList()
     {
+//		Debug.Log("getInventoryList!");
 		List<String> sourceList = new List<String>();
 
         while (true)
         {
-            //          UnityEngine.Debug.Log("getSourceList!");
             yield return new WaitForSeconds(0.1F);
 
             string url1 = ctunity.Server + "/CT";

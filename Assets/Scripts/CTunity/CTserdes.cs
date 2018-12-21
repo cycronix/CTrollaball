@@ -382,13 +382,13 @@ public class CTserdes
 			obj.state = (ct.activeSelf ? true : false);
 			// NOTE: limit floating point values to 4 decimal places
 			obj.pos = new List<Double>();
-			obj.pos.Add(LimitPrecision(ct.transform.position.x, 4));
-			obj.pos.Add(LimitPrecision(ct.transform.position.y, 4));
-			obj.pos.Add(LimitPrecision(ct.transform.position.z, 4));
+			obj.pos.Add(LimitPrecision(ct.transform.localPosition.x, 4));    //  was .position
+			obj.pos.Add(LimitPrecision(ct.transform.localPosition.y, 4));
+			obj.pos.Add(LimitPrecision(ct.transform.localPosition.z, 4));
 			obj.rot = new List<Double>();
-			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.x, 4));
-			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.y, 4));
-			obj.rot.Add(LimitPrecision(ct.transform.rotation.eulerAngles.z, 4));
+			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.x, 4));    // was .rotation
+			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.y, 4));
+			obj.rot.Add(LimitPrecision(ct.transform.localRotation.eulerAngles.z, 4));
 			obj.scale = new List<Double>();
             obj.scale.Add(LimitPrecision(ct.transform.localScale.x, 4));
             obj.scale.Add(LimitPrecision(ct.transform.localScale.y, 4));
