@@ -61,7 +61,7 @@ public class JitterBug : MonoBehaviour {
 			float xrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
 			float yrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
 			float zrand = speedFactor * (float)(random.Next(-95, 95)) / 10F;
-			newPos = transform.position + new Vector3(xrand, zrand, yrand);
+			newPos = transform.localPosition + new Vector3(xrand, zrand, yrand);
 
 			newPos.x = Mathf.Clamp(newPos.x, -rangeLimit, rangeLimit);
 			newPos.y = Mathf.Clamp(newPos.y, 0f, rangeLimit/2f);
@@ -69,7 +69,7 @@ public class JitterBug : MonoBehaviour {
 		}
 
 //		transform.position = Vector3.Lerp(transform.position, newPos, Time.deltaTime);
-		transform.position = Vector3.SmoothDamp(transform.position, newPos, ref velocity, UpdateInterval);
+		transform.localPosition = Vector3.SmoothDamp(transform.localPosition, newPos, ref velocity, UpdateInterval);
 	}
     
 }
