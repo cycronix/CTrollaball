@@ -27,12 +27,13 @@ public class Launcher : MonoBehaviour {
 	private int myHash = 0;
 
 	public float launchInterval = 5;                 // seconds of fuel burn
+	public int Nlaunch = 1;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
-		stopWatch = launchInterval;  // immediate launch one
+		stopWatch = 0;  
 		myHash = Math.Abs(Guid.NewGuid().GetHashCode());
 	}
    
@@ -44,7 +45,7 @@ public class Launcher : MonoBehaviour {
 		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
-		if (stopWatch >= launchInterval)
+		if (stopWatch >= launchInterval && (Nlaunch==0 || Ilaunch<Nlaunch))
 		{
 			//				Debug.Log("Launch: " + Ilaunch);
 //			ctunity.newPlayer("Launcher/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names

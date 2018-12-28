@@ -26,19 +26,19 @@ public class CTclient : MonoBehaviour
 	public Boolean smoothReplay = false;
 
 	internal float TrackSpeed = 5F;             // multiplier on how fast to Lerp to position/rotation
-//	internal float RotateSpeed = 1F;            // rotation speed multiplier
-    public float DeadReckon = 1.5F;             // how much to shoot past known position for dead reckoning
+												//	internal float RotateSpeed = 1F;            // rotation speed multiplier
+	public float DeadReckon = 1.5F;             // how much to shoot past known position for dead reckoning
 	public float SmoothTime = 0.4F;             // SmoothDamp time (sec)
 
 	public Boolean autoColor = false;            // set object color based on naming convention
 	public Boolean isRogue = false;             // "rogue" clients flag ignore local controls
-    
+
 	public CTobject ctobject = null;            // for public ref
 
-	internal String prefab="";                  // programmatically set; reference value
+	internal String prefab = "";                  // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
 	internal String custom = "";                // catch-all custom string
-    
+
 	internal Color myColor = Color.clear;       // keep track of own color setting
 
 	private Boolean noTrack = false;      // global or child of (connected to) player object
@@ -55,16 +55,16 @@ public class CTclient : MonoBehaviour
 
 	// Lerp helper params:
 	private Vector3 targetPos = Vector3.zero;
-    private Vector3 velocity = Vector3.zero;
+	private Vector3 velocity = Vector3.zero;
 	private Vector3 rotvel = Vector3.zero;
-    private float stopWatch = 0F;
+	private float stopWatch = 0F;
 
 	private Vector3 oldPos = Vector3.zero;
-    private Vector3 oldScale = Vector3.one;
-    private Quaternion oldRot = Quaternion.identity;
+	private Vector3 oldScale = Vector3.one;
+	private Quaternion oldRot = Quaternion.identity;
 
 	private String fullName = "";
-    
+
 	internal int Generation = 0;                  // keep track of clone-generation
 	internal float runTime = 0f;                    //  keep track of live running time
 
@@ -79,12 +79,12 @@ public class CTclient : MonoBehaviour
 		ctunity.CTregister(gameObject);                 // register with CTunity...
 
 	}
-    
+
 	//----------------------------------------------------------------------------------------------------------------
 	void Update()
-//    void FixedUpdate()
+	//    void FixedUpdate()
 	{
-//		Debug.Log("dt: " + Time.deltaTime);
+//		Debug.Log(name + ", position: " + transform.localPosition);
 		doTrack();
 	}
 
@@ -94,7 +94,7 @@ public class CTclient : MonoBehaviour
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
 		if (ctunity == null) return;        // async
-//		Debug.Log(cto.id+": setState, replayMode: " + ireplay);
+											//		Debug.Log(cto.id+": setState, replayMode: " + ireplay);
 		ctobject = cto;                             // for public ref
         
 		// set baseline for Lerp going forward to next step
@@ -109,7 +109,7 @@ public class CTclient : MonoBehaviour
 		myPos = cto.pos;
 		myRot = cto.rot;
 		myScale = cto.scale;
-//		Debug.Log("myScale: " + myScale);
+		//		Debug.Log("myScale: " + myScale);
 		myColor = cto.color;
 
 		replayMode = ireplay;
@@ -123,23 +123,30 @@ public class CTclient : MonoBehaviour
 			setColor(cto.color);                        // set color for non-local objects
 		}
 
-		if(rb==null) rb = GetComponent<Rigidbody>();    // try again; async issue?
-		if (rb != null)
-		{
-			if (replayMode || !isLocalControl()) {
-				rb.isKinematic = true; 
-				rb.useGravity = false; 
-			}
-			else { 
-				rb.isKinematic = false; 
-				rb.useGravity = true; 
-			}
-		}
+		if (rb == null) rb = GetComponent<Rigidbody>();    // try again; async issue?
+		setGravity();
 
-//		Debug.Log(name+", ilc: "+isLocalControl());
+		//		Debug.Log(name+", ilc: "+isLocalControl());
 		startup = false;
 	}
-    
+
+	private void setGravity() { 
+		if (rb != null)
+        {
+            if (replayMode || !isLocalControl())
+            {
+                rb.isKinematic = true;
+                rb.useGravity = false;
+            }
+            else
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+            }
+        }
+	}
+
+
 	//----------------------------------------------------------------------------------------------------------------
     // jump to current position
 	public void jumpState() {
@@ -154,8 +161,8 @@ public class CTclient : MonoBehaviour
         oldRot = transform.rotation;
         oldScale = transform.localScale;
 
-//		velocity = Vector3.zero;
-//		Debug.Log("jumpState to pos: " + myPos);
+		velocity = Vector3.zero;
+//		Debug.Log(name+": jumpState to pos: " + myPos);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -168,7 +175,8 @@ public class CTclient : MonoBehaviour
         if (isLocalControl() || startup)
 		{
 //			Debug.Log(name + ": localControl, no track!");
-			if(rb != null) rb.useGravity = true;
+//			if(rb != null) rb.useGravity = true;
+			setGravity();
 			return;
 		}
 //		Debug.Log("client setTrack myPos: " + myPos);
@@ -190,9 +198,10 @@ public class CTclient : MonoBehaviour
 				transform.localPosition = Vector3.SmoothDamp(transform.localPosition, targetPos, ref velocity, SmoothTime);
 				//                Vector3 rot = Vector3.SmoothDamp(transform.rotation.ToEuler(), myRot.ToEuler(), ref rotvel, SmoothTime);
 				//				transform.rotation = Quaternion.Euler(rot);
-//				Debug.Log("smoothTrack from: " + transform.localPosition + ", to: " + targetPos);
+//				Debug.Log(name+": smoothTrack from: " + transform.localPosition + ", to: " + targetPos);
 			}
 			else {
+//				Debug.Log(name + ": LerpTrack from: " + oldPos + ", to: " + myPos);
 				transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			}
 

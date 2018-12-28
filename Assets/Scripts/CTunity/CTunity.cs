@@ -251,6 +251,7 @@ public class CTunity : MonoBehaviour
 		// second pass, screen masterTime, consolidate masterWorld
 		foreach (CTworld world in worlds)
 		{
+//			Debug.Log("mergeWorlds time: " + world.time+", player: "+world.player);
 			if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
 
 			double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
@@ -279,8 +280,10 @@ public class CTunity : MonoBehaviour
 					Debug.Log("CTW exception on object: " + ctobject.id + ", e: " + e);
 				}
 
+				// TO DO:  Consolidate following two if() statements. 
+                
 				// check for change of prefab
-				if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.player.Equals(Player)))  // Live mode
+				if (CTlist.ContainsKey(ctobject.id)  && (isReplayMode() || !world.player.Equals(Player)) )  // Live mode
 				{
 					GameObject mygo = CTlist[ctobject.id].gameObject;
 					if (mygo == null)
@@ -291,21 +294,19 @@ public class CTunity : MonoBehaviour
 					string pf = CTlist[ctobject.id].gameObject.transform.GetComponent<CTclient>().prefab;
 					if (!pf.Equals(ctobject.model))   // recheck showMenu for async newPlayer
 					{
-						Debug.Log("change prefab: " + ctobject.model + " --> " + pf);
+//						Debug.Log("change prefab: " + ctobject.model + " --> " + pf);
 						newGameObject(ctobject);
 					}
 				}
 
 				// instantiate new players and objects
-				// Notes:  following line has tricky/obscure ramifications:  
-				// don't merge local-Player (under user control) except:
-				// - once up front for each new session
-				// - during replay
 				if (!CTlist.ContainsKey(ctobject.id) && (newSession || replayActive || !world.player.Equals(Player)))  // mjm 12/3/18
 				{
 					// Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
 					newGameObject(ctobject);
 				}
+
+				setState(ctobject.id, ctobject);  // move here?
 			}
 		}
         
@@ -388,7 +389,7 @@ public class CTunity : MonoBehaviour
 
 		return newGameObject(cto);
 	}
-
+    
 	//-------------------------------------------------------------------------------------------------------
 	// newGameObject:  create and instantiate new CTobject 
 
@@ -403,25 +404,26 @@ public class CTunity : MonoBehaviour
 		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab);
+//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", newSession: "+newSession);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
 		if (CTlist.ContainsKey(objID))
 		{
-//			Debug.Log("existing object: " + objID);
 			CTlist[objID].SetActive(true);     // let setState activate?
             
 			CTclient ctc = CTlist[objID].gameObject.transform.GetComponent<CTclient>();
 			string ctpf = (ctc==null)?"":CTlist[objID].gameObject.transform.GetComponent<CTclient>().prefab;
 			if (!ctpf.Equals(prefab) || scale==Vector3.zero)        // prefab changed!
 			{
+//				Debug.Log(objID+": new prefab: " + prefab +", old pf: "+ctpf);
 				position = CTlist[objID].transform.localPosition;   // rebuild to new prefab (in-place)
 				rotation = CTlist[objID].transform.localRotation;
-				scale = Vector3.zero;   // flag to use native prefab scale
+			    scale = Vector3.zero;   // flag to use native prefab scale
 				clearObject(objID);
 			}
 			else
 			{
+				Debug.Log("existing object: " + objID);
 				return CTlist[objID];            // already there
 			}
 		}
@@ -429,7 +431,7 @@ public class CTunity : MonoBehaviour
 		GameObject tgo = GameObject.Find(objID);
 		if (tgo != null)
 		{
-//			UnityEngine.Debug.Log("Can't create duplicate: " + pName);      // unregistered prefabs hit this check
+			Debug.Log("Can't create duplicate: " + objID);      // unregistered prefabs hit this check
 			return tgo;
 		}
 
@@ -437,7 +439,7 @@ public class CTunity : MonoBehaviour
 		GameObject pfgo = ((GameObject)getPrefab(prefab));
 		if (pfgo == null)
 		{
-			UnityEngine.Debug.Log("NULL prefab: " + prefab);
+			Debug.Log("NULL prefab: " + prefab);
 			return null;
 		}
 		pfgo.SetActive(isactive);
@@ -464,7 +466,7 @@ public class CTunity : MonoBehaviour
 
 		pgo = GameObject.Find(parent);
 		if(pgo == null) {    // parent missing
-			UnityEngine.Debug.Log("Missing parent: " + parent+", child: "+objID);  // init issue, catch it next update...
+			Debug.Log("Missing parent: " + parent+", child: "+objID);  // init issue, catch it next update...
 			return null;
 		}
 		Transform tparent = pgo.transform;
@@ -475,11 +477,17 @@ public class CTunity : MonoBehaviour
 //		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
 //		Debug.Log(newp.name + ": instantiate at: " + position + ", mypos: " + mypos);
 
-		Vector3 mypos = (pathparts.Length <= 1) ? position : (tparent.position + position);
-		Transform newp = Instantiate(pf, mypos, rotation * pf.rotation, tparent);    // rez prefab with set parent
-//		Debug.Log(newp.name + ": instantiate child at: " + position+", mypos: "+mypos);
+//		Vector3 mypos = (pathparts.Length <= 1) ? position : (tparent.position + position);
+//		Transform newp = Instantiate(pf, mypos, rotation * pf.rotation, tparent);    // rez prefab with set parent
+//		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
+		Transform newp = Instantiate(pf, tparent, false);    // rez prefab with set parent
+		newp.localPosition = position;
+		newp.localRotation = rotation * pf.rotation;
 
-		if (scale != Vector3.zero) newp.localScale = scale;                     // zero scale means use initial prefab scale
+//		Debug.Log(objID + ": instantiate child at: " + position+", mypos: "+mypos+", scale: "+scale+", pf.lscale: "+pf.localScale);
+
+		if (scale.Equals(Vector3.zero)) newp.localScale = pf.localScale;
+		else                            newp.localScale = scale;     // zero scale means use initial prefab scale
 		newp.name = pathparts[pathparts.Length - 1];
 
 //		Debug.Log("newp.name: " + newp.name+", parent: "+parent+", pf: "+pf);
@@ -524,7 +532,7 @@ public class CTunity : MonoBehaviour
 
             go.SetActive(false);
 			CTlist.Remove(objectName);
-            Destroy(go);
+            DestroyImmediate(go);
         }
 	}
 
@@ -615,16 +623,12 @@ public class CTunity : MonoBehaviour
 				if (!ctworld.objects.ContainsKey(goName))
 				{
 					//  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
-//					if (!activeWrite)
-//					if (!goName.StartsWith(Player) || replayActive)
 					if (!goName.StartsWith(Player) || !activeWrite)
 					{
 						CTclient ctc = go.GetComponent<CTclient>();
 						if (!(ctc != null && ctc.isRogue))   // let Rogue objects persist
 						{
 							destroyList.Add(go);
-//							go.SetActive(false);
-							//						Debug.Log("clearMissing: " + goName+", Player: "+Player);
 						}
 					}
 				}
@@ -689,11 +693,11 @@ public class CTunity : MonoBehaviour
 			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      
             
-			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
-			{
-//				Debug.Log("get/setState: "+ctobject.id+", position: "+ctobject.pos);
-				setState(ctobject.id, ctobject);
-			}
+//			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
+//			{
+//				if(newSession) Debug.Log("get/setState: "+ctobject.id+", scale: "+ctobject.scale);
+//				setState(ctobject.id, ctobject);
+//			}
 
 			if(pendingSession) {
 //				Debug.Log("END newSession!");
@@ -758,15 +762,18 @@ public class CTunity : MonoBehaviour
 	//-------------------------------------------------------------------------------------------------------
 	// CTsetstate wrapper
 
-	private void setState(String objectID, CTobject ctobject) 
+	private void setState(String objectID, CTobject ctobject)
 	{
 		GameObject ct;
-        if (!CTlist.TryGetValue(objectID, out ct)) return;
+		if (!CTlist.TryGetValue(objectID, out ct)) return;
 		if (ct == null) return;         // fire wall
 
 		CTclient ctp = ct.GetComponent<CTclient>();
 		if (ctp != null)
 		{
+			if (!ctp.prefab.Equals(ctobject.model)) 
+				Debug.Log(name + ": mismatch prefab: " + ctp.prefab + ", model: " + ctobject.model + ", newSession: " + newSession);
+
 			ctp.setState(ctobject, replayActive, playPaused);
 			if (newSession) ctp.jumpState();                    // do it now (don't wait for next ctclient.Update cycle)
 		}
@@ -789,8 +796,8 @@ public class CTunity : MonoBehaviour
 		replayTime = ireplayTime;
 		replayText = ireplayText;
 		playPaused = iPlayPaused;          // to detect auto-replay vs slider pause/drag
-//		Debug.Log("setTime playPaused: " + playPaused);
-        
+
+		if (!replayActive) replayTime = ServerTime();  // ??
 		return replayActive;
 	}
     
@@ -798,7 +805,7 @@ public class CTunity : MonoBehaviour
 		if (replayActive)
         {
 			newSession = true;
-//            clearWorlds();
+            clearWorlds();
 //			Debug.Log("Go live! newSession: "+newSession);
         }
 
@@ -808,13 +815,7 @@ public class CTunity : MonoBehaviour
 	public void setReplay(bool ireplayActive)
     {
 		if (ireplayActive == replayActive) return;
-
         toggleReplay();
-
-//        replayActive = ireplayActive;
-
-//		activeWrite = !replayActive;  // ???
-//		gamePaused = !activeWrite;      // ??
 		if (ctplayer == null) serverConnect();  // firewall
     }
     
@@ -861,7 +862,6 @@ public class CTunity : MonoBehaviour
         string fname = go.name;
 
 		while (go.transform.parent != null)
-//        while (go.transform.parent != null)
         {
             go = go.transform.parent.gameObject;
 			if (go.name.Equals("Players")) break;       // got it

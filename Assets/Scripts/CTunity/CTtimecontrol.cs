@@ -130,7 +130,7 @@ public class CTtimecontrol : MonoBehaviour {
 				clickTime = nowTime();
 			}        
 
-			masterTime = ctunity.ServerTime();
+			masterTime = nowTime();
 			playFactor = 0F;
 
             // update info labels
@@ -143,17 +143,18 @@ public class CTtimecontrol : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	private void startReplay() {
 		// to do:  change replayDuration to oldest active CTstates time...
-		double timeDelay = replayDuration;    
-//		if (ctunity.observerFlag) timeDelay = longReplayDuration;           
+//		double timeDelay = replayDuration;
+		//		if (ctunity.observerFlag) timeDelay = longReplayDuration;           
+        
+		endReplayTime = ctunity.latestTime + (2F / ctunity.blockRate);  // add a little time?
 
-		endReplayTime = ctunity.latestTime;
-
-		startReplayTime = endReplayTime - timeDelay;
-		durationReplayTime = endReplayTime - startReplayTime;
-
+		startReplayTime = endReplayTime - replayDuration;
+//		durationReplayTime = endReplayTime - startReplayTime;
+		durationReplayTime = replayDuration;
+        
 		setStateText(pausedLabel);
 
-		playTimeRef = ctunity.ServerTime();
+		playTimeRef = nowTime();
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -191,6 +192,7 @@ public class CTtimecontrol : MonoBehaviour {
 
 	//----------------------------------------------------------------------------------------------------------------
 	private double nowTime() {
-		return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+		return ctunity.ServerTime();
+//		return (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
 	}
 }

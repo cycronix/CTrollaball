@@ -97,6 +97,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   launchInterval: 1
+  Nlaunch: 0
 --- !u!114 &114865686813794640
 MonoBehaviour:
   m_ObjectHideFlags: 1
