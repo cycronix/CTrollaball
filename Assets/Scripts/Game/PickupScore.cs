@@ -54,7 +54,9 @@ public class PickupScore : MonoBehaviour {
         
 		// pre-filter scores:
 		foreach (GameObject go in ctunity.CTlist.Values)
-		{
+		{   
+			if (go == null) continue;
+			
             foreach (String player in ctunity.PlayerList)
             {
                 Transform c = go.transform;

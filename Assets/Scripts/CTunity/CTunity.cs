@@ -283,7 +283,7 @@ public class CTunity : MonoBehaviour
 				// TO DO:  Consolidate following two if() statements. 
                 
 				// check for change of prefab
-				if (CTlist.ContainsKey(ctobject.id)  && (isReplayMode() || !world.player.Equals(Player)) )  // Live mode
+				if (CTlist.ContainsKey(ctobject.id) && (isReplayMode() || !world.player.Equals(Player)) )  // Live mode
 				{
 					GameObject mygo = CTlist[ctobject.id].gameObject;
 					if (mygo == null)
@@ -513,7 +513,14 @@ public class CTunity : MonoBehaviour
 		if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
 		GameObject go = GameObject.Find(objectName);
-		clearObject(go);
+		if (go != null)
+		{
+			clearObject(go);
+		}
+		else
+		{
+			CTlist.Remove(objectName);
+		}
 	}
     
 	// more efficient if know the gameObject itself:
@@ -596,30 +603,22 @@ public class CTunity : MonoBehaviour
     
 	//-------------------------------------------------------------------------------------------------------
     // disable objects that are in CTlist but go missing from CTworld list
-	// to delete (vs disable) objects during live play; need to skip delay instantiate-until-ctworld-appearance
 
 	public void clearMissing(CTworld ctworld)
     {
-		List<GameObject> destroyList = new List<GameObject>();  // make copy; avoid sync error
-
-		foreach (GameObject go in CTlist.Values)      // cycle through objects in world
+		List<String> destroyList = new List<String>();  // make copy; avoid sync error
+        
+		foreach (KeyValuePair<string, GameObject> entry in CTlist)      // cycle through objects in world
         {
-//			Debug.Log("clearMissing check: " + fullName(go) + ", state: " + go.activeSelf);
-			if(go == null) {
-//				Debug.Log("Oops: CTlist gameObject missing!");
-				continue;
-			}
+			GameObject go = entry.Value;
+			String goName = entry.Key;
 
-			if (!go.activeSelf)         // prune inactive objects
+			if( (go == null) || !go.activeSelf)         // prune inactive objects
 			{
-				//				Debug.Log("clearMissing Destroy: " + fullName(go));
-				destroyList.Add(go);
-				//				clearObject(go);        // inactive?  buh bye
-				//				return;
+				destroyList.Add(goName);
 			}
 			else
 			{
-				String goName = fullName(go);
 				if (!ctworld.objects.ContainsKey(goName))
 				{
 					//  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
@@ -628,15 +627,15 @@ public class CTunity : MonoBehaviour
 						CTclient ctc = go.GetComponent<CTclient>();
 						if (!(ctc != null && ctc.isRogue))   // let Rogue objects persist
 						{
-							destroyList.Add(go);
+							destroyList.Add(goName);
 						}
 					}
 				}
 			}
         }
-
+        
         // clear out destroylist
-		foreach (GameObject t in destroyList) clearObject(t);  // destroy while iterating wrecks list
+		foreach (String t in destroyList) clearObject(t);  // destroy while iterating wrecks list
     }
 
     //-------------------------------------------------------------------------------------------------------
