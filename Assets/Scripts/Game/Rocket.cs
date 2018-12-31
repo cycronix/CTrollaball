@@ -36,17 +36,27 @@ public class Rocket : MonoBehaviour {
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 		ctclient = GetComponent<CTclient>();
-
-		rb = GetComponent<Rigidbody>();
+        
 		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
 //		Debug.Log(name + ": new Rocket!");
 	}
-   
+
 	//----------------------------------------------------------------------------------------------------------------
 	// Update is called once per frame
 	void FixedUpdate()
 	{
+		if(rb == null) {    // init async?
+			rb = GetComponent<Rigidbody>();
+
+            // start with velocity of grandparent (?)
+            if (rb != null)
+            {
+                Rigidbody pprb = transform.parent.transform.parent.gameObject.GetComponent<Rigidbody>();
+                if (pprb != null) rb.velocity = pprb.velocity;
+            }
+		}
+
 		if (!ctunity.activePlayer(gameObject)) return;
 //		Debug.Log(name + ", custom: " + ctclient.custom + ", stopWatch: " + stopWatch);
 

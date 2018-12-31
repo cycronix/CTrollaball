@@ -53,8 +53,8 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 //        ctunity.setReplay(false);
 		gameOptions.SetActive(showMenu);
 
-        if(showMenu)       // if turning menu on, auto-target Ground
-            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
+//        if(showMenu)       // if turning menu on, auto-target Ground
+//            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
         
 	}
 

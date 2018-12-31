@@ -155,6 +155,7 @@ public class CTtimecontrol : MonoBehaviour {
 		setStateText(pausedLabel);
 
 		playTimeRef = nowTime();
+//		Debug.Log("startReplay, latestTime: " + ctunity.latestTime + ", now: " + playTimeRef);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------

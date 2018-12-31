@@ -46,7 +46,6 @@ public class PlayerController : MonoBehaviour {
 	//	void Update() 
 	void FixedUpdate()
         {
-//		Debug.Log(CTunity.fullName(gameObject) + ": doCTwrite: " + ctunity.doCTwrite(gameObject));
 //		if (!ctclient.isLocalControl())	return;                 // notta unless under local-control
 		if (!ctunity.activePlayer(gameObject)) return;
 
@@ -54,6 +53,8 @@ public class PlayerController : MonoBehaviour {
 		float moveVertical = Input.GetAxis ("Vertical");		// Up Down arrow keys
 //		if (Input.GetMouseButton (2)) moveVertical = 1.0f;      // middle mouse button held:  move forward
         
+//		Debug.Log(name + ", playercontroller, mH: " + moveHorizontal + ", mV: " + moveVertical);
+
 		rb.angularVelocity = Vector3.zero;      // no spinning
 		float liftforce = liftForce;
 		if (moveHorizontal == 0 && moveVertical == 0) liftforce = 0F;

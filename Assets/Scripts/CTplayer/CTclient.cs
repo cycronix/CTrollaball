@@ -99,7 +99,7 @@ public class CTclient : MonoBehaviour
         
 		// set baseline for Lerp going forward to next step
 		oldPos = transform.localPosition;
-		oldRot = transform.rotation;
+		oldRot = transform.localRotation;
 		oldScale = transform.localScale;
 
 		if (stopWatch > 0F) TrackSpeed = (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
@@ -154,11 +154,11 @@ public class CTclient : MonoBehaviour
 
         stopMoving();     // stop moving!
         transform.localPosition = myPos;                   
-        transform.rotation = myRot;
+        transform.localRotation = myRot;
         if (myScale != Vector3.zero) transform.localScale = myScale;
 
 		oldPos = transform.localPosition;        // reset prior-state
-        oldRot = transform.rotation;
+        oldRot = transform.localRotation;
         oldScale = transform.localScale;
 
 		velocity = Vector3.zero;
@@ -206,7 +206,7 @@ public class CTclient : MonoBehaviour
 			}
 
 			// LerpUnclamped:  effectively extrapolates (dead reckoning)
-			transform.rotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
+			transform.localRotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
 			if(myScale != Vector3.zero)
 				transform.localScale = Vector3.LerpUnclamped(oldScale, myScale, Tclamp);
 		}

@@ -483,6 +483,7 @@ public class CTunity : MonoBehaviour
 		Transform newp = Instantiate(pf, tparent, false);    // rez prefab with set parent
 		newp.localPosition = position;
 		newp.localRotation = rotation * pf.rotation;
+//		newp.localRotation = rotation;      // nope
 
 //		Debug.Log(objID + ": instantiate child at: " + position+", mypos: "+mypos+", scale: "+scale+", pf.lscale: "+pf.localScale);
 

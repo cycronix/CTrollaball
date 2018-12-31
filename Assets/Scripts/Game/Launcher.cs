@@ -25,16 +25,18 @@ public class Launcher : MonoBehaviour {
 	private float stopWatch = 0f;
 	private int Ilaunch = 0;
 	private int myHash = 0;
+	private Rigidbody prb = null;
 
 	public float launchInterval = 5;                 // seconds of fuel burn
 	public int Nlaunch = 1;
+	public String Missile = "Rocket";
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 		stopWatch = 0;  
-		myHash = Math.Abs(Guid.NewGuid().GetHashCode());
+		myHash = Math.Abs(Guid.NewGuid().GetHashCode());      
 	}
    
 	//----------------------------------------------------------------------------------------------------------------
@@ -47,9 +49,7 @@ public class Launcher : MonoBehaviour {
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= launchInterval && (Nlaunch==0 || Ilaunch<Nlaunch))
 		{
-			//				Debug.Log("Launch: " + Ilaunch);
-//			ctunity.newPlayer("Launcher/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names
-			ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + myHash + "-" + Ilaunch, "Rocket");   // unique names
+			ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         
 			Ilaunch++;
 			stopWatch = 0;
 		}
