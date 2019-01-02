@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour {
 
 		rb.angularVelocity = Vector3.zero;      // no spinning
 		float liftforce = liftForce;
-		if (moveHorizontal == 0 && moveVertical == 0) liftforce = 0F;
+		if (/* moveHorizontal == 0 && */ moveVertical == 0) liftforce = 0F;
 
 		// move in XY plane
 		Vector3 movement;
@@ -67,11 +67,11 @@ public class PlayerController : MonoBehaviour {
 			movement = transform.rotation * movement;               // align force to direction of player object
 
 			float fwdVelocity = Vector3.Dot(rb.velocity, transform.forward);
-			if (fwdVelocity <= 0F)
-			{
-				liftforce = 0F;
-				rb.velocity = new Vector3(0F, rb.velocity.y, 0F);   // falling...
-			}
+//			if (fwdVelocity <= 0F)
+//			{
+//				liftforce = 0F;
+//				rb.velocity = new Vector3(0F, rb.velocity.y, 0F);   // falling...
+//			}
 
 			rb.AddTorque(transform.up * TorqueFactor * moveHorizontal);         // twist and turn...
 
