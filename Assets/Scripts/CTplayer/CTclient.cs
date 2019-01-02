@@ -56,7 +56,7 @@ public class CTclient : MonoBehaviour
 	// Lerp helper params:
 	private Vector3 targetPos = Vector3.zero;
 	private Vector3 velocity = Vector3.zero;
-	private Vector3 rotvel = Vector3.zero;
+    //	private Vector3 rotvel = Vector3.zero;
 	private float stopWatch = 0F;
 
 	private Vector3 oldPos = Vector3.zero;
