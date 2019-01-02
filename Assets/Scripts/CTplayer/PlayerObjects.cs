@@ -25,7 +25,7 @@ public class PlayerObjects : MonoBehaviour {
 
 	private CTunity ctunity;
 	private Transform ctplayer;
-	private int nobject = 0;
+//	private int nobject = 0;
 	private GameObject Ground;
 //	private string Player;
 //	private Color myColor = Color.white;

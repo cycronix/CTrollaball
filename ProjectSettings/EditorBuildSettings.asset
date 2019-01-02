@@ -4,4 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/_Scenes/CTrollaball.unity
+    guid: 50a43a7cf9c8f47129084a542d4d9d8b
+  m_configObjects: {}

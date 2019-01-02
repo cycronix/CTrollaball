@@ -32,18 +32,18 @@ public class CTunity : MonoBehaviour
 {
 	#region Globals
 	public float TrackDur = 10f;
-	public float SyncTime = 600.0F;        // nix inactive players beyond this time (sec)
+	public float SyncTime = 0;        // nix inactive players beyond this time (sec)
 //	public int BlockPts = 5;                        // 5/50 = 0.1s
 	internal float pollInterval = 0.1F;       // global update-interval (sets BlockPts)
 	[Range(1,100)]
-	public int blockRate = 10;                   // rate to send file updates (Hz)
+	public int blockRate = 20;                   // rate to send file updates (Hz)
 	[Range(1, 200)]
-	public int maxPointRate = 50;                 // (max) rate to update points
-	public int blocksPerSegment = 200;          // CTlib.CThttp setting
+	public int maxPointRate = 100;                 // (max) rate to update points
+	public int blocksPerSegment = 1000;          // CTlib.CThttp setting
 	public float fpsInterval = 0.1f;     // update interval for FPS info   
 
 	// flags:
-	public Boolean AsyncMode = true;
+	public Boolean AsyncMode = true;               // true to use CTlib threads
 	internal Boolean gamePaused = true;
 	internal static Boolean activeWrite = false;
     internal static Boolean activeRead = false;         // to do...
@@ -52,7 +52,7 @@ public class CTunity : MonoBehaviour
     internal Boolean trackEnabled = true;             // enable player-tracks
 	internal Boolean replayActive = false;
 
-	private Boolean goingLive = false;                  // flag transition playback to real-time...
+//	private Boolean goingLive = false;                  // flag transition playback to real-time...
 
     // internal variable accessible from other scripts but not Editor Inspector
     internal SortedDictionary<String, GameObject> CTlist = new SortedDictionary<String, GameObject>();
@@ -99,12 +99,13 @@ public class CTunity : MonoBehaviour
 	// Use this for initialization
 	void Start()
     {
-		debugText = GameObject.Find("debugText").GetComponent<Text>();
+        debugText = GameObject.Find("debugText").GetComponent<Text>();
 		fpsText = GameObject.Find("fpsText").GetComponent<Text>();
 
 		pollInterval = 1F / blockRate;
 		CTchannel = JSON_Format ? "CTstates.json" : "CTstates.txt";
         StartCoroutine("getGameState");
+
     }
 
 	//-------------------------------------------------------------------------------------------------------
@@ -228,7 +229,6 @@ public class CTunity : MonoBehaviour
 
 	CTworld mergeCTworlds(List<CTworld> worlds)
 	{
-//		Debug.Log("mergeCTworlds, CTlist.Count: " + CTlist.Count);
 		if (worlds == null)
 		{
 			CTdebug("Warning: null CTworlds!");
@@ -248,10 +248,9 @@ public class CTunity : MonoBehaviour
 		List<String> tsourceList = new List<String>();
 		if (!Player.Equals("")) tsourceList.Add(Player);    // always include self
 
-		// second pass, screen masterTime, consolidate masterWorld
-		foreach (CTworld world in worlds)
+        // second pass, screen masterTime, consolidate masterWorld
+        foreach (CTworld world in worlds)
 		{
-//			Debug.Log("mergeWorlds time: " + world.time+", player: "+world.player);
 			if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
 
 			double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
@@ -263,7 +262,8 @@ public class CTunity : MonoBehaviour
 
 			if (!tsourceList.Contains(world.player)) tsourceList.Add(world.player);     // build list of active worlds
 
-			foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
+//            Debug.Log("mergeWorlds player: " + world.player+", objects: "+world.objects.Count);
+            foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
 			{
 				CTobject ctobject = ctpair.Value;
 				if (!ctobject.id.StartsWith(world.player + "/"))
@@ -681,14 +681,15 @@ public class CTunity : MonoBehaviour
 			// proceed with parsing CTstates.txt
 			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
 			{
-//				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
+				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
 				if(isReplayMode()) clearWorlds();              // presume problem is empty world...
 				pendingSession = newSession = false;            // bail (presume empty all-around)
 				continue;
 			}
 			CTdebug(null);          // clear error
 
-			// parse to class structure...
+
+            // parse to class structure...
             List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
 			CTworld CTW = mergeCTworlds(ws);
 			if (CTW == null || CTW.objects == null) continue;          // notta      

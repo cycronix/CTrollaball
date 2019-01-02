@@ -25,7 +25,6 @@ public class Launcher : MonoBehaviour {
 	private float stopWatch = 0f;
 	private int Ilaunch = 0;
 	private int myHash = 0;
-	private Rigidbody prb = null;
 
 	public float launchInterval = 5;                 // seconds of fuel burn
 	public int Nlaunch = 1;

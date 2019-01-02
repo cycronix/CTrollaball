@@ -337,8 +337,13 @@ public class CTsetup: MonoBehaviour
             yield return new WaitForSeconds(0.1F);
 
             string url1 = ctunity.Server + "/CT";
-            WWW www1 = new WWW(url1);
-            yield return www1;          // wait for results to HTTP GET
+//            WWW www1 = new WWW(url1);
+//            yield return www1;          // wait for results to HTTP GET
+
+            UnityWebRequest www1 = UnityWebRequest.Get(url1);
+            www1.SetRequestHeader("AUTHORIZATION", ctunity.CTauthorization());
+            //            yield return www1.Send();
+            yield return www1.SendWebRequest();
 
             if (!string.IsNullOrEmpty(www1.error))
             {
@@ -353,7 +358,7 @@ public class CTsetup: MonoBehaviour
 			sourceList.Add(ctunity.Save);
 
             Match match;
-            for (match = regex.Match(www1.text); match.Success; match = match.NextMatch())
+            for (match = regex.Match(www1.downloadHandler.text); match.Success; match = match.NextMatch())
             {
                 foreach (Group group in match.Groups)
                 {
