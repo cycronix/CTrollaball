@@ -38,9 +38,8 @@ public class KillSwitch : MonoBehaviour
         // if other is bullet or this is bullet, bang!
         if (other.gameObject.tag == "Bullet" /* || gameObject.tag == "Bullet" */)
         {
-            Debug.Log(name + ": killed by: " + other.gameObject.name);
+ //           Debug.Log(name + ": killed by: " + other.gameObject.name);
             ctunity.clearObject(gameObject);
-//            Destroy(gameObject);
         }
     }
 
@@ -48,13 +47,12 @@ public class KillSwitch : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        Debug.Log(name + ": trigger with: " + other.gameObject.name);
+//        Debug.Log(name + ": trigger with: " + other.gameObject.name);
         // if other is bullet or this is bullet, bang!
         if (other.gameObject.tag == "Bullet" /* || gameObject.tag == "Bullet" */)
         {
             Debug.Log(name + ": killed by: " + other.gameObject.name);
             ctunity.clearObject(gameObject);
-            //            Destroy(gameObject);
         }
     }
 }
