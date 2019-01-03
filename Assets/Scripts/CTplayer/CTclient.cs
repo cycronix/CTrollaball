@@ -22,6 +22,8 @@ using CTworldNS;
 
 public class CTclient : MonoBehaviour
 {
+    public Boolean freezePhysics = false;         // over-ride auto gravity/kinematic changes
+
 	public Boolean smoothTrack = true;
 	public Boolean smoothReplay = false;
 
@@ -132,7 +134,9 @@ public class CTclient : MonoBehaviour
 		startup = false;
 	}
 
-	private void setGravity() { 
+	private void setGravity() {
+        if (freezePhysics) return;  // freeze settings
+
 		if (rb != null)
         {
             if (replayMode || !isLocalControl())

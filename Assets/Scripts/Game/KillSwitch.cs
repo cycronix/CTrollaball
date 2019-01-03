@@ -26,6 +26,7 @@ public class KillSwitch : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+//        Debug.Log(name + ": KillSwitch!");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
     }
 
@@ -33,8 +34,27 @@ public class KillSwitch : MonoBehaviour
 
     void OnCollisionEnter(Collision other)
     {
-//        Debug.Log(name + ": collision with: " + other.gameObject.name);
+        Debug.Log(name + ": collision with: " + other.gameObject.name);
         // if other is bullet or this is bullet, bang!
-        if (other.gameObject.tag == "Bullet" || gameObject.tag == "Bullet") Destroy(gameObject);
+        if (other.gameObject.tag == "Bullet" /* || gameObject.tag == "Bullet" */)
+        {
+            Debug.Log(name + ": killed by: " + other.gameObject.name);
+            ctunity.clearObject(gameObject);
+//            Destroy(gameObject);
+        }
+    }
+
+   //----------------------------------------------------------------------------------------------------------------
+
+    void OnTriggerEnter(Collider other)
+    {
+        Debug.Log(name + ": trigger with: " + other.gameObject.name);
+        // if other is bullet or this is bullet, bang!
+        if (other.gameObject.tag == "Bullet" /* || gameObject.tag == "Bullet" */)
+        {
+            Debug.Log(name + ": killed by: " + other.gameObject.name);
+            ctunity.clearObject(gameObject);
+            //            Destroy(gameObject);
+        }
     }
 }

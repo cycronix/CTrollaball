@@ -540,8 +540,8 @@ public class CTunity : MonoBehaviour
 
             go.SetActive(false);
 			CTlist.Remove(objectName);
-            DestroyImmediate(go);
- //           Destroy(go);  // ??
+//            DestroyImmediate(go);
+            Destroy(go);  // ??
         }
 	}
 
