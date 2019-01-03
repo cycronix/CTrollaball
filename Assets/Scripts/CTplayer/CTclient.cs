@@ -52,6 +52,7 @@ public class CTclient : MonoBehaviour
 
 	private Rigidbody rb;
 	private CTunity ctunity;
+    private TrailRenderer trail;
 
 	// Lerp helper params:
 	private Vector3 targetPos = Vector3.zero;
@@ -77,14 +78,15 @@ public class CTclient : MonoBehaviour
 		if (autoColor) setColor();          // set default color based on object name
 		fullName = CTunity.fullName(gameObject);        // get once in advance
 		ctunity.CTregister(gameObject);                 // register with CTunity...
-
-	}
+        trail = GetComponent<TrailRenderer>();          // optional trail track
+    }
 
 	//----------------------------------------------------------------------------------------------------------------
 	void Update()
 	//    void FixedUpdate()
 	{
-//		Debug.Log(name + ", position: " + transform.localPosition);
+        //		Debug.Log(name + ", position: " + transform.localPosition);
+        if(trail != null) trail.enabled = (ctunity.trackEnabled && !ctunity.isPaused());
 		doTrack();
 	}
 

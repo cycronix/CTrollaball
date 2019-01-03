@@ -2016,7 +2016,8 @@ GameObject:
   - component: {fileID: 114352921202226162}
   - component: {fileID: 114244598297006848}
   - component: {fileID: 6789560304144648050}
-  - component: {fileID: 6447971607563096547}
+  - component: {fileID: 4013106429718196272}
+  - component: {fileID: 1140091561154001557}
   m_Layer: 0
   m_Name: RocketPlane
   m_TagString: Untagged
@@ -2032,7 +2033,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1664232329221568}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4302238325076492}
@@ -2050,7 +2051,7 @@ Rigidbody:
   serializedVersion: 2
   m_Mass: 1
   m_Drag: 0.1
-  m_AngularDrag: 0.05
+  m_AngularDrag: 0
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
@@ -2086,8 +2087,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181d37156675746bd8a7bd53633fdcf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForceFactor: 6
-  TorqueFactor: 10
+  ForceFactor: 4
+  TorqueFactor: 2
   maxSpeed: 5
   liftForce: 1.1
   isVehicle: 1
@@ -2198,7 +2199,19 @@ TrailRenderer:
   m_MinVertexDistance: 0.1
   m_Autodestruct: 0
   m_Emitting: 1
---- !u!135 &6447971607563096547
+--- !u!114 &4013106429718196272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1664232329221568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e6cad671abb147aa9c25a643305b194, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!135 &1140091561154001557
 SphereCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2209,8 +2222,8 @@ SphereCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
-  m_Center: {x: 0, y: -0.5, z: 0}
+  m_Radius: 0.4
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &1679652188414878
 GameObject:
   m_ObjectHideFlags: 0
@@ -2922,8 +2935,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1875397490331718}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 0.6, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
+  m_LocalPosition: {x: 0, y: 0, z: 0.558}
+  m_LocalScale: {x: 0.1, y: 0.15, z: 0.1}
   m_Children: []
   m_Father: {fileID: 4711435182436348}
   m_RootOrder: 0
@@ -2945,7 +2958,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9ba5d85cf1c6a413d8caad7ed7f2e613, type: 2}
+  - {fileID: 2100000, guid: 88f8965c85d1d408db75048a36854712, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -2985,7 +2998,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b14ce5f73a84a450da9366855352842e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchInterval: 1
+  launchInterval: 2
   Nlaunch: 0
   Missile: RocketA2A
 --- !u!1 &1921949389858062

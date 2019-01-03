@@ -49,7 +49,7 @@ public class CTunity : MonoBehaviour
     internal static Boolean activeRead = false;         // to do...
     internal Boolean newSession = true;
 	//    internal Boolean observerFlag = true;
-    internal Boolean trackEnabled = true;             // enable player-tracks
+    internal Boolean trackEnabled = false;             // enable player-tracks
 	internal Boolean replayActive = false;
 
 //	private Boolean goingLive = false;                  // flag transition playback to real-time...
@@ -541,6 +541,7 @@ public class CTunity : MonoBehaviour
             go.SetActive(false);
 			CTlist.Remove(objectName);
             DestroyImmediate(go);
+ //           Destroy(go);  // ??
         }
 	}
 
@@ -857,7 +858,7 @@ public class CTunity : MonoBehaviour
 		if (go == null)
 		{
 			Debug.Log("fullName Destroyed object!");
-			return null;
+			return "";
 		}
 		string oname = go.name;
         string fname = go.name;

@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 	private GameObject gameOptions;
@@ -27,11 +28,12 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 	void Start () {
 		gameOptions = GameObject.Find("Setup").gameObject;
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
-	}
+        setColor();
+    }
 
-	//----------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------------------
     // OnPointerDown works for overlay canvas
-	public void OnPointerDown (PointerEventData eventData)      
+    public void OnPointerDown (PointerEventData eventData)      
     {
         if (Input.GetMouseButton(0))
         {
@@ -52,14 +54,21 @@ public class ToggleMenu : MonoBehaviour, IPointerDownHandler {
 
 //        ctunity.setReplay(false);
 		gameOptions.SetActive(showMenu);
+        setColor();
 
 //        if(showMenu)       // if turning menu on, auto-target Ground
 //            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(GameObject.Find("Ground").transform);
         
 	}
 
-//	private void Update()
-//	{
-//		ctunity.showMenu = gameOptions.activeSelf;
-//	}
+    private void setColor()
+    {
+        if (showMenu) GetComponent<RawImage>().color = Color.red;
+        else GetComponent<RawImage>().color = Color.white;
+    }
+
+    //	private void Update()
+    //	{
+    //		ctunity.showMenu = gameOptions.activeSelf;
+    //	}
 }
