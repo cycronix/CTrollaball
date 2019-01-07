@@ -125,7 +125,9 @@ public class CTunity : MonoBehaviour
 	float stopWatchB = 0f;              // block timer
 	float stopWatchP = 0f;              // point timer
 	float stopWatchF = 0f;              // FPS timer
-	int npts =0, nups = 0;              // point counter
+    double lastReadTime = 0f;            // read timer
+
+    int npts =0, nups = 0;              // point counter
 	double BPS=10, PPS=10, FPS=10;      // block, point, frame per second info
 
 	void Update()
@@ -139,8 +141,10 @@ public class CTunity : MonoBehaviour
 			// No writes for you!
 			if (stopWatchF > fpsInterval)
 			{
-				fpsText.text = "FPS: " + Math.Round(nups / stopWatchF);           // info
-				stopWatchF = stopWatchP = stopWatchB = nups = npts = 0;
+                FPS = Math.Round(nups / stopWatchF);
+ //               fpsText.text = "FPS: " + FPS);           // info
+                fpsText.text = "FPS: " + BPS + "/" + FPS;           // info
+                stopWatchF = stopWatchP = stopWatchB = nups = npts = 0;
 			}
 			activeWrite = false;
 			return;
@@ -166,7 +170,7 @@ public class CTunity : MonoBehaviour
         
 		stopWatchB += Time.deltaTime;
 		if(stopWatchB >= blockInterval) {
-			BPS = Math.Round(1F / stopWatchB);        // moving average
+//			BPS = Math.Round(1F / stopWatchB);        // moving average
             PPS = Math.Round(npts / stopWatchB);
 			stopWatchB = npts = 0;
 			ctplayer.flush();           // flush data to CT
@@ -175,7 +179,7 @@ public class CTunity : MonoBehaviour
 		// calc/display metrics
 		if(stopWatchF > fpsInterval) {
             FPS = Math.Round(nups / stopWatchF);
-            fpsText.text = "B/P/FPS: " + BPS + "/" + PPS + "/" + FPS;
+            fpsText.text = "FPS: " + BPS + "/" + FPS;
 			stopWatchF = nups = 0;
 		}
     }
@@ -646,66 +650,76 @@ public class CTunity : MonoBehaviour
     static double oldTime = 0;
     public IEnumerator getGameState()
     {
-		Boolean pendingSession = false;
-		while (true)
-		{
-			float waitInterval = replayActive ? (1f / maxPointRate) : pollInterval;     // pointInterval for faster response
-			yield return new WaitForSeconds(waitInterval);      
-         
-			if(newSession) {
-//				Debug.Log("getGameState, newSession, replayActive: "+replayActive);
-				pendingSession = true;
-			}
+        Boolean pendingSession = false;
+        while (true)
+        {
+            float waitInterval = replayActive ? (1f / maxPointRate) : pollInterval;     // pointInterval for faster response
+            yield return new WaitForSeconds(waitInterval/2f);  // half-wait?
+//           Debug.Log("waitInterval: " + waitInterval);
 
-			if (gamePaused) continue;                                     // no-op unless run-mode
-			if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
-			oldTime = replayTime;
+            if (newSession)
+            {
+                //Debug.Log("getGameState, newSession, replayActive: "+replayActive);
+                pendingSession = true;
+            }
 
-			// form HTTP GET URL
-			String urlparams = "";    // "?f=d" is no-op for wildcard request
-			if (replayActive)   urlparams = "?t=" + replayTime;     // replay at masterTime
-			else                urlparams = "?c=" + Math.Round(pollInterval * 1000F);        //  set cache interval 
-			string url1 = Server + "/CT/" + Session + "/GamePlay/*/"+CTchannel + urlparams;
-//			Debug.Log("url1: " + url1);
-            
-			UnityWebRequest www1 = UnityWebRequest.Get(url1);
+            if (gamePaused)
+            {
+                BPS = 0;
+                continue;                                     // no-op unless run-mode
+            }
+            if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
+            oldTime = replayTime;
+
+            // form HTTP GET URL
+            String urlparams = "";    // "?f=d" is no-op for wildcard request
+            if (replayActive) urlparams = "?t=" + replayTime;          // replay at masterTime
+            else urlparams = "?c=" + Math.Round(pollInterval * 1000F);         //  set cache interval 
+            string url1 = Server + "/CT/" + Session + "/GamePlay/*/" + CTchannel + urlparams;
+ //           Debug.Log("url1: " + url1);
+
+            UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
-//            yield return www1.Send();
-			yield return www1.SendWebRequest();
+            //            yield return www1.Send();
+            yield return www1.SendWebRequest();
 
-			if (newSession && !pendingSession)
-			{
-				Debug.Log("WHOA wait for pending session!");
-				continue;
-			}
+            if (newSession && !pendingSession)
+            {
+                Debug.Log("WHOA wait for pending session!");
+                continue;
+            }
 
-			// proceed with parsing CTstates.txt
-			if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
-			{
-				Debug.Log("HTTP Error: " + www1.error + ": " + url1);
-				if(isReplayMode()) clearWorlds();              // presume problem is empty world...
-				pendingSession = newSession = false;            // bail (presume empty all-around)
-				continue;
-			}
-			CTdebug(null);          // clear error
+            // proceed with parsing CTstates.txt
+            if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
+            {
+                Debug.Log("HTTP Error: " + www1.error + ": " + url1);
+                if (isReplayMode()) clearWorlds();              // presume problem is empty world...
+                pendingSession = newSession = false;            // bail (presume empty all-around)
+                continue;
+            }
+            CTdebug(null);          // clear error
 
+            double stime = ServerTime();
+            BPS = Math.Round( (BPS + 1F / (stime - lastReadTime))/2f );       // clock info
+            lastReadTime = stime;
 
             // parse to class structure...
             List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
-			CTworld CTW = mergeCTworlds(ws);
-			if (CTW == null || CTW.objects == null) continue;          // notta      
-            
-//			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
-//			{
-//				if(newSession) Debug.Log("get/setState: "+ctobject.id+", scale: "+ctobject.scale);
-//				setState(ctobject.id, ctobject);
-//			}
+            CTworld CTW = mergeCTworlds(ws);
+            if (CTW == null || CTW.objects == null) continue;          // notta      
 
-			if(pendingSession) {
-//				Debug.Log("END newSession!");
-				pendingSession = newSession = false;               // (re)enable Update getData
-			}
-		}              // end while(true)   
+            //			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
+            //			{
+            //				if(newSession) Debug.Log("get/setState: "+ctobject.id+", scale: "+ctobject.scale);
+            //				setState(ctobject.id, ctobject);
+            //			}
+
+            if (pendingSession)
+            {
+                //				Debug.Log("END newSession!");
+                pendingSession = newSession = false;               // (re)enable Update getData
+            }
+        }              // end while(true)   
     }
 
 	//-------------------------------------------------------------------------------------------------------
@@ -829,6 +843,7 @@ public class CTunity : MonoBehaviour
 	}
 
 	internal Boolean localPlayer(GameObject go) {
+//        Debug.Log("localPlayer, fullName: " + fullName(go) + ", Player: " + Player+", islocal: "+fullName(go).StartsWith(Player));
 		return fullName(go).StartsWith(Player);
 	}
 

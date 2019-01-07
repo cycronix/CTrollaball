@@ -30,6 +30,7 @@ public class Rocket : MonoBehaviour {
 	public float ForceFactor = 10f;
 	public float fuelTime = 5f;                 // seconds of fuel burn
 	public float boomTime = 60f;
+    public float wobbleFactor = 0.01f;
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
@@ -78,11 +79,12 @@ public class Rocket : MonoBehaviour {
 
 		if (stopWatch < fuelTime)
 		{
-			float noiseX = (float)random.NextDouble() / 100f;   // bit of uncertainty so rockets don't perfectly "stack"
-			float noiseZ = (float)random.NextDouble() / 100f;
+			float noiseX = (float)random.NextDouble() * wobbleFactor;   // bit of uncertainty so rockets don't perfectly "stack"
+			float noiseZ = (float)random.NextDouble() * wobbleFactor;
 			rb.AddRelativeForce(new Vector3(noiseX, 1f, noiseZ) * ForceFactor);
-		}
-		else if (stopWatch > boomTime) 
+//            rb.AddRelativeForce(new Vector3(0, 1f, 0) * ForceFactor);
+        }
+        else if (stopWatch > boomTime) 
 		{
 //			Debug.Log(name + ": BOOM!");
 			ctunity.clearObject(gameObject);

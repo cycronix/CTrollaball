@@ -14,29 +14,21 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class ToggleTarget : MonoBehaviour {
-//	private CTunity ctunity;
-
     // Use this for initialization
-    void Start()
-    {
-//		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
-    }
+    void Start() {}
 
     //----------------------------------------------------------------------------------------------------------------
     public void OnMouseDown()
     {
-		//        Debug.Log("toggle target: " + transform.name);
+//		Debug.Log("toggle target: " + transform.name);
 		if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
 		{
 			GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
-//			Cursor.lockState = CursorLockMode.Locked;       // center mouse cursor (good for subsequent orbit-drag)
-//			Cursor.lockState = CursorLockMode.None;
 		}
 	}
 }

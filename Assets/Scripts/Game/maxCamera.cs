@@ -42,9 +42,9 @@ public class maxCamera : MonoBehaviour
 	public int zoomRate = 40;
 //	public float panSpeed = 0.3f;
 	public float zoomDampening = 5.0f;
-//	public float snapDistance = 5F;
+	public float snapDistance = 2F;
 	private double clickTime = 0F;          // double-click timer
-	private Boolean cameraNear = false;
+    private float extraOffset = 0f;
 
 	private float xDeg = 0.0f;
 	private float yDeg = 0.0f;
@@ -79,22 +79,14 @@ public class maxCamera : MonoBehaviour
 		xDeg = Vector3.Angle(Vector3.right, transform.right );
 		yDeg = Vector3.Angle(Vector3.up, transform.up );
 	}
-    
-	//----------------------------------------------------------------------------------------------------------------
-	public void setTarget(Transform itarget) {
-		setTarget(itarget, false);
-	}
 
 	//----------------------------------------------------------------------------------------------------------------
 	string lastPlayerTarget = "";  // init to safe bet
 
-	private void setTarget(Transform itarget, Boolean icameraNear)
+	public void setTarget(Transform itarget)
 	{
 		target = itarget;
         targetName = itarget.name;
-        cameraNear = icameraNear;
-
-		if (!target.name.Equals("Ground")) lastPlayerTarget = targetName;     // remember last-player target
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -112,22 +104,10 @@ public class maxCamera : MonoBehaviour
 
 		if (Input.GetKeyDown("space") || mouseToggle)        // lock camera on player
 		{
-			// auto-target player
-//			if (ctunity.observerFlag)   setTarget(GameObject.Find("Ground").transform, false);
-//			else                        setTarget(GameObject.Find(ctunity.Player).transform, false);
-			
-            /*
-			if (cameraNear)
-			{
-				cameraNear = false;
-				if (desiredDistance < 20F) desiredDistance = 20F;               // fall back
-			}
-			else
-			{
-				cameraNear = true;
-				if (desiredDistance > 5F) desiredDistance = 5F;                 // zoom in
-			}
-            */
+            // auto-target player
+            GameObject go = GameObject.Find(ctunity.Player + "/Avatar");
+            if(go != null) setTarget(go.transform);
+  //          Debug.Log("auto target: " + ctunity.Player + "/Avatar");
 		}
 	}
 
@@ -145,6 +125,7 @@ public class maxCamera : MonoBehaviour
 
 			// set camera rotation 
 			cameraRotation = Quaternion.Euler(new Vector3(xDeg, yDeg, 0) + startCameraRotation);
+//            Debug.Log("new camRot: " + cameraRotation.eulerAngles+", deltaPos: "+deltaPos+", startCamRot: "+startCameraRotation);
 		}
 		else
 		{
@@ -180,22 +161,26 @@ public class maxCamera : MonoBehaviour
         
 		// special close-up logic:  for "vehicles" with pushForward, lock camera rotation to object-direction
 		Vector3 snapOffset = Vector3.zero;
-		//		if (currentDistance < snapDistance && target != null && target.GetComponent<PlayerController>().isVehicle)  
-        if(cameraNear && target != null)
+		if ( (currentDistance < snapDistance) && isTargetVehicle() ) 
+//        if(cameraNear && target != null)
 		{
+            extraOffset = (snapDistance - currentDistance) / snapDistance;
+ //           Debug.Log("currentDistance: " + currentDistance + ", snapDistance: " + snapDistance+", cameraRot: "+cameraRotation.eulerAngles);
 			desiredRotation = Quaternion.Euler(new Vector3(0, target.transform.rotation.eulerAngles.y, 0)) * cameraRotation;
+//            desiredRotation = target.transform.rotation;
 
-			// Lerp jiggles with PlayerController Lerp.  But instant-rot doesn't ease-in distant/closeup transition
-			// Lerp if large delta, jump if small
-			float deltaRot = Math.Abs((desiredRotation.eulerAngles.y - transform.rotation.eulerAngles.y));
+            // Lerp jiggles with PlayerController Lerp.  But instant-rot doesn't ease-in distant/closeup transition
+            // Lerp if large delta, jump if small
+            float deltaRot = Math.Abs((desiredRotation.eulerAngles.y - transform.rotation.eulerAngles.y));
 			while (deltaRot > 180) deltaRot -= 360F;
 
 			if(Math.Abs(deltaRot) < 30F || ctunity.isReplayMode())  
 				transform.rotation = desiredRotation;  // actually smoother to have camera lock-on rotation (let playerController dampen motion)
 			else
-			    transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening/5F);  // fast!?
+			    transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);  // fast!?
 		}
 		else if(rightMouseDown) {
+
 			Vector3 desiredRotationDeg = transform.eulerAngles + new Vector3(xDeg, yDeg, 0F);
 			float clampX = desiredRotationDeg.x;
 			float tymin = 360F - yLimit;
@@ -209,17 +194,29 @@ public class maxCamera : MonoBehaviour
 //			transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);
 		}
 		else {
+//            Debug.Log("reset cameraRotation: " + cameraRotation);
 			cameraRotation = Quaternion.Euler(new Vector3(30F, 0, 0));      // default closeup start angle
+            extraOffset = 0;
 		}
 
 		// calculate position based on the new currentDistance 
 		transform.position = tposition - (transform.rotation * Vector3.forward * currentDistance) + targetOffset;
+        transform.position = new Vector3(transform.position.x, transform.position.y+extraOffset, transform.position.z);
 //		transform.rotation = target.rotation;
 	}
-       
-	//----------------------------------------------------------------------------------------------------------------
-	// more robust way to detect right-mouse drag...
-	Vector3 startPos = Vector3.zero;
+
+    //----------------------------------------------------------------------------------------------------------------
+    private Boolean isTargetVehicle()
+    {
+        if (target == null) return false;
+        PlayerController pc = target.GetComponent<PlayerController>();
+        if (pc == null) return false;
+        return pc.isVehicle;
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    // more robust way to detect right-mouse drag...
+    Vector3 startPos = Vector3.zero;
 	Vector3 deltaPos = Vector3.zero;
 	Quaternion startRotation = Quaternion.identity;
 	Vector3 startCameraRotation = Vector3.zero;
@@ -227,7 +224,7 @@ public class maxCamera : MonoBehaviour
 	void OnGUI()
 	{
 		Event m_Event = Event.current;
-		deltaPos = Vector3.zero;   // no floating
+//		deltaPos = Vector3.zero;   // no floating
 
 		//		if (m_Event.button != 1) return;					// only check right-mouse button
 		if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
@@ -242,20 +239,24 @@ public class maxCamera : MonoBehaviour
 			startPos = Input.mousePosition;
 			startRotation = transform.rotation;
 			startCameraRotation = cameraRotation.eulerAngles;
+ //           Debug.Log("RMDown");
 		}
 
 		if (m_Event.type == EventType.MouseDrag && rightMouseDown)
 		{
 			//			rightMouseDown = true;
 			deltaPos = (Input.mousePosition - startPos) / Screen.width;
-			if (deltaPos.magnitude < 0.0001F) deltaPos = Vector3.zero;
-		}
-		else if (m_Event.type == EventType.MouseUp)
+			if (deltaPos.magnitude < 0.001F) deltaPos = Vector3.zero;
+//            Debug.Log("RMDrag");
+
+        }
+        else if (m_Event.type == EventType.MouseUp)
 		{
 			rightMouseDown = false;
 			deltaPos = Vector3.zero;   // cancel
-		}
-	}
+//            Debug.Log("RMup");
+        }
+    }
 
 	//----------------------------------------------------------------------------------------------------------------
     private double nowTime()

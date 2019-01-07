@@ -211,10 +211,11 @@ public class CTclient : MonoBehaviour
 				transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
 			}
 
-			// LerpUnclamped:  effectively extrapolates (dead reckoning)
-			transform.localRotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
-			if(myScale != Vector3.zero)
-				transform.localScale = Vector3.LerpUnclamped(oldScale, myScale, Tclamp);
+            // LerpUnclamped:  effectively extrapolates (dead reckoning)
+//            transform.localRotation = myRot;
+            transform.localRotation = Quaternion.Lerp(oldRot, myRot, stopWatch*TrackSpeed);
+            //            transform.localRotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
+            if (myScale != Vector3.zero) transform.localScale = Vector3.Lerp(oldScale, myScale, stopWatch * TrackSpeed);
 		}
 		else
 		{
