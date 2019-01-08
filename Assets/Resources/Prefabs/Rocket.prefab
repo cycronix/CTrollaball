@@ -109,6 +109,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c55319a47bfc4fd3b54388cf8dab12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
   DeadReckon: 1.5
@@ -142,6 +143,7 @@ MonoBehaviour:
   ForceFactor: 15
   fuelTime: 2
   boomTime: 20
+  wobbleFactor: 0.01
 --- !u!54 &54393492136894336
 Rigidbody:
   m_ObjectHideFlags: 0

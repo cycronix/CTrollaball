@@ -40,7 +40,7 @@ public class KillSwitch : MonoBehaviour
        if ((other.gameObject.tag == "Bullet") && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
         {
 //                Debug.Log(name + ": Killed by: " + other.gameObject.name);
-                ctunity.clearObject(gameObject);
+                ctunity.clearObject(gameObject, false);
         }
     }
 
@@ -54,7 +54,7 @@ public class KillSwitch : MonoBehaviour
         if ((other.gameObject.tag == "Bullet" ) && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
         {
 //           Debug.Log(name + ": killed by: " + other.gameObject.name);
-            ctunity.clearObject(gameObject);
+            ctunity.clearObject(gameObject, false);
         }
     }
 }

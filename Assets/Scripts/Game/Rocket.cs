@@ -40,7 +40,7 @@ public class Rocket : MonoBehaviour {
         
 		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
-//		Debug.Log(name + ": new Rocket!");
+//		Debug.Log(name + ": new Rocket at: "+transform.position);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------

@@ -42,9 +42,12 @@ public class maxCamera : MonoBehaviour
 	public int zoomRate = 40;
 //	public float panSpeed = 0.3f;
 	public float zoomDampening = 5.0f;
-	public float snapDistance = 2F;
 	private double clickTime = 0F;          // double-click timer
     private float extraOffset = 0f;
+
+    public float snapIn = 0.5f;
+    public float snapOut = 2f;
+    private Boolean snapOn = false;
 
 	private float xDeg = 0.0f;
 	private float yDeg = 0.0f;
@@ -158,14 +161,16 @@ public class maxCamera : MonoBehaviour
 		desiredDistance = Mathf.Clamp(desiredDistance, minDistance, maxDistance);
 		// For smoothing of the zoom, lerp distance
 		currentDistance = Mathf.Lerp(currentDistance, desiredDistance, Time.deltaTime * zoomDampening);
-        
+
 		// special close-up logic:  for "vehicles" with pushForward, lock camera rotation to object-direction
 		Vector3 snapOffset = Vector3.zero;
-		if ( (currentDistance < snapDistance) && isTargetVehicle() ) 
+        float snapCheck = snapOn ? snapOut : snapIn;
+		if ( (currentDistance < snapCheck) && isTargetVehicle() ) 
 //        if(cameraNear && target != null)
 		{
-            extraOffset = (snapDistance - currentDistance) / snapDistance;
- //           Debug.Log("currentDistance: " + currentDistance + ", snapDistance: " + snapDistance+", cameraRot: "+cameraRotation.eulerAngles);
+            snapOn = true;
+            extraOffset = (snapCheck - currentDistance) / snapCheck;
+//            Debug.Log("currentDistance: " + currentDistance + ", snapCheck: " + snapCheck+", extraOffset: "+extraOffset);
 			desiredRotation = Quaternion.Euler(new Vector3(0, target.transform.rotation.eulerAngles.y, 0)) * cameraRotation;
 //            desiredRotation = target.transform.rotation;
 
@@ -197,6 +202,7 @@ public class maxCamera : MonoBehaviour
 //            Debug.Log("reset cameraRotation: " + cameraRotation);
 			cameraRotation = Quaternion.Euler(new Vector3(30F, 0, 0));      // default closeup start angle
             extraOffset = 0;
+            snapOn = false;
 		}
 
 		// calculate position based on the new currentDistance 

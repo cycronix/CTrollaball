@@ -411,6 +411,7 @@ public class CTunity : MonoBehaviour
 //		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", newSession: "+newSession);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
+        // already exists?
 		if (CTlist.ContainsKey(objID))
 		{
 			CTlist[objID].SetActive(true);     // let setState activate?
@@ -422,7 +423,7 @@ public class CTunity : MonoBehaviour
 //				Debug.Log(objID+": new prefab: " + prefab +", old pf: "+ctpf);
 				position = CTlist[objID].transform.localPosition;   // rebuild to new prefab (in-place)
 				rotation = CTlist[objID].transform.localRotation;
-			    scale = Vector3.zero;   // flag to use native prefab scale
+// ?			    scale = Vector3.zero;   // flag to use native prefab scale
 				clearObject(objID);
 			}
 			else
@@ -477,19 +478,12 @@ public class CTunity : MonoBehaviour
 		Transform pf = pfgo.transform;
 
 		// Instantiate!
-//		Transform newp = Instantiate(pf, position, rotation * pf.rotation);    // rez prefab
-//		newp.SetParent(tparent, pathparts.Length <= 1);     // 2nd arg T/F: child-local vs global position
-//		Debug.Log(newp.name + ": instantiate at: " + position + ", mypos: " + mypos);
-
-//		Vector3 mypos = (pathparts.Length <= 1) ? position : (tparent.position + position);
-//		Transform newp = Instantiate(pf, mypos, rotation * pf.rotation, tparent);    // rez prefab with set parent
 //		Transform newp = Instantiate(pf, position, rotation * pf.rotation, tparent);    // rez prefab with set parent
 		Transform newp = Instantiate(pf, tparent, false);    // rez prefab with set parent
-		newp.localPosition = position;
+		newp.localPosition = position /* + pf.position */;    // offset by prefab built-in position?
 		newp.localRotation = rotation * pf.rotation;
 //		newp.localRotation = rotation;      // nope
-
-//		Debug.Log(objID + ": instantiate child at: " + position+", mypos: "+mypos+", scale: "+scale+", pf.lscale: "+pf.localScale);
+//		Debug.Log(objID + ": instantiate child at: " + position+", parent: "+tparent.name);
 
 		if (scale.Equals(Vector3.zero)) newp.localScale = pf.localScale;
 		else                            newp.localScale = scale;     // zero scale means use initial prefab scale
@@ -530,29 +524,34 @@ public class CTunity : MonoBehaviour
     
 	// more efficient if know the gameObject itself:
 	public void clearObject(GameObject go) {
-//		Debug.Log("clearObject: " + go.name);
+        clearObject(go, true);
+	}
+
+    public void clearObject(GameObject go, Boolean destroyImmediate)
+    {
+        //      Debug.Log("clearObject: " + go.name);
 
         if (go != null)
         {
-			string objectName = fullName(go);
+            string objectName = fullName(go);
             if (!CTlist.ContainsKey(objectName)) return;            // not already there
-            
+
             foreach (Transform c in go.transform)
             {
-				CTlist.Remove(fullName(c.gameObject));  // children will be destroyed with parent
+                CTlist.Remove(fullName(c.gameObject));  // children will be destroyed with parent
             }
 
             go.SetActive(false);
-			CTlist.Remove(objectName);
-//            DestroyImmediate(go);
-            Destroy(go);  // ??
+            CTlist.Remove(objectName);
+            if(destroyImmediate)    DestroyImmediate(go);
+            else                    Destroy(go);  
         }
-	}
+    }
 
-	//-------------------------------------------------------------------------------------------------------
-	// clear all object from given world; all worlds if null
-    
-	public void clearWorlds()
+    //-------------------------------------------------------------------------------------------------------
+    // clear all object from given world; all worlds if null
+
+    public void clearWorlds()
 	{
 		clearWorld(null, false);        // clear all gameObjects without save to CT
 	}
@@ -663,12 +662,11 @@ public class CTunity : MonoBehaviour
                 pendingSession = true;
             }
 
-            if (gamePaused)
+            if ( gamePaused || (replayActive && (replayTime == oldTime)) )
             {
                 BPS = 0;
-                continue;                                     // no-op unless run-mode
+                continue;      // no dupes (e.g. paused)
             }
-            if (replayActive && (replayTime == oldTime)) continue;      // no dupes (e.g. paused)
             oldTime = replayTime;
 
             // form HTTP GET URL
@@ -700,19 +698,15 @@ public class CTunity : MonoBehaviour
             CTdebug(null);          // clear error
 
             double stime = ServerTime();
-            BPS = Math.Round( (BPS + 1F / (stime - lastReadTime))/2f );       // clock info
+    //        BPS = Math.Round( (BPS + 1F / (stime - lastReadTime))/2f );       // clock info
+            BPS = Math.Round(1F / (stime - lastReadTime));       // clock info
+
             lastReadTime = stime;
 
             // parse to class structure...
             List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
             CTworld CTW = mergeCTworlds(ws);
             if (CTW == null || CTW.objects == null) continue;          // notta      
-
-            //			foreach (CTobject ctobject in CTW.objects.Values)      // cycle through objects in world
-            //			{
-            //				if(newSession) Debug.Log("get/setState: "+ctobject.id+", scale: "+ctobject.scale);
-            //				setState(ctobject.id, ctobject);
-            //			}
 
             if (pendingSession)
             {
@@ -979,7 +973,7 @@ public class CTunity : MonoBehaviour
     }
 
 	public void CTdebug(String debug) {
-		if (debug == null)  debug = "Host: " + Server + ", Session: " + Session;  // default info
+		if (debug == null)  debug = "Host: " + Server + ", World: " + Session;  // default info
 		else                UnityEngine.Debug.Log(debug);
         
 		debugText.text = debug;
