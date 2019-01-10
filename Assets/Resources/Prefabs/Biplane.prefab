@@ -2843,6 +2843,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8c55319a47bfc4fd3b54388cf8dab12f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
   DeadReckon: 1.5
@@ -2999,6 +3000,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e6cad671abb147aa9c25a643305b194, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxHits: 0
+  hitLevel: 4
 --- !u!1 &1916816098030790
 GameObject:
   m_ObjectHideFlags: 0

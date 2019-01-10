@@ -105,7 +105,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b14ce5f73a84a450da9366855352842e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  launchInterval: 1
+  launchInterval: 2
   Nlaunch: 0
   Missile: Rocket
 --- !u!114 &114952532127678726
