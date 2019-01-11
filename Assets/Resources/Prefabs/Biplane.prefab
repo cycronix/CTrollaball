@@ -2862,8 +2862,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 181d37156675746bd8a7bd53633fdcf9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ForceFactor: 8
-  TorqueFactor: 2
+  ForceFactor: 2
+  TorqueFactor: 1
   maxSpeed: 5
   liftForce: 1.1
   isVehicle: 1
@@ -3000,8 +3000,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e6cad671abb147aa9c25a643305b194, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHits: 0
-  hitLevel: 4
+  HP: 10
+  ATK: 1
+  showHP: 1
 --- !u!1 &1916816098030790
 GameObject:
   m_ObjectHideFlags: 0

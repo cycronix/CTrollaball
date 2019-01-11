@@ -2212,8 +2212,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e6cad671abb147aa9c25a643305b194, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHits: 0
-  hitLevel: 1
+  HP: 1
+  ATK: 1
 --- !u!135 &1140091561154001557
 SphereCollider:
   m_ObjectHideFlags: 0

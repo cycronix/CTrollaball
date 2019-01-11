@@ -781,9 +781,7 @@ public class CTunity : MonoBehaviour
 		CTclient ctp = ct.GetComponent<CTclient>();
 		if (ctp != null)
 		{
-			if (!ctp.prefab.Equals(ctobject.model)) 
-				Debug.Log(name + ": mismatch prefab: " + ctp.prefab + ", model: " + ctobject.model + ", newSession: " + newSession);
-
+//			if (!ctp.prefab.Equals(ctobject.model)) Debug.Log(name + ": new prefab: " + ctp.prefab + "--> model: " + ctobject.model);
 			ctp.setState(ctobject, replayActive, playPaused);
 			if (newSession) ctp.jumpState();                    // do it now (don't wait for next ctclient.Update cycle)
 		}

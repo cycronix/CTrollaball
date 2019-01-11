@@ -40,8 +40,11 @@ public class Rocket : MonoBehaviour {
         
 		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
-//		Debug.Log(name + ": new Rocket at: "+transform.position);
-	}
+
+//        ctclient.putCustom("Fuel", ""+fuelTime);       // start with full tank
+//        ctclient.putCustom("FlightTime", "0");
+        //		Debug.Log(name + ": new Rocket at: "+transform.position);
+    }
 
 	//----------------------------------------------------------------------------------------------------------------
 	// Update is called once per frame
@@ -65,26 +68,29 @@ public class Rocket : MonoBehaviour {
         // store fuel and air vs stopWatch?
 
 		stopWatch += Time.deltaTime;
-		try
-		{
-			float sw = float.Parse(ctclient.custom);
-			if(sw > stopWatch) {
-//				Debug.Log(name+", skootch stopwatch: " + stopWatch + " -> " + sw);
-				stopWatch = sw;
-			}
-		} 
-		catch (Exception) { };
+        float fuel = fuelTime;
+        Boolean gotfuel = float.TryParse(ctclient.getCustom("Fuel",""+fuel), out fuel);
+        float flightTime = 0;
+        float.TryParse(ctclient.getCustom("FlightTime", ""+flightTime), out flightTime);
 
-		ctclient.custom = "" + stopWatch;
+//        Debug.Log(name + ", fuel: " + fuel + ", fueltime: " + fuelTime+", flightTime: "+flightTime);
 
-		if (stopWatch < fuelTime)
+        fuel -= Time.deltaTime;
+        if (fuel < 0) fuel = 0;
+        flightTime += Time.deltaTime;
+
+//		ctclient.custom = "" + stopWatch;
+        ctclient.putCustom("Fuel", "" + fuel);
+        ctclient.putCustom("FlightTime", "" + Math.Round(flightTime*1000f)/1000f);
+        if(fuel > 0)
+//		if (stopWatch < fuelTime)
 		{
 			float noiseX = (float)random.NextDouble() * wobbleFactor;   // bit of uncertainty so rockets don't perfectly "stack"
 			float noiseZ = (float)random.NextDouble() * wobbleFactor;
 			rb.AddRelativeForce(new Vector3(noiseX, 1f, noiseZ) * ForceFactor);
 //            rb.AddRelativeForce(new Vector3(0, 1f, 0) * ForceFactor);
         }
-        else if (stopWatch > boomTime) 
+        else if (flightTime > boomTime) 
 		{
 //			Debug.Log(name + ": BOOM!");
 			ctunity.clearObject(gameObject);

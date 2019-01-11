@@ -17,6 +17,7 @@ limitations under the License.
 using System;
 using UnityEngine;
 using CTworldNS;
+using System.Collections.Generic;
 
 //----------------------------------------------------------------------------------------------------------------
 
@@ -36,6 +37,7 @@ public class CTclient : MonoBehaviour
 	public Boolean isRogue = false;             // "rogue" clients flag ignore local controls
 
 	public CTobject ctobject = null;            // for public ref
+//    public CTledger ctledger = null;
 
 	internal String prefab = "";                  // programmatically set; reference value
 	internal String link = "";                  // for sending custom info via CTstates.txt
@@ -81,6 +83,7 @@ public class CTclient : MonoBehaviour
 		fullName = CTunity.fullName(gameObject);        // get once in advance
 		ctunity.CTregister(gameObject);                 // register with CTunity...
         trail = GetComponent<TrailRenderer>();          // optional trail track
+//        ctledger = new CTledger(this);
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -97,8 +100,9 @@ public class CTclient : MonoBehaviour
 
 	public void setState(CTobject cto, Boolean ireplay, Boolean iplayPaused)
 	{
-		if (ctunity == null) return;        // async
-											//		Debug.Log(cto.id+": setState, replayMode: " + ireplay);
+        if (ctunity == null) return;                    // async
+        if (isLocalControl()) return;    // no updates for local player
+          
 		ctobject = cto;                             // for public ref
         
 		// set baseline for Lerp going forward to next step
@@ -299,5 +303,65 @@ public class CTclient : MonoBehaviour
 //		Debug.Log("setColor()!");//       Color color = ctunity.objectColor(gameObject);
 //		if(!color.Equals(Color.gray)) setColor(color);      // don't set if default (no name match)
 	}
+
+    //----------------------------------------------------------------------------------------------------------------
+
+    internal void putCustom(String key, String value)
+    {
+        if(custom == null) custom = "";
+
+        Dictionary<String,String> kvdict = csv2Dict(custom);  // build new dictionary every request inefficient
+
+        if (kvdict.ContainsKey(key)) kvdict[key] = value;
+        else                         kvdict.Add(key, value);
+
+        custom = dict2CSV(kvdict);
+//       Debug.Log(CTunity.fullName(gameObject)+", putCustom: [" + custom+"]"+", key: "+key+", value: "+value);
+    }
+
+    internal String getCustom(String key, String defCustom)
+    {
+        if (custom == null) return defCustom;
+
+        Dictionary<String,String> kvdict = csv2Dict(custom);
+        String val;
+        if (kvdict.TryGetValue(key, out val))
+        {
+ //           Debug.Log(CTunity.fullName(gameObject) + ", getCustom: [" + custom + "], key: " + key + ", value: " + val);
+            return val;
+        }
+        else
+        {
+  //          Debug.Log(CTunity.fullName(gameObject) + ", getCustom: [" + custom + "], key: " + key + ", default: "+defCustom);
+            return defCustom;
+        }
+    }
+
+    private Dictionary<String,String> csv2Dict(String csv)
+    {
+        string[] kvlist;
+        kvlist = csv.Split(',');
+        Dictionary<String, String> kvdict = new Dictionary<String, String>();
+        foreach (String s in kvlist)
+        {
+            string[] ss = s.Split('=');
+            if (ss.Length == 2) kvdict.Add(ss[0], ss[1]);
+        }
+        return kvdict;
+    }
+
+    private String dict2CSV(Dictionary<String,String> dict)
+    {
+        String csv = "";
+        Boolean first = true;
+        foreach (KeyValuePair<String, String> entry in dict)
+        {
+            if (!first) csv += ",";
+            csv = csv + entry.Key + "=" + entry.Value;
+            first = false;
+        }
+        return csv;
+    }
+
 }
 

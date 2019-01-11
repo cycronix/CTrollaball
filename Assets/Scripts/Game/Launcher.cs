@@ -22,6 +22,7 @@ using System;
 
 public class Launcher : MonoBehaviour {
 	private CTunity ctunity;
+    private CTclient ctclient;
 	private float stopWatch = 0f;
 	private int Ilaunch = 0;
 //	private int myHash = 0;
@@ -34,6 +35,10 @@ public class Launcher : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
+
+        ctclient = GetComponent<CTclient>();
+        if(ctclient==null) ctclient = transform.parent.GetComponent<CTclient>();  // try parent
+
 		stopWatch = 0;  
 //		myHash = Math.Abs(Guid.NewGuid().GetHashCode());      
 	}
@@ -41,17 +46,27 @@ public class Launcher : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	// Update is called once per frame
     
-	void FixedUpdate()
+	void Update()
 	{
+        //       Debug.Log(name + ", ctunity: " + ctunity + ", ctclient: " + ctclient);
+        //       if (ctclient == null) ctclient = transform.parent.GetComponent<CTclient>();
+        if (ctunity == null || ctclient == null)
+        {
+            Debug.Log(name + ", oops no ctunity/ctlient!");
+            return;        // async
+        }
 		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= launchInterval && (Nlaunch==0 || Ilaunch<Nlaunch))
 		{
-			ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" /* + myHash + "-" */ + Ilaunch, Missile);   // unique names
+            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);
+            ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" /* + myHash + "-" */ + Ilaunch, Missile);   // unique names
 //            ctunity.newPlayer(ctunity.Player + "/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         
             Ilaunch++;
-			stopWatch = 0;
+            ctclient.putCustom("Count", "" + Ilaunch);
+
+            stopWatch = 0;
 		}
 	}
 }
