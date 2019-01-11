@@ -6064,8 +6064,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   TrackDur: 10
   SyncTime: 0
-  blockRate: 20
-  maxPointRate: 120
+  blockRate: 10
+  maxPointRate: 100
   blocksPerSegment: 1000
   fpsInterval: 0.1
   AsyncMode: 1

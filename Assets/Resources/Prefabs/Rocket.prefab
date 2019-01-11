@@ -159,7 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HP: 10
-  ATK: 1
+  ATK: 5
   showHP: 1
 --- !u!64 &1498003119086088858
 MeshCollider:

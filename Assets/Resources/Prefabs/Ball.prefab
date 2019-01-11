@@ -256,7 +256,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HP: 10
-  ATK: 1
+  ATK: 4
   showHP: 1
 --- !u!135 &5187726014159823965
 SphereCollider:

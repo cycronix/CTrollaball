@@ -77,7 +77,7 @@ public class ScoreBoard : MonoBehaviour
     {
         String myName = CTunity.fullName(gameObject);
         String otherName = CTunity.fullName(other.gameObject);
- //       Debug.Log(myName + ", collide with: " + otherName);
+//        Debug.Log(myName + ", collide with: " + otherName);
 
         if(ctunity == null) ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
         if (other.gameObject == null || ctunity == null)
