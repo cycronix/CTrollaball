@@ -20,7 +20,7 @@ using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class KillSwitch : MonoBehaviour
+public class ScoreBoard : MonoBehaviour
 {
     private CTunity ctunity;
     private CTclient ctclient;
@@ -44,7 +44,7 @@ public class KillSwitch : MonoBehaviour
     // show HP bar above object 
     void OnGUI()
     {
-        if (showHP)
+        if (showHP && ctunity.trackEnabled)
         {
             Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
             int w = 30;
@@ -88,7 +88,7 @@ public class KillSwitch : MonoBehaviour
 
         // compare hit levels to see who wins
         int otherATK = 0;
-        KillSwitch kso = other.gameObject.GetComponent<KillSwitch>();
+        ScoreBoard kso = other.gameObject.GetComponent<ScoreBoard>();
         if (kso != null)
         {
             otherATK = kso.ATK;
