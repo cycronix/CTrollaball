@@ -25,7 +25,6 @@ public class Rocket : MonoBehaviour {
 	private CTunity ctunity;
 	private CTclient ctclient;
 	private Rigidbody rb;
-	private float stopWatch = 0f;
 
 	public float ForceFactor = 10f;
 	public float fuelTime = 5f;                 // seconds of fuel burn
@@ -37,13 +36,7 @@ public class Rocket : MonoBehaviour {
 	void Start () {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 		ctclient = GetComponent<CTclient>();
-        
-		stopWatch = 0f;
 		random = new System.Random(Guid.NewGuid().GetHashCode());      // unique seed
-
-//        ctclient.putCustom("Fuel", ""+fuelTime);       // start with full tank
-//        ctclient.putCustom("FlightTime", "0");
-        //		Debug.Log(name + ": new Rocket at: "+transform.position);
     }
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -60,42 +53,31 @@ public class Rocket : MonoBehaviour {
                 if (pprb != null) rb.velocity = pprb.velocity;
             }
 		}
-
 		if (!ctunity.activePlayer(gameObject)) return;
-//		Debug.Log(name + ", custom: " + ctclient.custom + ", stopWatch: " + stopWatch);
 
-		// continue stopwatch from saved state (use CTW player-time?)
-        // store fuel and air vs stopWatch?
-
-		stopWatch += Time.deltaTime;
+        // save fuel and flightTime with CT
         float fuel = fuelTime;
         Boolean gotfuel = float.TryParse(ctclient.getCustom("Fuel",""+fuel), out fuel);
         float flightTime = 0;
         float.TryParse(ctclient.getCustom("FlightTime", ""+flightTime), out flightTime);
-
 //        Debug.Log(name + ", fuel: " + fuel + ", fueltime: " + fuelTime+", flightTime: "+flightTime);
 
-        fuel -= Time.deltaTime;
+        fuel -= Time.deltaTime;         // fuel units = RT sec
         if (fuel < 0) fuel = 0;
         flightTime += Time.deltaTime;
 
-//		ctclient.custom = "" + stopWatch;
         ctclient.putCustom("Fuel", "" + fuel);
         ctclient.putCustom("FlightTime", "" + Math.Round(flightTime*1000f)/1000f);
         if(fuel > 0)
-//		if (stopWatch < fuelTime)
 		{
 			float noiseX = (float)random.NextDouble() * wobbleFactor;   // bit of uncertainty so rockets don't perfectly "stack"
 			float noiseZ = (float)random.NextDouble() * wobbleFactor;
 			rb.AddRelativeForce(new Vector3(noiseX, 1f, noiseZ) * ForceFactor);
-//            rb.AddRelativeForce(new Vector3(0, 1f, 0) * ForceFactor);
         }
         else if (flightTime > boomTime) 
 		{
 //			Debug.Log(name + ": BOOM!");
 			ctunity.clearObject(gameObject);
 		}
-        
 	}
-    
 }

@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// ScoreBoard:  maintain and display score (stats) for collision/interactions
+
 using System.Collections;
 using System.Collections.Generic;
 using System;
@@ -88,8 +90,8 @@ public class ScoreBoard : MonoBehaviour
 
         // compare hit levels to see who wins
         int otherATK = 0;
-        ScoreBoard kso = other.gameObject.GetComponent<ScoreBoard>();
-        if (kso != null)
+        ScoreBoard kso = other.gameObject.GetComponent<ScoreBoard>();      
+        if (kso != null)                                                    // an opponent!
         {
             otherATK = kso.ATK;
 //            Debug.Log(myName+".ATK: " + ATK + ", "+ otherName + ".ATK: " + otherATK);

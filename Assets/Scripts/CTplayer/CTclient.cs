@@ -305,12 +305,13 @@ public class CTclient : MonoBehaviour
 	}
 
     //----------------------------------------------------------------------------------------------------------------
+    // put, set ctobject.custom stored as K=V,K=V CSV string
 
     internal void putCustom(String key, String value)
     {
         if(custom == null) custom = "";
 
-        Dictionary<String,String> kvdict = csv2Dict(custom);  // build new dictionary every request inefficient
+        Dictionary<String,String> kvdict = csv2Dict(custom);  // Warning: new dictionary every request inefficient
 
         if (kvdict.ContainsKey(key)) kvdict[key] = value;
         else                         kvdict.Add(key, value);
