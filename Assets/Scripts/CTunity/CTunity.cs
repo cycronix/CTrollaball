@@ -344,60 +344,10 @@ public class CTunity : MonoBehaviour
         UnityEngine.Debug.Log(p);
 	}
 
-	//-------------------------------------------------------------------------------------------------------
-    // clone new player-owned object...
-    
-    public GameObject clonePlayer(GameObject go)
-    {
- //       Debug.Log("clonePlayer: " + go.name);
+    //-------------------------------------------------------------------------------------------------------
+    // newGameObject:  create and instantiate new CTobject 
 
-        if (CTlist.ContainsKey(fullName(go)))  // clone existing?
-        {
-			CTclient ctc = go.GetComponent<CTclient>();
-			CTobject cto = new CTobject();
-			cto.id = fullName(go)+"X";
-			cto.model = ctc.prefab;
-            cto.pos = go.transform.localPosition;
-            cto.rot = go.transform.localRotation;
-            cto.scale = go.transform.localScale;
-            cto.state = true;
-            cto.color = ctc.myColor;
-
-			int gen = ctc.Generation;
-			go = newGameObject(cto);
-			go.GetComponent<CTclient>().Generation = gen + 1;
-			return go;
-        }
-        else {
-            Debug.Log("Missing Clone!");
-			return null;
-        }
-    }
-
-	//-------------------------------------------------------------------------------------------------------
-	// shortcut to add local object
-
-	public GameObject newPlayer(String objID, String model)
-	{
-		if (!objID.StartsWith(Player + "/")) objID = Player + "/" + objID;  // enforce full path name
-//		Debug.Log("newPlayer: " + objID);
-
-		CTobject cto = new CTobject();
-		cto.id = objID;
-		cto.model = model;
-		cto.pos = Vector3.zero;
-		cto.rot = transform.localRotation;
-		cto.scale = Vector3.zero;
-		cto.state = true;
-		cto.color = Color.gray;
-
-		return newGameObject(cto);
-	}
-    
-	//-------------------------------------------------------------------------------------------------------
-	// newGameObject:  create and instantiate new CTobject 
-
-	public GameObject newGameObject(CTobject ctobject)
+    private GameObject newGameObject(CTobject ctobject)
     {
 		// define parameters
 		String objID = ctobject.id;
@@ -408,7 +358,7 @@ public class CTunity : MonoBehaviour
 		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", newSession: "+newSession);
+//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
         // already exists?
@@ -493,9 +443,11 @@ public class CTunity : MonoBehaviour
 		CTclient myctc = newp.GetComponent<CTclient>();
 		if (myctc != null)
 		{
-			myctc.prefab = prefab;
+//            myctc.CTstart(prefab, color, ctobject.custom);
+            myctc.custom = ctobject.custom;  // set this now vs waiting for setState
+//            Debug.Log(newp.name+", CTunity instantiate startup custom: " + ctobject.custom);
+            myctc.prefab = prefab;
             myctc.setColor(color);
-			myctc.custom = ctobject.custom;  // set this now vs waiting for setState
 		}
 
 		// make sure in CTlist (inactive objects won't call CTregister...)
@@ -674,44 +626,47 @@ public class CTunity : MonoBehaviour
             if (replayActive) urlparams = "?t=" + replayTime;          // replay at masterTime
             else urlparams = "?c=" + Math.Round(pollInterval * 1000F);         //  set cache interval 
             string url1 = Server + "/CT/" + Session + "/GamePlay/*/" + CTchannel + urlparams;
- //           Debug.Log("url1: " + url1);
+            //           Debug.Log("url1: " + url1);
 
-            UnityWebRequest www1 = UnityWebRequest.Get(url1);
-            www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
-            //            yield return www1.Send();
-            yield return www1.SendWebRequest();
-
-            if (newSession && !pendingSession)
+            // enclose in "using" to ensure www1 object properly disposed:
+            using (UnityWebRequest www1 = UnityWebRequest.Get(url1))
             {
-                Debug.Log("WHOA wait for pending session!");
-                continue;
-            }
+                www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
+                //            yield return www1.Send();
+                yield return www1.SendWebRequest();
 
-            // proceed with parsing CTstates.txt
-            if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
-            {
-                Debug.Log("HTTP Error: " + www1.error + ": " + url1);
-                if (isReplayMode()) clearWorlds();              // presume problem is empty world...
-                pendingSession = newSession = false;            // bail (presume empty all-around)
-                continue;
-            }
-            CTdebug(null);          // clear error
+                if (newSession && !pendingSession)
+                {
+                    Debug.Log("WHOA wait for pending session!");
+                    continue;
+                }
 
-            double stime = ServerTime();
-    //        BPS = Math.Round( (BPS + 1F / (stime - lastReadTime))/2f );       // clock info
-            BPS = Math.Round(1F / (stime - lastReadTime));       // clock info
+                // proceed with parsing CTstates.txt
+                if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
+                {
+                    Debug.Log("HTTP Error: " + www1.error + ": " + url1);
+                    if (isReplayMode()) clearWorlds();              // presume problem is empty world...
+                    pendingSession = newSession = false;            // bail (presume empty all-around)
+                    continue;
+                }
+                CTdebug(null);          // clear error
 
-            lastReadTime = stime;
+                double stime = ServerTime();
+                //        BPS = Math.Round( (BPS + 1F / (stime - lastReadTime))/2f );       // clock info
+                BPS = Math.Round(1F / (stime - lastReadTime));       // clock info
 
-            // parse to class structure...
-            List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
-            CTworld CTW = mergeCTworlds(ws);
-            if (CTW == null || CTW.objects == null) continue;          // notta      
+                lastReadTime = stime;
 
-            if (pendingSession)
-            {
-                //				Debug.Log("END newSession!");
-                pendingSession = newSession = false;               // (re)enable Update getData
+                // parse to class structure...
+                List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
+                CTworld CTW = mergeCTworlds(ws);
+                if (CTW == null || CTW.objects == null) continue;          // notta      
+
+                if (pendingSession)
+                {
+                    //				Debug.Log("END newSession!");
+                    pendingSession = newSession = false;               // (re)enable Update getData
+                }
             }
         }              // end while(true)   
     }
@@ -721,19 +676,24 @@ public class CTunity : MonoBehaviour
 
 	public void deployInventory(String world)           // get specific world or "*" for all
 	{
-		StartCoroutine(deployInventoryItem(world));
-	}
+		StartCoroutine(deployInventoryItem(world, null));        // get inventory object with default ID (from ctobject)
+    }
 
-	private IEnumerator deployInventoryItem(String deploy)
+    public void deployInventory(String model, String objID) 
     {
-//		Debug.Log("deployInventory: " + deploy);
+        StartCoroutine(deployInventoryItem(model, objID));       // get inventory object and set objectID
+    }
+
+    private IEnumerator deployInventoryItem(String deploy, String objID)
+    {
+	//	Debug.Log("deployInventory: " + deploy+", id: "+objID);
         while (true)
         {
             yield return new WaitForSeconds(pollInterval); 
 
             // form HTTP GET URL
 			string url1 = Server + "/CT/" + Session + "/" + Inventory + "/" +deploy +"/" + CTchannel+"?f=d";
-
+//            Debug.Log("url1: "+url1);
             UnityWebRequest www1 = UnityWebRequest.Get(url1);
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
             yield return www1.SendWebRequest();
@@ -741,11 +701,12 @@ public class CTunity : MonoBehaviour
             // proceed with parsing CTstates.txt
             if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10) 
             {
-//                Debug.Log("getWorldState HTTP error: " + www1.error + ": " + url1);
+                Debug.Log("Inventory Error: " + www1.error + ": " + url1);
                 yield break;
             }
             CTdebug(null);          // clear error
 
+//            Debug.Log("url1: "+url1+", www.text: " + www1.downloadHandler.text);
             // parse to class structure...
             List<CTworld> worlds = CTserdes.deserialize(www1.downloadHandler.text);
 			if(worlds == null) {
@@ -760,6 +721,7 @@ public class CTunity : MonoBehaviour
 				foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
 				{
 					CTobject ctobject = ctpair.Value;
+                    if (objID != null) ctobject.id = objID;
 					if (!ctobject.id.StartsWith(Player+"/")) ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
 					newGameObject(ctobject);
 				}
@@ -1046,4 +1008,59 @@ public class CTunity : MonoBehaviour
 		ctplayer.login(user, password);
 		ctplayer.setAsync(AsyncMode);
 	}
+
+    // obsolete code:
+    /*
+//-------------------------------------------------------------------------------------------------------
+// clone new player-owned object...
+
+public GameObject clonePlayer(GameObject go)
+{
+//       Debug.Log("clonePlayer: " + go.name);
+
+    if (CTlist.ContainsKey(fullName(go)))  // clone existing?
+    {
+        CTclient ctc = go.GetComponent<CTclient>();
+        CTobject cto = new CTobject();
+        cto.id = fullName(go)+"X";
+        cto.model = ctc.prefab;
+        cto.pos = go.transform.localPosition;
+        cto.rot = go.transform.localRotation;
+        cto.scale = go.transform.localScale;
+        cto.state = true;
+        cto.color = ctc.myColor;
+
+        int gen = ctc.Generation;
+        go = newGameObject(cto);
+        go.GetComponent<CTclient>().Generation = gen + 1;
+        return go;
+    }
+    else {
+        Debug.Log("Missing Clone!");
+        return null;
+    }
+}
+
+
+//-------------------------------------------------------------------------------------------------------
+// shortcut to add local object
+
+public GameObject newPlayer(String objID, String model)
+{
+    if (!objID.StartsWith(Player + "/")) objID = Player + "/" + objID;  // enforce full path name
+//      Debug.Log("newPlayer: " + objID);
+
+    CTobject cto = new CTobject();
+    cto.id = objID;
+    cto.model = model;
+    cto.pos = Vector3.zero;
+    cto.rot = transform.localRotation;
+    cto.scale = Vector3.zero;
+    cto.state = true;
+    cto.color = Color.gray;
+
+    return newGameObject(cto);
+}
+*/
+
 }

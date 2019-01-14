@@ -19,6 +19,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 
 // Simple video display (no options)
 // Matt Miller, Cycronix, 7-6-2017
@@ -49,7 +50,6 @@ public class CTvideo : MonoBehaviour {
 		while (true) {
 			float pollInterval = (ctunity == null) ? 0.1F : ctunity.pollInterval;       // wait for ctunity init
 			yield return new WaitForSeconds (pollInterval);
-
 			if (showImage) {
 
                 if (ctclient != null && ctclient.enabled && ctclient.link != null && !ctclient.isLocalControl())
@@ -61,23 +61,27 @@ public class CTvideo : MonoBehaviour {
                 }
                 else    // local control
                 {
-					url = ctunity.Server + "/CT/"+ctunity.Session+"/Video/" + ctunity.Player + "/webcam.jpg";
+//					url = ctunity.Server + "/CT/"+ctunity.Session+"/Video/" + ctunity.Player + "/webcam.jpg";
+                    url = ctunity.Server + "/CT/" + ctunity.Session + "/ScreenCap/" + ctunity.Player + "/screen.jpg";
+
                     url = url + "?t=" + ctunity.replayTime;  // live or replay
                     oldCustom = "";
                 }
-
-//				String urlparams = "";
-				//				if (ctunity.isReplayMode()) urlparams = "?t=" + ctunity.replayTime;
-                
-				WWW www;
-				try
-				{
-					www = new WWW(url);
-				} catch (Exception e) {
-					UnityEngine.Debug.Log("CTvideo exception: " + url+", Exception: "+e);
-					continue;
-				}
-				yield return www;
+//                Debug.Log("CTvideo, url: " + url);
+                UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
+                www.SetRequestHeader("AUTHORIZATION", ctunity.CTauthorization());
+                yield return www.SendWebRequest();
+                /*
+                WWW www;
+                try
+                {
+                www = new WWW(url);
+                } catch (Exception e) {
+                UnityEngine.Debug.Log("CTvideo exception: " + url+", Exception: "+e);
+                continue;
+                }
+                yield return www;
+                */
 
 				if (ctclient != null)
 				{
@@ -85,12 +89,13 @@ public class CTvideo : MonoBehaviour {
 //					Debug.Log("ctclient: " + ctclient.name + ", url: " + url);
 				}
 
-				Texture2D tex = new Texture2D (www.texture.width, www.texture.height, TextureFormat.DXT1, false);
-				www.LoadImageIntoTexture (tex);
+                Texture2D tex = DownloadHandlerTexture.GetContent(www);
+//              Texture2D tex = new Texture2D (www.texture.width, www.texture.height, TextureFormat.DXT1, false);
+//				www.LoadImageIntoTexture (tex);
 				GetComponent<Renderer> ().material.mainTexture = tex;
 
-				www.Dispose ();
-				www = null;
+//				www.Dispose ();
+//				www = null;
 			} else {
 				GetComponent<Renderer> ().material.mainTexture = startTexture;
 			}

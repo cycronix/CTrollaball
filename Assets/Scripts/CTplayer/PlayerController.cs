@@ -43,8 +43,8 @@ public class PlayerController : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	// push player around using forces; let in-game physics decide where it goes
 
-	//	void Update() 
-	void FixedUpdate()
+//	void Update() 
+	void FixedUpdate()          // fixed update for consistent force-application
         {
 //		if (!ctclient.isLocalControl())	return;                 // notta unless under local-control
 		if (!ctunity.activePlayer(gameObject)) return;
@@ -67,6 +67,8 @@ public class PlayerController : MonoBehaviour {
 			movement = transform.rotation * movement;               // align force to direction of player object
 
 			float fwdVelocity = Vector3.Dot(rb.velocity, transform.forward);
+            if(moveVertical <= 0) liftforce = liftForce * fwdVelocity / maxSpeed;  // lift ~ speed
+ //           Debug.Log("liftforce: " + liftforce + ", liftForce: " + liftForce + ", fwdVel: " + fwdVelocity + ", maxSpeed: " + maxSpeed+", moveV: "+moveVertical);
 			if (fwdVelocity <= 0F)
 			{
 				liftforce = 0F;

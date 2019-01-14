@@ -22,7 +22,7 @@ public class ToggleGhost : MonoBehaviour
 {
 	private CTunity ctunity;
 	public double doubleClickTime = 0.5F;
-	private double clickTime = 0F;
+//	private double clickTime = 0F;
 	private DateTime refTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
     // Use this for initialization

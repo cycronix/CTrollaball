@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Obsolete code, for reference only:
+/*
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -185,5 +187,5 @@ public class CTreplay : MonoBehaviour, IPointerDownHandler {		// required interf
 		UnityEngine.Debug.Log (this.gameObject.name + " PointerUp");
 //		showImage = !showImage;		// toggle
 	}
-		
 }
+    */  

@@ -56,18 +56,15 @@ public class Rocket : MonoBehaviour {
 		if (!ctunity.activePlayer(gameObject)) return;
 
         // save fuel and flightTime with CT
-        float fuel = fuelTime;
-        Boolean gotfuel = float.TryParse(ctclient.getCustom("Fuel",""+fuel), out fuel);
-        float flightTime = 0;
-        float.TryParse(ctclient.getCustom("FlightTime", ""+flightTime), out flightTime);
-//        Debug.Log(name + ", fuel: " + fuel + ", fueltime: " + fuelTime+", flightTime: "+flightTime);
-
+        float fuel = ctclient.getCustom("Fuel", fuelTime);
+        float flightTime = ctclient.getCustom("Age", 0f);
+//        Debug.Log(CTunity.fullName(gameObject) + ", fuel: " + fuel + ", fueltime: " + fuelTime+", flightTime: "+flightTime);
         fuel -= Time.deltaTime;         // fuel units = RT sec
         if (fuel < 0) fuel = 0;
         flightTime += Time.deltaTime;
 
-        ctclient.putCustom("Fuel", "" + fuel);
-        ctclient.putCustom("FlightTime", "" + Math.Round(flightTime*1000f)/1000f);
+        ctclient.putCustom("Fuel", fuel);
+        ctclient.putCustom("Age", (float)Math.Round(flightTime*1000f)/1000f);
         if(fuel > 0)
 		{
 			float noiseX = (float)random.NextDouble() * wobbleFactor;   // bit of uncertainty so rockets don't perfectly "stack"

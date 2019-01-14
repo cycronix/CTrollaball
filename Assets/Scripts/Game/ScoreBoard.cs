@@ -35,11 +35,16 @@ public class ScoreBoard : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-//        Debug.Log(name + ": KillSwitch!");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
         ctclient = GetComponent<CTclient>();
 
-        if (showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
+        //       if (showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
+        if (showHP)
+        {
+            HP = ctclient.getCustom("HP", 0);
+//            Debug.Log(CTunity.fullName(gameObject)+": startup Custom: " + ctclient.custom);
+            if (HP == 0) showHP = false;        // enabled by startup JSON having HP custom field
+        }
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -50,14 +55,16 @@ public class ScoreBoard : MonoBehaviour
         {
             Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
             int w = 30;
-            int h = 20;
+            int h = 24;
             GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
+   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
         }
     }
 
     private void Update()
     {
-        if(showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
+        //        if(showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
+        if (showHP) HP = ctclient.getCustom("HP", HP);
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -77,6 +84,8 @@ public class ScoreBoard : MonoBehaviour
     //----------------------------------------------------------------------------------------------------------------
     void doCollision(Collider other)
     {
+        if (!showHP) return;                                        // no game
+
         String myName = CTunity.fullName(gameObject);
         String otherName = CTunity.fullName(other.gameObject);
 //        Debug.Log(myName + ", collide with: " + otherName);
@@ -99,10 +108,13 @@ public class ScoreBoard : MonoBehaviour
             // if ((other.gameObject.tag == "Bullet") && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
             {
   //              Debug.Log(myName + ": HIT by: " + otherName + ", ATK: "+ ATK+", otherATK: "+otherATK+", myHP: "+HP);
-                int.TryParse(ctclient.getCustom("HP", HP+""), out HP);
+  //              int.TryParse(ctclient.getCustom("HP", HP+""), out HP);
+                HP = ctclient.getCustom("HP", HP);
+
                 HP -= (otherATK - ATK);
                 if (HP < 0) HP = 0;
-                ctclient.putCustom("HP",""+HP);
+  //              ctclient.putCustom("HP",""+HP);
+                ctclient.putCustom("HP", HP);
                 if (HP <= 0)
                 {
                     // Debug.Log(name + ": killed!");

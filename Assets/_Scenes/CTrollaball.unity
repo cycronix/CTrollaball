@@ -5211,7 +5211,7 @@ MonoBehaviour:
   xSpeed: 200
   ySpeed: 200
   yLimit: 89
-  zoomRate: 40
+  zoomRate: 20
   zoomDampening: 5
   snapIn: 0.5
   snapOut: 2
@@ -6067,7 +6067,7 @@ MonoBehaviour:
   blockRate: 10
   maxPointRate: 100
   blocksPerSegment: 1000
-  fpsInterval: 0.1
+  fpsInterval: 0.5
   AsyncMode: 1
 --- !u!1 &1713389157
 GameObject:

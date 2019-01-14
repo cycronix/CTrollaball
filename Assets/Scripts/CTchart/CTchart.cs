@@ -18,9 +18,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Networking;
 
 // Stripchart -OR- Cross-plot X-Y chart from CloudTurbine data
 // Matt Miller, Cycronix, 6-16-2017
+// TO DO:  re-work into latest version...
 
 public class CTchart : MonoBehaviour {
 	private string Server = "http://localhost:8000";
@@ -127,10 +129,10 @@ public class CTchart : MonoBehaviour {
 			string urlparams = "?f=d";                  // drop this to get time,data pairs...
 
 			// two channels = two HTTP GETs
-			WWW www1=null;
-			WWW www2=null;
+//			WWW www1=null;
+//			WWW www2=null;
 
-			// notta 
+            // notta 
             if (Chan1.Length == 0)
             {
                 lineR1.positionCount = 0;
@@ -171,13 +173,18 @@ public class CTchart : MonoBehaviour {
             }
 
             // fetch data
+            UnityWebRequest www1=null, www2=null;
 			try
 			{
-				www1 = new WWW(url1);
+                www1 = UnityWebRequest.Get(url1);
+                www1.SetRequestHeader("AUTHORIZATION", ctunity.CTauthorization());
+//               www1 = new WWW(url1);
 
 				if (numChan > 1)
 				{
-					www2 = new WWW(url2);
+                    www2 = UnityWebRequest.Get(url1);
+                    www2.SetRequestHeader("AUTHORIZATION", ctunity.CTauthorization());
+//                    www2 = new WWW(url2);
 					if(ctclient!=null) ctclient.link = url1 + "," + url2;
 				}
 				else
@@ -189,19 +196,25 @@ public class CTchart : MonoBehaviour {
 				continue;
 			}
 
-			yield return www1;
-			if(numChan > 1) yield return www2;
-//			Debug.Log("CTchart url1: " + url1);
+//			yield return www1;
+            yield return www1.SendWebRequest();
 
-			if (!string.IsNullOrEmpty (www1.error)) {
+//            if (numChan > 1) yield return www2;
+            if (numChan > 1) yield return www2.SendWebRequest();
+
+            //			Debug.Log("CTchart url1: " + url1);
+
+            if (!string.IsNullOrEmpty (www1.error)) {
 				Debug.Log("www1.error: " + www1.error+", url1: "+url1);
 			}
 			else {
 
 				try {
 					// fetch time-interval info from header (vs timestamps)
-					Dictionary<string,string> whead = www1.responseHeaders;
-					double htime = 0, hdur = 0;
+//					Dictionary<string,string> whead = www1.responseHeaders;
+                    Dictionary<string, string> whead = www1.GetResponseHeaders();
+
+                    double htime = 0, hdur = 0;
 					try {
 						if (whead.ContainsKey ("time")) 	htime = double.Parse (whead ["time"]);
 						if (whead.ContainsKey ("duration"))	hdur = double.Parse (whead ["duration"]);
@@ -209,19 +222,24 @@ public class CTchart : MonoBehaviour {
 						Debug.Log ("Exception on htime parse!");
 					}
 
-					// parse data into value queues
-				    string[] xvals = www1.text.Split ('\n');
-					string[] yvals = null;
-					if (numChan > 1) yvals = www2.text.Split('\n');
+                    // parse data into value queues
+  //                  string[] xvals = www1.text.Split ('\n');
+                    string[] xvals = www1.downloadHandler.text.Split('\n');
 
-					double ptsPerSec = xvals.Length / hdur;              // deduce queue size from apparent sample rate
+                    string[] yvals = null;
+                    //				if (numChan > 1) yvals = www2.text.Split('\n');
+                    if (numChan > 1) yvals = www2.downloadHandler.text.Split('\n');
+
+                    double ptsPerSec = xvals.Length / hdur;              // deduce queue size from apparent sample rate
 					MaxPts = (int)(Duration * ptsPerSec);
 //					Debug.Log("xvals.len: " + xvals.Length);
 
 					if (Mode == "CrossPlot")   // cross plots presume data scaled 0-1 coming in
 					{
-						yvals = www2.text.Split('\n');
-						int maxCount = Math.Min(xvals.Length, yvals.Length);
+//						yvals = www2.text.Split('\n');
+                        yvals = www2.downloadHandler.text.Split('\n');
+
+                        int maxCount = Math.Min(xvals.Length, yvals.Length);
 						p1 = new Vector3[maxCount];
 						p2 = null;
 
@@ -249,8 +267,9 @@ public class CTchart : MonoBehaviour {
 
 						if (numChan > 1)
 						{
-							yvals = www2.text.Split('\n');
-							maxCount = Math.Min(xvals.Length, yvals.Length);
+	//						yvals = www2.text.Split('\n');
+                            yvals = www2.downloadHandler.text.Split('\n');
+                            maxCount = Math.Min(xvals.Length, yvals.Length);
 							p2 = new Vector3[maxCount];
 						}
 						else p2 = null;
@@ -296,16 +315,16 @@ public class CTchart : MonoBehaviour {
 					}
 
 				} catch (FormatException) {
-					Debug.Log ("Error parsing values! "+www1.text);
+					Debug.Log ("Error parsing values! "+www1.downloadHandler.text);
 				}
 			} 
 
-			www1.Dispose ();  	
-			www1 = null;
-			if (numChan > 1) {
-				www2.Dispose ();
-				www2 = null;
-			}
+//			www1.Dispose ();  	
+//			www1 = null;
+//			if (numChan > 1) {
+//				www2.Dispose ();
+//				www2 = null;
+//			}
 		}
 	}
     

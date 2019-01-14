@@ -84,7 +84,7 @@ public class maxCamera : MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
-	string lastPlayerTarget = "";  // init to safe bet
+//	string lastPlayerTarget = "";  // init to safe bet
 
 	public void setTarget(Transform itarget)
 	{

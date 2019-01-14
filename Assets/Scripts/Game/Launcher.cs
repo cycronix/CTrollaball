@@ -37,7 +37,8 @@ public class Launcher : MonoBehaviour {
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
 
         ctclient = GetComponent<CTclient>();
-        if(ctclient==null) ctclient = transform.parent.GetComponent<CTclient>();  // try parent
+        if(ctclient==null) ctclient = transform.parent.GetComponent<CTclient>();  // try parent (e.g. RocketPlane/Launcher)
+        if (ctclient == null) Debug.Log("Launcher no CTclient!");
 
 		stopWatch = 0;  
 //		myHash = Math.Abs(Guid.NewGuid().GetHashCode());      
@@ -48,7 +49,7 @@ public class Launcher : MonoBehaviour {
     
 	void Update()
 	{
-        //       Debug.Log(name + ", ctunity: " + ctunity + ", ctclient: " + ctclient);
+//        Debug.Log(name + ", Ilaunch: "+Ilaunch);
         //       if (ctclient == null) ctclient = transform.parent.GetComponent<CTclient>();
         if (ctunity == null || ctclient == null)
         {
@@ -60,11 +61,13 @@ public class Launcher : MonoBehaviour {
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= launchInterval && (Nlaunch==0 || Ilaunch<Nlaunch))
 		{
-            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);
-            ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" /* + myHash + "-" */ + Ilaunch, Missile);   // unique names
+//            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);
+            Ilaunch = ctclient.getCustom("Count", Ilaunch);
+            //            ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + Ilaunch, Missile);   // unique names
+            ctunity.deployInventory(Missile, CTunity.fullName(gameObject) + "/R-" + Ilaunch);
 //            ctunity.newPlayer(ctunity.Player + "/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         
             Ilaunch++;
-            ctclient.putCustom("Count", "" + Ilaunch);
+            ctclient.putCustom("Count", Ilaunch);
 
             stopWatch = 0;
 		}
