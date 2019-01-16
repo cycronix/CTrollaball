@@ -55,9 +55,10 @@ public class ScoreBoard : MonoBehaviour
         {
             Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
             int w = 30;
+            w = ctclient.custom.Length * 8 + 10;
             int h = 24;
-            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
-   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
+   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
+            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
         }
     }
 

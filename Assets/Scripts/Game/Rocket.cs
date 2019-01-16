@@ -63,8 +63,8 @@ public class Rocket : MonoBehaviour {
         if (fuel < 0) fuel = 0;
         flightTime += Time.deltaTime;
 
-        ctclient.putCustom("Fuel", fuel);
-        ctclient.putCustom("Age", (float)Math.Round(flightTime*1000f)/1000f);
+        ctclient.putCustom("Fuel", fuel.ToString("0.00"));
+        ctclient.putCustom("Age", flightTime.ToString("0.00"));
         if(fuel > 0)
 		{
 			float noiseX = (float)random.NextDouble() * wobbleFactor;   // bit of uncertainty so rockets don't perfectly "stack"
