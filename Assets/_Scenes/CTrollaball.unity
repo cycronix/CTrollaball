@@ -5206,7 +5206,7 @@ MonoBehaviour:
   targetOffset: {x: 0, y: 0, z: 0}
   distance: 100
   maxDistance: 250
-  minDistance: 0.1
+  minDistance: 0.2
   xSpeed: 200
   ySpeed: 200
   yLimit: 89
