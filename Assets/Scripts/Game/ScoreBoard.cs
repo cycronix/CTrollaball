@@ -29,7 +29,8 @@ public class ScoreBoard : MonoBehaviour
 //    private CTledger ctledger;
 
     public int HP = 10;        // max hits before killed
-    public int ATK = 1;
+    public int ATK = 1;         // amount of damage
+    public int AC = 1;          // damage mitigation
     public Boolean showHP = true;
 
     // Use this for initialization
@@ -55,10 +56,11 @@ public class ScoreBoard : MonoBehaviour
         {
             Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
             int w = 30;
-            w = ctclient.custom.Length * 8 + 10;
+            w = ctclient.custom.Length * 7 + 12;
             int h = 24;
    //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
-            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
+            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2*h, w, h), ctclient.custom);
+   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), new GUIContent(HP + "", ctclient.custom));
         }
     }
 
@@ -104,15 +106,17 @@ public class ScoreBoard : MonoBehaviour
         if (kso != null)                                                    // an opponent!
         {
             otherATK = kso.ATK;
-//            Debug.Log(myName+".ATK: " + ATK + ", "+ otherName + ".ATK: " + otherATK);
-            if ((ATK < otherATK) && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
-            // if ((other.gameObject.tag == "Bullet") && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
+            //            Debug.Log(myName+".ATK: " + ATK + ", "+ otherName + ".ATK: " + otherATK);
+            if (ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
+ //               if ((ATK < otherATK) && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
             {
-  //              Debug.Log(myName + ": HIT by: " + otherName + ", ATK: "+ ATK+", otherATK: "+otherATK+", myHP: "+HP);
-  //              int.TryParse(ctclient.getCustom("HP", HP+""), out HP);
                 HP = ctclient.getCustom("HP", HP);
 
-                HP -= (otherATK - ATK);
+                //              HP -= (otherATK - ATK);
+                int damage = (int)Math.Ceiling((float)otherATK / (float)AC); 
+                HP -= damage;
+                Debug.Log(myName + ": HIT by: " + otherName + ", AC: "+ AC+", otherATK: "+otherATK+", damage: "+damage);
+
                 if (HP < 0) HP = 0;
   //              ctclient.putCustom("HP",""+HP);
                 ctclient.putCustom("HP", HP);

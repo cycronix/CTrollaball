@@ -5203,7 +5203,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df5f23b19488743c4b2d2c4fdd356c47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 1676886690}
   targetOffset: {x: 0, y: 0, z: 0}
   distance: 100
   maxDistance: 250

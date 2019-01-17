@@ -59,10 +59,12 @@ public class Launcher : MonoBehaviour {
 		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
-		if (stopWatch >= launchInterval && (Nlaunch==0 || Ilaunch<Nlaunch))
+		if (stopWatch >= launchInterval)
 		{
 //            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);
             Ilaunch = ctclient.getCustom("N", Ilaunch);
+            if (Nlaunch!=0 && Ilaunch >= Nlaunch) return;
+
             //            ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + Ilaunch, Missile);   // unique names
             ctunity.deployInventory(Missile, CTunity.fullName(gameObject) + "/R-" + Ilaunch);
 //            ctunity.newPlayer(ctunity.Player + "/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         

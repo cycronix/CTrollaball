@@ -143,6 +143,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 100
   ATK: 2
+  AC: 10
   showHP: 1
 --- !u!54 &1124663699225269053
 Rigidbody:

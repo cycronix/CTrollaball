@@ -31,7 +31,7 @@ using UnityEngine.EventSystems;
 [AddComponentMenu("Camera-Control/3dsMax Camera Style")]
 public class maxCamera : MonoBehaviour
 {
-	public Transform target;
+	internal Transform target;
 	public Vector3 targetOffset;
 	public float distance = 5.0f;
 	public float maxDistance = 20;
@@ -74,7 +74,7 @@ public class maxCamera : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void Init()
 	{
-		
+        if(target == null) target = GameObject.Find("CTunity").transform;  // something for init
 		distance = Vector3.Distance(transform.position, target.position);
 		currentDistance = distance;
 		desiredDistance = distance;
@@ -84,8 +84,6 @@ public class maxCamera : MonoBehaviour
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
-//	string lastPlayerTarget = "";  // init to safe bet
-
 	public void setTarget(Transform itarget)
 	{
 		target = itarget;
@@ -109,7 +107,8 @@ public class maxCamera : MonoBehaviour
 		{
             // auto-target player
             GameObject go = GameObject.Find(ctunity.Player + "/Avatar");
-            if(go != null) setTarget(go.transform);
+            if(go == null) go = GameObject.Find(ctunity.Player + "/Base/Avatar");
+            if (go != null) setTarget(go.transform);
   //          Debug.Log("auto target: " + ctunity.Player + "/Avatar");
 		}
 	}
