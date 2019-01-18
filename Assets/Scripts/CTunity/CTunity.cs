@@ -605,6 +605,14 @@ public class CTunity : MonoBehaviour
         Boolean pendingSession = false;
         while (true)
         {
+            if (gamePaused || (replayActive && (replayTime == oldTime)))  // no dupes (e.g. paused)
+            {
+                BPS = 0;
+                yield return null;          // ease up until next Update()
+                continue;
+            }
+            oldTime = replayTime;
+
             double thisTime = ServerTime();
             double deltaTime = thisTime - loopTime;
             float pointTime = 1F / maxPointRate;
@@ -622,16 +630,6 @@ public class CTunity : MonoBehaviour
                 //Debug.Log("getGameState, newSession, replayActive: "+replayActive);
                 pendingSession = true;
             }
-
-            if ( gamePaused || (replayActive && (replayTime == oldTime)))  // no dupes (e.g. paused)
-            {
-                BPS = 0;
-    //            Debug.Log("waiting...");
-                yield return null;          // ease up until next Update()
-                continue;      
-            }
-//           Debug.Log("going!");
-            oldTime = replayTime;
 
             // form HTTP GET URL
             String urlparams = "";    // "?f=d" is no-op for wildcard request
@@ -663,7 +661,7 @@ public class CTunity : MonoBehaviour
                 CTdebug(null);          // clear error
 
                 double stime = ServerTime();
-                BPS = Math.Round(1F / (stime - lastReadTime));       // clock info
+                BPS = Math.Round( (BPS + (1F / (stime - lastReadTime)))/2F );       // block per sec (moving avg)
                 lastReadTime = stime;
 
                 // parse to class structure...

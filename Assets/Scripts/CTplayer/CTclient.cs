@@ -28,7 +28,7 @@ public class CTclient : MonoBehaviour
     public Boolean smoothTrack = true;
     public Boolean smoothReplay = false;
 
-    internal float TrackSpeed = 5F;             // multiplier on how fast to Lerp to position/rotation
+    public float TrackSpeed = 2F;             // multiplier on how fast to Lerp to position/rotation
                                                 //	internal float RotateSpeed = 1F;            // rotation speed multiplier
     public float DeadReckon = 1.5F;             // how much to shoot past known position for dead reckoning
     public float SmoothTime = 0.4F;             // SmoothDamp time (sec)
@@ -117,7 +117,10 @@ public class CTclient : MonoBehaviour
         oldRot = transform.localRotation;
         oldScale = transform.localScale;
 
-        if (stopWatch > 0F) TrackSpeed = (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
+        // following TrackSpeed tries to estimate average update-interval, but it varies too much to be smooth (mjm 1/18/19)
+//        if (stopWatch > 0F) TrackSpeed = (3F * TrackSpeed + (1F / stopWatch)) / 4F;  // weighted moving average
+
+  //      Debug.Log("setTS, sw: " + stopWatch + ", TS: " + TrackSpeed);
 
         // update targets
         stopWatch = 0F;
@@ -206,7 +209,7 @@ public class CTclient : MonoBehaviour
             // SmoothDamp is smoother than linear motion between updates...
             // SmoothDamp with t=0.4F is ~smooth, but ~laggy
 
-            float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);  // custom clamp extrapolated interval
+  //          float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);  // custom clamp extrapolated interval
 
             if (SmoothTime > 0F)
             {
@@ -215,13 +218,19 @@ public class CTclient : MonoBehaviour
             }
             else
             {
-                transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
+   //             transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
+                transform.localPosition = Vector3.Lerp(oldPos, myPos, Time.deltaTime * TrackSpeed);
             }
 
             // LerpUnclamped:  effectively extrapolates (dead reckoning)
-            transform.localRotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
+            //          transform.localRotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
+            //          Debug.Log("stopW*TS: " + (stopWatch * TrackSpeed)+", sw: "+stopWatch+", TS: "+TrackSpeed);
+            //          transform.localRotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, myRot, Time.deltaTime * TrackSpeed);
+
             //            transform.localRotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
-            if (myScale != Vector3.zero) transform.localScale = Vector3.Lerp(oldScale, myScale, stopWatch * TrackSpeed);
+   //         if (myScale != Vector3.zero) transform.localScale = Vector3.Lerp(oldScale, myScale, stopWatch * TrackSpeed);
+            if (myScale != Vector3.zero) transform.localScale = Vector3.Lerp(oldScale, myScale, Time.deltaTime * TrackSpeed);
         }
         else
         {

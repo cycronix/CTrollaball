@@ -347,7 +347,6 @@ public class CTserdes
 	/// <returns>Serialized player information.</returns>
 	private static string serialize_json(CTunity ctunityI)
 	{
-
 		CTworldJson world = new CTworldJson();
 		world.player = ctunityI.Player;
 		world.time = ctunityI.ServerTime();

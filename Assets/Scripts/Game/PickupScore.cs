@@ -50,50 +50,12 @@ public class PickupScore : MonoBehaviour {
     void LateUpdate()
     {
 //        if((updateCount % updateInterval) == 0) 
-        PlayerCount2();
+        PlayerCount();
 //        updateCount++;
     }
 
-    void PlayerCount1()
-	{
-		// TO DO:  simplify! this is a lot of work (nested loops!)
-
-		Dictionary<String, CTscore> cts = new Dictionary<String, CTscore>();
-		foreach (String player in ctunity.PlayerList) cts.Add(player, new CTscore());   // create
-        
-		// pre-filter scores:
-		foreach (GameObject go in ctunity.CTlist.Values)
-		{   
-			if (go == null) continue;
-			
-            foreach (String player in ctunity.PlayerList)
-            {
-                Transform c = go.transform;
-                if (CTunity.fullName(go).StartsWith(player + "/"))
-                {
-   //                 if (c.gameObject.activeSelf) 
-                    cts[player].nactive++;  // delete vs inactivate: npickups == nactive
-                }
-            }
-        }
-
-		// build scoreboard:
-		String scoreboard = "";
-		String wintext = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";
-		foreach (String player in ctunity.PlayerList)
-		{
-			if (player.Equals(ctunity.Observer)) continue;
-			int nactive = cts[player].nactive;
-			if(nactive > 0 || ctunity.Player.Equals(player))
-				scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
-		}
-
-//		Debug.Log("scoreboard: " + scoreboard+", plist.len: "+ctunity.PlayerList.Count);
-		countText.text = scoreboard;
-		winText.text = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";  // right place to set this?
-	}
-
-    void PlayerCount2()
+ 
+    void PlayerCount()
     {
         Dictionary<String, int> cts = new Dictionary<String, int>();
         foreach (String player in ctunity.PlayerList) cts.Add(player, 0);   // init
@@ -101,7 +63,7 @@ public class PickupScore : MonoBehaviour {
         foreach (String key in ctunity.CTlist.Keys)
         {
             String player = key.Split('/')[0];  // CTlist uses fullName as key
-            ++cts[player];
+            ++cts[player];          // count up associated player objects in CTlist
         }
 
         // build scoreboard:

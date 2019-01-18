@@ -132,6 +132,7 @@ MonoBehaviour:
   freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
+  TrackSpeed: 2
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
@@ -257,6 +258,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 10
   ATK: 4
+  AC: 1
   showHP: 1
 --- !u!135 &5187726014159823965
 SphereCollider:
