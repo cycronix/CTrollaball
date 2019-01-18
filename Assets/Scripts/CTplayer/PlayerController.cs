@@ -79,8 +79,6 @@ public class PlayerController : MonoBehaviour {
 
 			Quaternion targetRotation = Quaternion.Euler(0F, transform.eulerAngles.y, 0F);                  // level off:
 			transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * 5F);
-
-//			transform.rotation = targetRotation;        // jump?
 		}
 		else                            // push in camera-look direction
 		{

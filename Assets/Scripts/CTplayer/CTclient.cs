@@ -91,7 +91,6 @@ public class CTclient : MonoBehaviour
         prefab = iprefab;
         setColor(icolor);
         custom = icustom;
-
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -146,6 +145,7 @@ public class CTclient : MonoBehaviour
         startup = false;
     }
 
+    //----------------------------------------------------------------------------------------------------------------
     private void setGravity()
     {
         if (freezePhysics) return;  // freeze settings
@@ -164,7 +164,6 @@ public class CTclient : MonoBehaviour
             }
         }
     }
-
 
     //----------------------------------------------------------------------------------------------------------------
     // jump to current position
@@ -194,12 +193,10 @@ public class CTclient : MonoBehaviour
 
         if (isLocalControl() || startup)
         {
-            //			Debug.Log(name + ": localControl, no track!");
-            //			if(rb != null) rb.useGravity = true;
             setGravity();
             return;
         }
-        //		Debug.Log("client setTrack myPos: " + myPos);
+
         float dt = Time.deltaTime;
         stopWatch += dt;
         if (rb != null) rb.useGravity = false;                  // no gravity if track-following
@@ -210,31 +207,24 @@ public class CTclient : MonoBehaviour
             // SmoothDamp with t=0.4F is ~smooth, but ~laggy
 
             float Tclamp = Mathf.Clamp(stopWatch * TrackSpeed, 0f, DeadReckon);  // custom clamp extrapolated interval
-                                                                                 //			Debug.Log(name + ": playSmooth, myPos: " + myPos);
 
             if (SmoothTime > 0F)
             {
                 targetPos = transform.localPosition + DeadReckon * (myPos - transform.localPosition);    // dead reckoning
                 transform.localPosition = Vector3.SmoothDamp(transform.localPosition, targetPos, ref velocity, SmoothTime);
-                //                Vector3 rot = Vector3.SmoothDamp(transform.rotation.ToEuler(), myRot.ToEuler(), ref rotvel, SmoothTime);
-                //				transform.rotation = Quaternion.Euler(rot);
-                //				Debug.Log(name+": smoothTrack from: " + transform.localPosition + ", to: " + targetPos);
             }
             else
             {
-                //				Debug.Log(name + ": LerpTrack from: " + oldPos + ", to: " + myPos);
                 transform.localPosition = Vector3.LerpUnclamped(oldPos, myPos, Tclamp);
             }
 
             // LerpUnclamped:  effectively extrapolates (dead reckoning)
-            //            transform.localRotation = myRot;
             transform.localRotation = Quaternion.Lerp(oldRot, myRot, stopWatch * TrackSpeed);
             //            transform.localRotation = Quaternion.LerpUnclamped(oldRot, myRot, Tclamp);
             if (myScale != Vector3.zero) transform.localScale = Vector3.Lerp(oldScale, myScale, stopWatch * TrackSpeed);
         }
         else
         {
-            //			Debug.Log(name + ": playRough, myPos: " + myPos);
             jumpState();        // hard set without smooth
         }
     }
