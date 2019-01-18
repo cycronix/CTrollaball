@@ -611,10 +611,9 @@ public class CTunity : MonoBehaviour
             loopTime = thisTime;
             float waitInterval = replayActive ? pointTime : pollInterval;       // pointInterval for faster response
             waitInterval = waitInterval - (float)deltaTime;                     // extra wait?
-            if (waitInterval < pointTime) // waitInterval = pointTime;             // at least a bit
-                yield return null;
-            else
-                yield return new WaitForSeconds(waitInterval);  // half-wait?
+            if (waitInterval > pointTime)
+                yield return new WaitForSeconds(waitInterval);                  // wait for balance of expected interval
+//            else    yield return null;
 
   //         Debug.Log("waitInterval: " + waitInterval+", deltaTime: "+deltaTime+", waitInterval: "+waitInterval);
 
@@ -624,11 +623,14 @@ public class CTunity : MonoBehaviour
                 pendingSession = true;
             }
 
-            if ( gamePaused || (replayActive && (replayTime == oldTime)) )
+            if ( gamePaused || (replayActive && (replayTime == oldTime)))  // no dupes (e.g. paused)
             {
                 BPS = 0;
-                continue;      // no dupes (e.g. paused)
+    //            Debug.Log("waiting...");
+                yield return null;          // ease up until next Update()
+                continue;      
             }
+//           Debug.Log("going!");
             oldTime = replayTime;
 
             // form HTTP GET URL
