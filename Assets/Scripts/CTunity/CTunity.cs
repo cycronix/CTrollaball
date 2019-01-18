@@ -616,14 +616,18 @@ public class CTunity : MonoBehaviour
             double thisTime = ServerTime();
             double deltaTime = thisTime - loopTime;
             float pointTime = 1F / maxPointRate;
-            loopTime = thisTime;
             float waitInterval = replayActive ? pointTime : pollInterval;       // pointInterval for faster response
             waitInterval = waitInterval - (float)deltaTime;                     // extra wait?
             if (waitInterval > pointTime)
-                yield return new WaitForSeconds(waitInterval);                  // wait for balance of expected interval
-//            else    yield return null;
+            {
+                yield return null;
+//                yield return new WaitForSeconds(waitInterval);                  // wait for balance of expected interval
+                continue;
+            }
+            //            else    yield return null;
+            loopTime = thisTime;
 
-  //         Debug.Log("waitInterval: " + waitInterval+", deltaTime: "+deltaTime+", waitInterval: "+waitInterval);
+            //         Debug.Log("waitInterval: " + waitInterval+", deltaTime: "+deltaTime+", waitInterval: "+waitInterval);
 
             if (newSession)
             {
