@@ -114,7 +114,7 @@ public class CTserdes
 	/// </summary>
 	/// <param name="strI">The serialized world objects.</param>
 	/// <returns>A List of CTworlds, parsed from the given string.</returns>
-	public static List<CTworld> deserialize(string strI)
+	public static List<CTworld> deserialize(CTunity ctunityI, string strI)
 	{
 		List<CTworld> worlds = null;
 		if (strI[0] == '#')
@@ -123,7 +123,7 @@ public class CTserdes
 		}
 		else if (strI[0] == '{')
 		{
-			worlds = CTserdes.deserialize_json(strI);
+			worlds = CTserdes.deserialize_json(ctunityI, strI);
 		}
 		return worlds;
 	}
@@ -210,7 +210,7 @@ public class CTserdes
 	/// </summary>
 	/// <param name="strI">The JSON serialized world objects.</param>
 	/// <returns>A List of CTworlds, parsed from the given string.</returns>
-	private static List<CTworld> deserialize_json(string strI)
+	private static List<CTworld> deserialize_json(CTunity ctunityI, string strI)
 	{
 		if ((strI == null) || (strI.Length < 10)) return null;
 
@@ -243,6 +243,11 @@ public class CTserdes
 			{
 				continue;
 			}
+
+            // skip active local player ( save the effort here and in MergeWorlds() )
+            // ??  seems to have issues PB <--> RT ??
+ //           if(ctunityI.activePlayer(dataFromJson.player)) continue;
+
 			// Create CTworld object from CTworldJson (these classes are very similar but there are differences, see definitions above)
 			CTworld jCTW = new CTworld();
 			jCTW.player = dataFromJson.player;

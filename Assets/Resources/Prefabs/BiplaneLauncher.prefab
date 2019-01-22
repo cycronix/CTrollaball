@@ -9,22 +9,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1214132679555490, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_Name
-      value: BallLauncher
-      objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
-      propertyPath: Missile
-      value: Ball
-      objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
-      propertyPath: launchInterval
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
-      propertyPath: Nlaunch
-      value: 200
+      value: BiplaneLauncher
       objectReference: {fileID: 0}
     - target: {fileID: 4604898199385408, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_LocalPosition.x
@@ -69,6 +54,21 @@ PrefabInstance:
     - target: {fileID: 4604898199385408, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: Missile
+      value: Biplane
+      objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: launchInterval
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: Nlaunch
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}

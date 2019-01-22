@@ -235,8 +235,8 @@ public class CTunity : MonoBehaviour
 	{
 		if (worlds == null)
 		{
-			CTdebug("Warning: null CTworlds!");
-			return null;                     // null if empty start?
+//			CTdebug("Warning: null CTworlds!");
+			return null;                     // nobody home
 		}
 
 		double masterTime = ServerTime();
@@ -669,7 +669,7 @@ public class CTunity : MonoBehaviour
                 lastReadTime = stime;
 
                 // parse to class structure...
-                List<CTworld> ws = CTserdes.deserialize(www1.downloadHandler.text);
+                List<CTworld> ws = CTserdes.deserialize(this, www1.downloadHandler.text);
                 CTworld CTW = mergeCTworlds(ws);
 //                Debug.Log("dt1: " + (t1 - t0) + ", dt2: " + (t2 - t1));
                 if (CTW == null || CTW.objects == null) continue;          // notta      
@@ -720,7 +720,7 @@ public class CTunity : MonoBehaviour
 
 //            Debug.Log("url1: "+url1+", www.text: " + www1.downloadHandler.text);
             // parse to class structure...
-            List<CTworld> worlds = CTserdes.deserialize(www1.downloadHandler.text);
+            List<CTworld> worlds = CTserdes.deserialize(this, www1.downloadHandler.text);
 			if(worlds == null) {
 				Debug.Log("Null worlds found for: " + url1);
 				yield break;
@@ -806,11 +806,16 @@ public class CTunity : MonoBehaviour
     // return True if this object should be written to CT
 	public Boolean activePlayer(GameObject go) {
 		Boolean isactive = localPlayer(go) && activeWrite && !newSession;  // whew
-//		Debug.Log("activePlayer check: " + fullName(go) + ", Player: " + Player+", activeWrite: "+activeWrite+", gamePaused: "+gamePaused+", replayActive: "+replayActive+", isactive: "+isactive);
 		return isactive;
 	}
 
-	internal Boolean localPlayer(GameObject go) {
+    public Boolean activePlayer(String player)      // version if you know player by string vs gameobject
+    {
+        Boolean isactive = player.Equals(player) && activeWrite && !newSession;  
+        return isactive;
+    }
+
+    internal Boolean localPlayer(GameObject go) {
 //        Debug.Log("localPlayer, fullName: " + fullName(go) + ", Player: " + Player+", islocal: "+fullName(go).StartsWith(Player));
 		return fullName(go).StartsWith(Player);
 	}
