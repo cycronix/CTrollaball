@@ -257,9 +257,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HP: 10
-  ATK: 4
+  ATK: 1
   AC: 1
   showHP: 1
+  scaleSize: 1
+  damageInterval: 0.5
 --- !u!135 &5187726014159823965
 SphereCollider:
   m_ObjectHideFlags: 0

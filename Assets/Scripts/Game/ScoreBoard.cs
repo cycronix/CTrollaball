@@ -26,12 +26,22 @@ public class ScoreBoard : MonoBehaviour
 {
     private CTunity ctunity;
     private CTclient ctclient;
-//    private CTledger ctledger;
+    //    private CTledger ctledger;
 
     public int HP = 10;        // max hits before killed
     public int ATK = 1;         // amount of damage
     public int AC = 1;          // damage mitigation
     public Boolean showHP = true;
+    public Boolean scaleSize = false;
+    public float damageInterval = 1f;            // seconds contact per damage ticks
+
+    private Vector3 initialScale = Vector3.one;
+    private Vector3 targetScale = Vector3.one;
+
+    private int initialHP = 1;
+    private float stopWatch = 0f;
+    private Collider thisCollider = null;
+    private ScoreBoard kso = null;
 
     // Use this for initialization
     void Start()
@@ -43,9 +53,13 @@ public class ScoreBoard : MonoBehaviour
         if (showHP)
         {
             HP = ctclient.getCustom("HP", 0);
-//            Debug.Log(CTunity.fullName(gameObject)+": startup Custom: " + ctclient.custom);
+            //            Debug.Log(CTunity.fullName(gameObject)+": startup Custom: " + ctclient.custom);
             if (HP == 0) showHP = false;        // enabled by startup JSON having HP custom field
+            else initialHP = HP;
         }
+
+        initialScale = transform.localScale;
+        stopWatch = 0;
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -55,12 +69,12 @@ public class ScoreBoard : MonoBehaviour
         if (showHP && ctunity.trackEnabled)
         {
             Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
-            int w = 30;
-            w = ctclient.custom.Length * 7 + 12;
+            int w = 32;
+            w = ctclient.custom.Length * 7 + 14;
             int h = 24;
-   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
-            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2*h, w, h), ctclient.custom);
-   //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), new GUIContent(HP + "", ctclient.custom));
+            //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
+            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
+            //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), new GUIContent(HP + "", ctclient.custom));
         }
     }
 
@@ -68,64 +82,100 @@ public class ScoreBoard : MonoBehaviour
     {
         //        if(showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP) HP = ctclient.getCustom("HP", HP);
+
+        if (scaleSize && thisCollider != null)
+        {
+            transform.localScale = Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * 2f);
+        }
+
+        if (showHP && thisCollider != null)
+        {
+            stopWatch += Time.deltaTime;
+            if (stopWatch >= damageInterval)
+            {
+                doCollision(thisCollider);
+                stopWatch = 0;
+            }
+        }
     }
 
     //----------------------------------------------------------------------------------------------------------------
+    // detect triggers
 
-    void OnTriggerEnter(Collider other)
+    void OnTriggerEnter(Collider collider)
     {
-//        Debug.Log(name + ", Trigger with: " + other.name);
-        doCollision(other);
+        //        Debug.Log(name + ", Trigger with: " + other.name);
+        if (collider == thisCollider) return;  // on going
+        doCollision(collider);
     }
+
+    void OnTriggerExit(Collider collider)
+    {
+//       Debug.Log(CTunity.fullName(gameObject) + ", END Trigger with: " + collider.name);
+        if (thisCollider == collider) thisCollider = null;
+    }
+
+    private void OnTriggerStay(Collider collider)
+    {
+        //       Debug.Log(CTunity.fullName(gameObject) + ", STAY Trigger with: " + collider.name);
+        if (collider != thisCollider) return;
+
+        stopWatch += Time.deltaTime;
+        if (stopWatch >= damageInterval)
+        {
+            doCollision(collider);
+            stopWatch = 0;
+        }
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    // detect collisions
 
     void OnCollisionEnter(Collision collision)
     {
- //       Debug.Log(name + ", Collision with: " + collision.collider.name);
-        doCollision(collision.collider);
+        //        Debug.Log(CTunity.fullName(gameObject) + ", Collision with: " + collision.collider.name+", thisCollider: "+thisCollider);
+        if (!showHP) return;
+
+        kso = collision.collider.gameObject.GetComponent<ScoreBoard>();
+        if (kso != null && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(collision.gameObject))
+        {
+            thisCollider = collision.collider;
+            targetScale = transform.localScale;
+            stopWatch = damageInterval;     // quick hit to start
+        }
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        //       Debug.Log(CTunity.fullName(gameObject) + ", END Collision with: " + collision.collider.name);
+        if (thisCollider == collision.collider) thisCollider = null;
     }
 
     //----------------------------------------------------------------------------------------------------------------
     void doCollision(Collider other)
     {
-        if (!showHP) return;                                        // no game
+        if (!showHP || kso==null) return;                                        // no game
 
         String myName = CTunity.fullName(gameObject);
         String otherName = CTunity.fullName(other.gameObject);
-//        Debug.Log(myName + ", collide with: " + otherName);
+        //       Debug.Log(myName + ", collide with: " + otherName);
 
-        if(ctunity == null) ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
+        if (ctunity == null) ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
         if (other.gameObject == null || ctunity == null)
         {
-            Debug.Log(name + ": OnTrigger null other object: "+other.name);
+            Debug.Log(name + ": OnTrigger null other object: " + other.name);
             return;
         }
 
         // compare hit levels to see who wins
-        int otherATK = 0;
-        ScoreBoard kso = other.gameObject.GetComponent<ScoreBoard>();      
-        if (kso != null)                                                    // an opponent!
-        {
-            otherATK = kso.ATK;
-            //            Debug.Log(myName+".ATK: " + ATK + ", "+ otherName + ".ATK: " + otherATK);
-            if (ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
- //               if ((ATK < otherATK) && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(other.gameObject))
-            {
-                HP = ctclient.getCustom("HP", HP);
+        HP = ctclient.getCustom("HP", HP);
+        int damage = (int)Math.Ceiling((float)kso.ATK / (float)AC);
+        HP -= damage;
+        if (HP < 0) HP = 0;
+        ctclient.putCustom("HP", HP);
+        if (HP <= 0) ctunity.clearObject(gameObject, false);  // can't destroyImmediate inside collision callback
 
-                //              HP -= (otherATK - ATK);
-                int damage = (int)Math.Ceiling((float)otherATK / (float)AC); 
-                HP -= damage;
-                Debug.Log(myName + ": HIT by: " + otherName + ", AC: "+ AC+", otherATK: "+otherATK+", damage: "+damage);
-
-                if (HP < 0) HP = 0;
-  //              ctclient.putCustom("HP",""+HP);
-                ctclient.putCustom("HP", HP);
-                if (HP <= 0)
-                {
-                    // Debug.Log(name + ": killed!");
-                    ctunity.clearObject(gameObject, false);  // can't destroyImmediate inside collision callback
-                }
-            }
-        }
+        if (scaleSize) targetScale = initialScale * (0.1f + 0.9f * ((float)(HP) / (float)initialHP));
     }
+
 }

@@ -698,7 +698,13 @@ public class CTunity : MonoBehaviour
 
     private IEnumerator deployInventoryItem(String deploy, String objID)
     {
-	//	Debug.Log("deployInventory: " + deploy+", id: "+objID);
+        if(newSession)
+        {
+            Debug.Log("OOPS can't create new object during newSession setup!");
+            yield break;
+        }
+
+        //	Debug.Log("deployInventory: " + deploy+", id: "+objID);
         while (true)
         {
             yield return new WaitForSeconds(pollInterval); 

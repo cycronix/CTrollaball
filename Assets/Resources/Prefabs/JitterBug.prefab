@@ -95,9 +95,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a61cf5ef748934283bfa78736aeafe25, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  UpdateInterval: 1
-  rangeLimit: 20
-  speedFactor: 0.5
+  UpdateInterval: 0.5
+  rangeLimit: 10
+  speedFactor: 0.2
 --- !u!114 &114945748590494940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -113,6 +113,7 @@ MonoBehaviour:
   freezePhysics: 1
   smoothTrack: 1
   smoothReplay: 0
+  TrackSpeed: 2
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
@@ -145,6 +146,7 @@ MonoBehaviour:
   ATK: 2
   AC: 10
   showHP: 1
+  scaleSize: 1
 --- !u!54 &1124663699225269053
 Rigidbody:
   m_ObjectHideFlags: 0

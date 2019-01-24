@@ -137,6 +137,8 @@ public class CTsetup: MonoBehaviour
 					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
 					d.onValueChanged.AddListener(delegate
 					{
+ //                       ctunity.setReplay(true);        // needed?
+                        updateSession();                  // avoid new player set as child of prior player?
 						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
 						ctunity.serverConnect();  // reset player path
 					});
