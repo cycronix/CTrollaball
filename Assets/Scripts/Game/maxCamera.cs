@@ -231,7 +231,8 @@ public class maxCamera : MonoBehaviour
 		Event m_Event = Event.current;
 //		deltaPos = Vector3.zero;   // no floating
 
-		//		if (m_Event.button != 1) return;					// only check right-mouse button
+		if (m_Event.button != 1) return;					// only check right-mouse button?
+
 		if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
         {
 			return;

@@ -171,7 +171,8 @@ public class CTsetup: MonoBehaviour
 
 	void updateServer()
 	{
-		ctunity.clearWorlds();      // clean slate all worlds
+ //       Debug.Log("updateServer...");
+        ctunity.clearWorlds();      // clean slate all worlds
 
 		InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
 		foreach (InputField c in fields)
@@ -198,13 +199,15 @@ public class CTsetup: MonoBehaviour
 		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
 		StartCoroutine("getInventoryList");         // init list of "World" prefabs
 		ctunity.doSyncClock();                  // sync client/server clocks
-	}
+//        Debug.Log("updateServer done.");
+    }
 
-	//----------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------------------
     // update Session, refresh connection and view
 
-	private void updateSession()
+    private void updateSession()
 	{
+ //       Debug.Log("updateSession...");
 		ctunity.gamePaused = true;                // turn off CTstates recording while clear world
 		StartCoroutine("getInventoryList");         // get list of "World" prefabs
         
@@ -214,6 +217,7 @@ public class CTsetup: MonoBehaviour
 		ctunity.CTdebug(null);                  // clear debug msg
 		ctunity.newSession = true;
 		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
+ //       Debug.Log("updateSession done.");
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
@@ -278,6 +282,7 @@ public class CTsetup: MonoBehaviour
 
     public IEnumerator getSessionList()
     {
+//        Debug.Log("getSessionList...");
         while (true)
         {
 //            UnityEngine.Debug.Log("getSessionList!");
@@ -322,6 +327,7 @@ public class CTsetup: MonoBehaviour
 			d.ClearOptions();
             d.AddOptions(sessionList);
 			d.value = 0;
+//           Debug.Log("Got SessionList!");
             yield break;
         }
     }
@@ -331,7 +337,7 @@ public class CTsetup: MonoBehaviour
 
     public IEnumerator getInventoryList()
     {
-//		Debug.Log("getInventoryList!");
+//		Debug.Log("getInventoryList...");
 		List<String> sourceList = new List<String>();
 
         while (true)
@@ -383,6 +389,7 @@ public class CTsetup: MonoBehaviour
             d.ClearOptions();
             d.AddOptions(sourceList);
             d.value = 0;
+ //           Debug.Log("Got Inventory List!");
             yield break;
         }
     }

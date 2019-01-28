@@ -46,6 +46,8 @@ public class CTtimecontrol : MonoBehaviour {
 	internal double playFactor = 0F;          // factor to auto-play masterTime back, pause, forward
 	private double clickTime = 0F;          // double-click timer
 
+    public Boolean keyToggleReplay = false;     // set true for down/up arrow key toggle RT-Replay
+
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
@@ -89,7 +91,7 @@ public class CTtimecontrol : MonoBehaviour {
 			if (Input.GetKeyDown(KeyCode.LeftArrow)) playRvs();
 			if (Input.GetKeyDown(KeyCode.RightArrow)) playFwd();
 			if (Input.GetKeyDown(KeyCode.DownArrow)) playPause();         
-			if (Input.GetKeyDown(KeyCode.UpArrow)) ctunity.toggleReplay();
+			if (keyToggleReplay && Input.GetKeyDown(KeyCode.UpArrow)) ctunity.toggleReplay();
             
             // adjust slider value if playFwd or playRvs
 			if (playFactor != 0)
@@ -125,7 +127,7 @@ public class CTtimecontrol : MonoBehaviour {
 			slider.gameObject.SetActive(false);
 
 			// check for downArrow double-click enter Replay mode
-			if (/* ctunity.observerFlag &&  */ Input.GetKeyDown(KeyCode.DownArrow)) {
+			if (keyToggleReplay && Input.GetKeyDown(KeyCode.DownArrow)) {
 				if((nowTime()-clickTime) < 0.5F) ctunity.toggleReplay();
 				clickTime = nowTime();
 			}        
