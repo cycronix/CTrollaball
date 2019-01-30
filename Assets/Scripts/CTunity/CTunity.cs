@@ -266,7 +266,7 @@ public class CTunity : MonoBehaviour
 
             if (!tsourceList.Contains(world.player)) tsourceList.Add(world.player);     // build list of active worlds
 
-            //            Debug.Log("mergeWorlds player: " + world.player+", objects: "+world.objects.Count);
+//            Debug.Log("mergeWorlds player: " + world.player+", objects: "+world.objects.Count);
             foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
                 CTobject ctobject = ctpair.Value;
@@ -355,7 +355,7 @@ public class CTunity : MonoBehaviour
 		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom);
+	//	Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
         // already exists?
@@ -441,8 +441,10 @@ public class CTunity : MonoBehaviour
 		if (myctc != null)
 		{
 //            myctc.CTstart(prefab, color, ctobject.custom);
-            myctc.custom = ctobject.custom;  // set this now vs waiting for setState
-//            Debug.Log(newp.name+", CTunity instantiate startup custom: " + ctobject.custom);
+//            myctc.custom = ctobject.custom;  // set this now vs waiting for setState
+            myctc.newCustom(ctobject.custom);  // set this now vs waiting for setState
+
+            //            Debug.Log(newp.name+", CTunity instantiate startup custom: " + ctobject.custom);
             myctc.prefab = prefab;
             myctc.setColor(color);
 		}
@@ -664,6 +666,7 @@ public class CTunity : MonoBehaviour
                 }
                 CTdebug(null);          // clear error
 
+//                Debug.Log("url1: " + url1 + ", text: " + www1.downloadHandler.text);
                 double stime = ServerTime();
                 BPS = Math.Round( (BPS + (1F / (stime - lastReadTime)))/2F );       // block per sec (moving avg)
                 lastReadTime = stime;

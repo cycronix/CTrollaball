@@ -11,6 +11,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: BiplaneLauncher
       objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: Missile
+      value: Biplane
+      objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: launchInterval
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: Nlaunch
+      value: 100
+      objectReference: {fileID: 0}
     - target: {fileID: 4604898199385408, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -55,18 +70,19 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
+    - target: {fileID: 768, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
+      propertyPath: m_Name
+      value: BiplaneLauncher
+      objectReference: {fileID: 0}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: Missile
       value: Biplane
       objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: launchInterval
       value: 0.2
       objectReference: {fileID: 0}
-    - target: {fileID: 114378812198706756, guid: 59962ae4669a840aba362a1d4d5a2a9d,
-        type: 3}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: Nlaunch
       value: 100
       objectReference: {fileID: 0}

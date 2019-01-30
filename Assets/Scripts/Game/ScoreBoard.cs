@@ -43,6 +43,8 @@ public class ScoreBoard : MonoBehaviour
     private Collider thisCollider = null;
     private ScoreBoard kso = null;
 
+    static internal String custom = null;          // "global" params (shared between objects)
+
     // Use this for initialization
     void Start()
     {
@@ -178,4 +180,26 @@ public class ScoreBoard : MonoBehaviour
         if (scaleSize) targetScale = initialScale * (0.1f + 0.9f * ((float)(HP) / (float)initialHP));
     }
 
+    /*
+    //----------------------------------------------------------------------------------------------------------------
+    public void OnMouseDown()
+    {
+        String myname = CTunity.fullName(gameObject);
+        Debug.Log("target: " + myname + ", oldcustom: "+custom);
+        if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
+        {
+            custom = myname;
+        }
+    }
+
+    public void OnMouseUp()
+    {
+        String myname = CTunity.fullName(gameObject);
+        Debug.Log("UNtarget: " + myname + ", oldcustom: " + custom);
+        if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
+        {
+            custom = null;
+        }
+    }
+    */
 }
