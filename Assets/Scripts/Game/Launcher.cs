@@ -27,7 +27,7 @@ public class Launcher : MonoBehaviour {
 	private int Ilaunch = 0;
 //	private int myHash = 0;
 
-	public float launchInterval = 5;                 // seconds of fuel burn
+	public float launchInterval = 5f;                 // seconds of fuel burn
 	public int Nlaunch = 1;
 	public String Missile = "Rocket";
 
@@ -59,6 +59,7 @@ public class Launcher : MonoBehaviour {
 		if (!ctunity.activePlayer(gameObject)) return;
 
 		stopWatch += Time.deltaTime;
+//        Debug.Log(name + ", stopWatch: " + stopWatch);
 		if (stopWatch >= launchInterval)
 		{
 //            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);

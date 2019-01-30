@@ -41,7 +41,8 @@ public class CTclient : MonoBehaviour
 
     internal String prefab = "";                  // programmatically set; reference value
     internal String link = "";                  // for sending custom info via CTstates.txt
-    internal String custom = "";                // catch-all custom string
+
+    internal String custom { get; private set; } = "";     // catch-all custom string
 
     internal Color myColor = Color.clear;       // keep track of own color setting
 
@@ -73,6 +74,8 @@ public class CTclient : MonoBehaviour
     internal int Generation = 0;                  // keep track of clone-generation
     internal float runTime = 0f;                    //  keep track of live running time
 
+    private Dictionary<String, String> kvdict = null;      // local dictionary of custom key-values
+
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
     void Start()
@@ -90,7 +93,7 @@ public class CTclient : MonoBehaviour
     {
         prefab = iprefab;
         setColor(icolor);
-        custom = icustom;
+        newCustom(icustom);
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -132,7 +135,7 @@ public class CTclient : MonoBehaviour
 
         replayMode = ireplay;
         playPaused = iplayPaused;           // playPaused used by smooth replay logic
-        custom = cto.custom;
+        newCustom(cto.custom);
 
         // locals for immediate action:
         if (replayMode || !isLocalObject())
@@ -316,12 +319,18 @@ public class CTclient : MonoBehaviour
     void setColor()
     {
         setColor(Color.gray);   // default or auto
-                                //		Debug.Log("setColor()!");//       Color color = ctunity.objectColor(gameObject);
-                                //		if(!color.Equals(Color.gray)) setColor(color);      // don't set if default (no name match)
     }
 
     //----------------------------------------------------------------------------------------------------------------
     // put, set ctobject.custom stored as K=V,K=V CSV string
+    // TO DO:  convert custom to its own CTcustom class with getter/setter
+
+    internal void newCustom(String icustom)
+    {
+        if (icustom == null) return;
+        custom = icustom;
+        kvdict = csv2Dict(custom);
+    }
 
     internal void putCustom(String key, int value)
     {
@@ -335,8 +344,9 @@ public class CTclient : MonoBehaviour
 
     internal void putCustom(String key, String value)
     {
-        if (custom == null) custom = "";
-        Dictionary<String, String> kvdict = csv2Dict(custom);  // Warning: new dictionary every request inefficient
+        if (custom == null) newCustom("");
+        if (kvdict == null) kvdict = new Dictionary<String, String>();
+//        Dictionary<String, String> kvdict = csv2Dict(custom);  // Warning: new dictionary every request inefficient
 
         if (kvdict.ContainsKey(key)) kvdict[key] = value;
         else kvdict.Add(key, value);
@@ -363,8 +373,8 @@ public class CTclient : MonoBehaviour
 
     internal String getCustom(String key, String defCustom)
     {
-        if (custom == null) return defCustom;
-        Dictionary<String, String> kvdict = csv2Dict(custom);
+        if (custom == null || kvdict == null) return defCustom;
+ //       Dictionary<String, String> kvdict = csv2Dict(custom);
         if (kvdict.TryGetValue(key, out string val))
         {
             //           Debug.Log(CTunity.fullName(gameObject) + ", getCustom: [" + custom + "], key: " + key + ", value: " + val);
@@ -382,7 +392,8 @@ public class CTclient : MonoBehaviour
     {
         string[] kvlist;
         kvlist = csv.Split(',');
-        Dictionary<String, String> kvdict = new Dictionary<String, String>();
+//        Dictionary<String, String> 
+        kvdict = new Dictionary<String, String>();
         foreach (String s in kvlist)
         {
             string[] ss = s.Split('=');

@@ -70,5 +70,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 768, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
+      propertyPath: m_Name
+      value: BallLauncher
+      objectReference: {fileID: 0}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
+      propertyPath: Missile
+      value: Ball
+      objectReference: {fileID: 0}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
+      propertyPath: launchInterval
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
+      propertyPath: Nlaunch
+      value: 200
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
