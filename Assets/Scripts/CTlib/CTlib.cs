@@ -22,7 +22,7 @@ using System.IO.Compression;
 using System.Text;
 using System.Threading;
 
-#if UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER_FOO
 // ZIP library used in Unity 3D projects; see ZIP code below for details
 using Ionic.Zip;
 #endif
@@ -981,7 +981,7 @@ namespace CTlib
                     // folder hierarchy.
                     System.IO.Directory.CreateDirectory(zipDir);
                     String fileNameNoSuffix = zipDir + blockStartTimeRel.ToString();
-#if UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER_FOO
                     // Create ZIP files in a Unity game application
                     // As of 2017-12-06, Unity supports the .NET 4.6 API, but they
                     // don't include support for ZipArchive.  In place of this, we
@@ -1060,7 +1060,7 @@ namespace CTlib
                     // all at once directly to the output ZIP file.
                     using (MemoryStream memOutputStream = new MemoryStream())
                     {
-#if UNITY_5_3_OR_NEWER
+#if UNITY_5_3_OR_NEWER_FOO
                         // Zip code using the Ionic.Zip library; see above for details
                         using (ZipFile archive = new ZipFile())
                         {
