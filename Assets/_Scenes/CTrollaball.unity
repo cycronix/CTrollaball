@@ -5211,7 +5211,7 @@ MonoBehaviour:
   ySpeed: 200
   yLimit: 89
   zoomRate: 20
-  zoomDampening: 5
+  zoomDampening: 4
   snapIn: 0.5
   snapOut: 2
 --- !u!1 &1480629243
@@ -5987,6 +5987,7 @@ MonoBehaviour:
   replayText: {fileID: 404935729}
   timeText: {fileID: 1013838713}
   replayDuration: 300
+  keyToggleReplay: 0
 --- !u!23 &1676886687
 MeshRenderer:
   m_ObjectHideFlags: 0

@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 1099058744337961672}
   - component: {fileID: 1099058744337961675}
   - component: {fileID: 1099058744337961674}
+  - component: {fileID: 8107575462657963379}
   m_Layer: 0
   m_Name: Terrain
   m_TagString: Untagged
@@ -79,6 +80,19 @@ TerrainCollider:
   m_Enabled: 1
   m_TerrainData: {fileID: 15600000, guid: 1b5803a3b6f7f440daf906e07f2b48bf, type: 2}
   m_EnableTreeColliders: 1
+--- !u!114 &8107575462657963379
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1099058744337961677}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 36ea4a7f8669044fbaf09d8421eb67d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxDistance: 1000
 --- !u!1 &6866155694379366838
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,6 +140,7 @@ MonoBehaviour:
   freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
+  TrackSpeed: 2
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 0
