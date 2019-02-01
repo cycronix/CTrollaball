@@ -117,6 +117,7 @@ MonoBehaviour:
   maxSpeed: 10
   liftForce: 0
   isVehicle: 0
+  followLeader: 0
 --- !u!114 &114454322215590626
 MonoBehaviour:
   m_ObjectHideFlags: 0

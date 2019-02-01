@@ -383,8 +383,9 @@ public class CTunity : MonoBehaviour
 		GameObject tgo = GameObject.Find(objID);
 		if (tgo != null)
 		{
-			Debug.Log("Can't create duplicate: " + objID);      // unregistered prefabs hit this check
-			return tgo;
+			Debug.Log("Warning, create duplicate: " + objID);      // unregistered prefabs hit this check
+            clearObject(tgo);  // clear vs leave in place?
+//			return tgo;
 		}
 
         // load prefab
@@ -815,6 +816,7 @@ public class CTunity : MonoBehaviour
     // return True if this object should be written to CT
 	public Boolean activePlayer(GameObject go) {
 		Boolean isactive = localPlayer(go) && activeWrite && !newSession;  // whew
+ //       Debug.Log(go.name + ", activeWrite: " + activeWrite + ", newSession: " + newSession + ", localP: " + localPlayer(go) + ", isactive: " + isactive);
 		return isactive;
 	}
 

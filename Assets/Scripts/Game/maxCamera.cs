@@ -76,7 +76,7 @@ public class maxCamera : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void Init()
 	{
-        if(target == null) target = GameObject.Find("CTunity").transform;  // something for init
+        if(target == null) target = GameObject.Find("Players").transform;  // something for init
 		distance = Vector3.Distance(transform.position, target.position);
 		currentDistance = distance;
 		desiredDistance = distance;
@@ -88,6 +88,7 @@ public class maxCamera : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void setTarget(Transform itarget)
 	{
+//        Debug.Log("setTarget");
 		target = itarget;
         targetName = itarget.name;
         newTarget = true;
@@ -142,8 +143,8 @@ public class maxCamera : MonoBehaviour
 			GameObject gotarget = GameObject.Find(targetName);        // try to re-target
 			if (gotarget != null)
 			{
-				target = gotarget.transform;
-				tposition = target.position;
+	//			target = gotarget.transform;
+	//			tposition = target.position;
 			}
 		}
 		else {
@@ -211,8 +212,14 @@ public class maxCamera : MonoBehaviour
         if (newTarget)
         {
             //transform.position = Vector3.SmoothDamp(targetPos1, targetPos2, ref velocity, 1f / zoomDampening);
-            transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
-            if (Vector3.Magnitude(transform.position - tpos) < 0.1F) newTarget = false;
+            //           transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
+  //          transform.LookAt(target);
+            
+            desiredRotation = Quaternion.LookRotation(target.position-transform.position, Vector3.up);
+            transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);  // fast!?
+            currentDistance = desiredDistance = Vector3.Magnitude(transform.position - target.position);
+            float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
+            if (deltaRot < 0.1F) newTarget = false;
         }
         else
         {

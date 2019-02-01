@@ -55,9 +55,12 @@ public class PlayerController : MonoBehaviour {
         Transform leader = null;
         if (followLeader)
         {
-            Transform tgo = Camera.main.GetComponent<maxCamera>().target;
-            if (tgo != null && tgo.gameObject != gameObject && tgo.GetComponent<ScoreBoard>() != null
-                    && (moveVertical != 0 || moveHorizontal != 0))
+    //        Transform tgo = Camera.main.GetComponent<maxCamera>().target;
+            Transform tgo = GameObject.Find("CTunity").transform;
+            if (tgo != null && tgo.gameObject != gameObject 
+ //                   && tgo.GetComponent<ScoreBoard>() != null
+ //                   && (moveVertical != 0 || moveHorizontal != 0)
+            )
             {
                 leader = tgo;
             }

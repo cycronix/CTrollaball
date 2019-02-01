@@ -16,27 +16,42 @@ limitations under the License.
 
 
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class GroundTarget : MonoBehaviour {
+public class GroundTarget : MonoBehaviour
+{
     public float maxDistance = 1000f;
+    private GameObject ctunity;
 
     // Use this for initialization
-    void Start() {}
-
-    //----------------------------------------------------------------------------------------------------------------
-    public void OnMouseDown()
+    void Start()
     {
-        RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit, maxDistance))
+        ctunity = GameObject.Find("CTunity");
+    }
+
+    void OnGUI()
+    {
+        Event m_Event = Event.current;
+
+        if (m_Event.button != 0) return;                    // only check left-mouse button?
+
+        if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
         {
-//            Debug.Log("hit: " + hit.point + ", t.pos: " + transform.position);
-            if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
+            return;
+        }
+
+        // TO DO:  follow mouse drag...
+
+        if (m_Event.type == EventType.MouseDown && m_Event.clickCount == 2)
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit, maxDistance))
             {
-                GameObject go = GameObject.Find("CTunity");         // nominal gameObject to store transform target
-                go.transform.position = hit.point;
-                GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(go.transform);
+                //            Debug.Log("hit: " + hit.point + ", t.pos: " + transform.position);
+                ctunity.transform.position = hit.point;
+       //         GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(ctunity.transform);
             }
         }
     }
