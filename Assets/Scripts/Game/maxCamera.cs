@@ -88,7 +88,7 @@ public class maxCamera : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void setTarget(Transform itarget)
 	{
-//        Debug.Log("setTarget");
+ //       Debug.Log("setTarget: "+transform.position);
 		target = itarget;
         targetName = itarget.name;
         newTarget = true;
@@ -148,9 +148,9 @@ public class maxCamera : MonoBehaviour
 			}
 		}
 		else {
-            if (target.position != oldTarget) newTarget = false;          // no smoothing if moving target
-//            Debug.Log("target.postion: " + target.position + ", oldTarget: " + oldTarget + ", newTarget: " + newTarget);
+            if (Vector3.Magnitude(target.position - oldTarget) > 0.01f) newTarget = false;          // no smoothing if moving target
             tposition = target.position;
+ //           Debug.Log("target.postion: " + target.position + ", oldTarget: " + oldTarget + ", newTarget: " + newTarget);
         }
         oldTarget = tposition;
         
@@ -206,24 +206,32 @@ public class maxCamera : MonoBehaviour
             extraOffset = 0;
             snapOn = false;
 		}
+
 		// calculate position based on the new currentDistance 
         Vector3 tpos = tposition - (transform.rotation * Vector3.forward * currentDistance) + targetOffset;
         tpos = new Vector3(tpos.x, tpos.y + extraOffset, tpos.z);
+        float dx = Vector3.Magnitude(tpos - transform.position);
         if (newTarget)
         {
             //transform.position = Vector3.SmoothDamp(targetPos1, targetPos2, ref velocity, 1f / zoomDampening);
-            //           transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
+            transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
+ //           Debug.Log("Lerp target dx: "+dx);
+            if (dx < 0.01F) newTarget = false;
+
+              //          float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
+ //           if (deltaRot < 0.1F) newTarget = false;
   //          transform.LookAt(target);
             
-            desiredRotation = Quaternion.LookRotation(target.position-transform.position, Vector3.up);
-            transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);  // fast!?
-            currentDistance = desiredDistance = Vector3.Magnitude(transform.position - target.position);
-            float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
-            if (deltaRot < 0.1F) newTarget = false;
+  //          desiredRotation = Quaternion.LookRotation(target.position-transform.position, Vector3.up);
+  //          transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);  // fast!?
+  //          currentDistance = desiredDistance = Vector3.Magnitude(transform.position - target.position);
+  //          float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
+ //           if (deltaRot < 0.1F) newTarget = false;
         }
         else
         {
-  //         velocity = Vector3.zero;
+            //         velocity = Vector3.zero;
+  //          Debug.Log("jump target");
             transform.position = tpos;
         }
     }

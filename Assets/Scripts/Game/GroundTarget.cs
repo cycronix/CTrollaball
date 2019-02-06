@@ -22,37 +22,53 @@ using UnityEngine.EventSystems;
 public class GroundTarget : MonoBehaviour
 {
     public float maxDistance = 1000f;
-    private GameObject ctunity;
-
+    private CTunity ctunity;
+    private Vector3 targetPos = Vector3.one;
+    internal GameObject targetObj = null;
+    
     // Use this for initialization
     void Start()
     {
-        ctunity = GameObject.Find("CTunity");
+//       ctunity = GameObject.Find("CTunity");
+        ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
+        targetPos = transform.position;
     }
 
     void OnGUI()
     {
         Event m_Event = Event.current;
-
         if (m_Event.button != 0) return;                    // only check left-mouse button?
+        if (!ctunity.activePlayer(gameObject)) return;
 
-        if (EventSystem.current.IsPointerOverGameObject())          // no orbit if clicking on UI element
-        {
-            return;
-        }
+        if (EventSystem.current.IsPointerOverGameObject()) return;         // no deal if clicking on UI element
 
-        // TO DO:  follow mouse drag...
-
-        if (m_Event.type == EventType.MouseDown && m_Event.clickCount == 2)
+        if (    (m_Event.type == EventType.MouseDown  && m_Event.clickCount == 2) 
+            /* ||  (m_Event.button == 1 && m_Event.type == EventType.MouseDown )
+            /* || (m_Event.type == EventType.MouseDrag) */ )
         {
             RaycastHit hit;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, maxDistance))
             {
-                //            Debug.Log("hit: " + hit.point + ", t.pos: " + transform.position);
-                ctunity.transform.position = hit.point;
-       //         GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(ctunity.transform);
+                if(hit.collider.gameObject == gameObject)  // double click delete target
+                {
+                    Debug.Log(name + " Buh Bye");
+                    ctunity.clearObject(gameObject);
+                    return;
+                }
+
+                if (hit.collider.gameObject.GetComponent<CTclient>() == null)    // no target CTclient player objects
+                    targetPos = hit.point;
+                // Debug.Log("SET targetPos: " + targetPos + ", targetObj: " + CTunity.fullName(targetObj));
+                // GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(hit.transform);
             }
+            m_Event.Use();
         }
+    }
+
+    private void Update()
+    {
+        if (!ctunity.activePlayer(gameObject)) return;
+        transform.position = Vector3.Lerp(transform.position, targetPos, Time.deltaTime);
     }
 }

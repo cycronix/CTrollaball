@@ -60,5 +60,21 @@ PrefabInstance:
       propertyPath: followLeader
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 823, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: m_Name
+      value: BallT
+      objectReference: {fileID: 0}
+    - target: {fileID: 2712, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: followLeader
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 405, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: m_Name
+      value: BallT
+      objectReference: {fileID: 0}
+    - target: {fileID: 2653, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: followLeader
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fc2497b0428c44c9991877fb192bb622, type: 3}

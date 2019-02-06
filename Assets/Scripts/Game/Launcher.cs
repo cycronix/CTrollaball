@@ -25,12 +25,11 @@ public class Launcher : MonoBehaviour {
     private CTclient ctclient;
 	private float stopWatch = 0f;
 	private int Ilaunch = 0;
-//	private int myHash = 0;
 
 	public float launchInterval = 5f;                 // seconds of fuel burn
 	public int Nlaunch = 1;
 	public String Missile = "Rocket";
-
+    
 	//----------------------------------------------------------------------------------------------------------------
 	// Use this for initialization
 	void Start () {
@@ -40,8 +39,7 @@ public class Launcher : MonoBehaviour {
         if(ctclient==null) ctclient = transform.parent.GetComponent<CTclient>();  // try parent (e.g. RocketPlane/Launcher)
         if (ctclient == null) Debug.Log("Launcher no CTclient!");
 
-		stopWatch = 0;  
-//		myHash = Math.Abs(Guid.NewGuid().GetHashCode());      
+		stopWatch = 0;
 	}
    
 	//----------------------------------------------------------------------------------------------------------------
@@ -49,8 +47,6 @@ public class Launcher : MonoBehaviour {
     
 	void Update()
 	{
-//        Debug.Log(name + ", Ilaunch: "+Ilaunch);
-        //       if (ctclient == null) ctclient = transform.parent.GetComponent<CTclient>();
         if (ctunity == null || ctclient == null)
         {
             Debug.Log(name + ", oops no ctunity/ctlient!");
@@ -62,11 +58,8 @@ public class Launcher : MonoBehaviour {
 //        Debug.Log(name + ", stopWatch: " + stopWatch);
 		if (stopWatch >= launchInterval)
 		{
-//            int.TryParse(ctclient.getCustom("Count", "" + Ilaunch), out Ilaunch);
             Ilaunch = ctclient.getCustom("N", Ilaunch);
             if (Nlaunch!=0 && Ilaunch >= Nlaunch) return;
-
-            //            ctunity.newPlayer(CTunity.fullName(gameObject)+"/R-" + Ilaunch, Missile);   // unique names
             ctunity.deployInventory(Missile, CTunity.fullName(gameObject) + "/R-" + Ilaunch);
 //            ctunity.newPlayer(ctunity.Player + "/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         
             Ilaunch++;

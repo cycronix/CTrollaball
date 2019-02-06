@@ -53,16 +53,13 @@ public class PlayerController : MonoBehaviour {
         // if (moveHorizontal == 0 && moveVertical == 0) return;   // notta
 
         Transform leader = null;
-        if (followLeader)
+        if (followLeader && (moveHorizontal == 0 && moveVertical == 0))
         {
-    //        Transform tgo = Camera.main.GetComponent<maxCamera>().target;
-            Transform tgo = GameObject.Find("CTunity").transform;
-            if (tgo != null && tgo.gameObject != gameObject 
- //                   && tgo.GetComponent<ScoreBoard>() != null
- //                   && (moveVertical != 0 || moveHorizontal != 0)
-            )
+            GameObject tgo = GameObject.Find(ctunity.Player + "/Base/Target");
+            if (tgo != null && tgo != gameObject)
             {
-                leader = tgo;
+                leader = tgo.transform;
+                //   Debug.Log(CTunity.fullName(gameObject) + ", myleader: " + CTunity.fullName(tgo));
             }
         }
 
@@ -99,6 +96,7 @@ public class PlayerController : MonoBehaviour {
             {
                 transform.LookAt(leader);
                 movement = transform.forward;
+//                Debug.Log("lookat leader: "+leader.transform.position);
             }
             else
             {

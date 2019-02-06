@@ -58,17 +58,19 @@ public class PickupScore : MonoBehaviour {
     void PlayerCount()
     {
         Dictionary<String, int> cts = new Dictionary<String, int>();
-        foreach (String player in ctunity.PlayerList) cts.Add(player, 0);   // init
+ //       foreach (String player in ctunity.PlayerList) cts.Add(player, 0);   // init
 
         foreach (String key in ctunity.CTlist.Keys)
         {
-            String player = key.Split('/')[0];  // CTlist uses fullName as key
+            String player = key.Split('/')[0];                  // CTlist uses fullName as key
+            if (!cts.ContainsKey(player)) cts.Add(player,0);
             ++cts[player];          // count up associated player objects in CTlist
         }
 
         // build scoreboard:
         String scoreboard = "";
-        foreach (String player in ctunity.PlayerList)
+        foreach(String player in cts.Keys)
+ //       foreach (String player in ctunity.PlayerList)
         {
             int nactive = cts[player];
             if (nactive > 0 || (ctunity.Player.Equals(player) && !player.Equals("Observer")))

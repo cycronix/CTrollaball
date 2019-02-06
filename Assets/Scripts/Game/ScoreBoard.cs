@@ -107,7 +107,7 @@ public class ScoreBoard : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
-        Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
+//        Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
         if (collider == thisCollider) return;  // on going
         doCollision(collider);
     }
