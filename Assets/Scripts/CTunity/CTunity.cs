@@ -743,7 +743,7 @@ public class CTunity : MonoBehaviour
 
 	public void deployInventory(String world)           // get specific world or "*" for all
 	{
-        Debug.Log("deploy: " + world);
+//        Debug.Log("deploy: " + world);
 		StartCoroutine(deployInventoryItem(world, null));        // get inventory object with default ID (from ctobject)
     }
 

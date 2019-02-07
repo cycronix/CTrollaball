@@ -128,8 +128,12 @@ public class CTsetup: MonoBehaviour
                                 ctunity.SnapShot();
                                 //								StartCoroutine("getInventoryList");         // update list of "World" prefabs
                             }
-                            else if (svalue.Equals(ctunity.Clear))  ctunity.clearWorld();
-                            else if (svalue.Equals(ctunity.Load))   ctunity.loadWorld();
+                            else if (svalue.Equals(ctunity.Clear)) ctunity.clearWorld();
+                            else if (svalue.Equals(ctunity.Load))
+                            {
+                                ctunity.clearWorld();
+                                ctunity.loadWorld();
+                            }
                             else ctunity.deployInventory(svalue);
 
 							d.value = 0;        // reset to blank
