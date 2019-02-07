@@ -73,7 +73,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2674, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: Nlaunch
-      value: 500
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 1214132679555490, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_Name
