@@ -30,6 +30,12 @@ using UnityEngine.EventSystems;
 
 //----------------------------------------------------------------------------------------------------------------
 public class CTsetup: MonoBehaviour
+//    , IPointerClickHandler,
+//      IPointerDownHandler,
+//     IPointerUpHandler,
+//     IPointerEnterHandler,
+//     IPointerExitHandler,
+//     ISelectHandler
 {
     public int defaultPort = 8000;
 
@@ -37,6 +43,7 @@ public class CTsetup: MonoBehaviour
 	private CTunity ctunity;
 	private GameObject replayControl;
 	private Dropdown playerDrop = null;
+    private GameObject gameOptions;
 
     private int NumInventory = 0;       // keep track 
 
@@ -55,9 +62,10 @@ public class CTsetup: MonoBehaviour
     {
 		replayControl = GameObject.Find("replayControl");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();        // reference CTgroupstate script
+        gameOptions = GameObject.Find("Setup").gameObject;
 
         // define menu objects
-		myCamera = GameObject.Find("Main Camera").GetComponent<maxCamera>();
+        myCamera = GameObject.Find("Main Camera").GetComponent<maxCamera>();
 
         Server = GameObject.Find("Server");
         Session = GameObject.Find("Session");
@@ -115,13 +123,14 @@ public class CTsetup: MonoBehaviour
 						{
 							string svalue = d.GetComponent<Dropdown>().options[d.value].text;
 
-							if (svalue.Equals(ctunity.Save))
-							{
-								ctunity.SnapShot();
-								StartCoroutine("getInventoryList");         // update list of "World" prefabs
-							}
-							else if (svalue.Equals(ctunity.Clear))  ctunity.clearWorld();
-							else                                    ctunity.deployInventory(svalue);
+                            if (svalue.Equals(ctunity.Save))
+                            {
+                                ctunity.SnapShot();
+                                //								StartCoroutine("getInventoryList");         // update list of "World" prefabs
+                            }
+                            else if (svalue.Equals(ctunity.Clear))  ctunity.clearWorld();
+                            else if (svalue.Equals(ctunity.Load))   ctunity.loadWorld();
+                            else ctunity.deployInventory(svalue);
 
 							d.value = 0;        // reset to blank
 						}
@@ -131,14 +140,20 @@ public class CTsetup: MonoBehaviour
                    
 				case "Player1":
 					playerDrop = d;
-					ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
+                    ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
+      //              playerDrop.GetComponent<Button>().onClick.AddListener(onClick);
 
                     d.onValueChanged.AddListener(delegate
 					{
                         //     ctunity.setReplay(true);        // needed?
-                        updateSession();                  // avoid new player set as child of prior player?
-						ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;
-						ctunity.serverConnect();  // reset player path
+ //                       updateSession();                  // avoid new player set as child of prior player?
+                        String player = d.GetComponent<Dropdown>().options[d.value].text;
+                        if (!player.Equals(ctunity.Player))
+                        {
+                            updateSession();                  // avoid new player set as child of prior player?
+                            ctunity.Player = player;
+                            ctunity.serverConnect();  // reset player path
+                        }
                         replayControl.SetActive(ctunity.Player.Equals("Observer"));
 					});
                     break;
@@ -147,6 +162,33 @@ public class CTsetup: MonoBehaviour
 
 		modeSelect();
     }
+
+    /*
+    public void OnPointerEnter(PointerEventData evd)
+    {
+        Debug.Log("OnPointerEnter: "+evd);
+    }
+    public void OnPointerExit(PointerEventData evd)
+    {
+        Debug.Log("OnPointerExit");
+    }
+    public void OnPointerClick(PointerEventData evd)
+    {
+        Debug.Log("OnPointerClick");
+    }
+    public void OnPointerDown(PointerEventData evd)
+    {
+        Debug.Log("OnPointerDown");
+    }
+    public void OnPointerUp(PointerEventData evd)
+    {
+        Debug.Log("OnPointerUp");
+    }
+    public void OnSelect(BaseEventData evd)
+    {
+        Debug.Log("OnSelect");
+    }
+    */
 
     //----------------------------------------------------------------------------------------------------------------
     // keep menu state updated (inefficient!)
@@ -362,6 +404,8 @@ public class CTsetup: MonoBehaviour
 			sourceList.Add("");             // seed with blank
 			sourceList.Add(ctunity.Clear);
 			sourceList.Add(ctunity.Save);
+            sourceList.Add(ctunity.Load);
+
             NumInventory = 0;
 
             Match match;
@@ -376,7 +420,8 @@ public class CTsetup: MonoBehaviour
                     {
                         //UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
                         String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);
-                        if (!sourceList.Contains(thisSource))
+                        if (!sourceList.Contains(thisSource)
+                            && !thisSource.StartsWith("_") )        // no-list underscore _Item
                         {
                             sourceList.Add(thisSource);
                             NumInventory++;
@@ -399,11 +444,14 @@ public class CTsetup: MonoBehaviour
 
     //----------------------------------------------------------------------------------------------------------------
     // get/set world list for dropdown selection
+    // NOTE:  it would be more efficient to only do this on pulldown button press
 
     private void setPlayerList()
     {
         if (ctunity.PlayerList == null) return;         // nothing new
+        if (!gameOptions.activeSelf) return;            // nothing to show
 
+//        Debug.Log("setPlayer: " + ctunity.Player);
         Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
         d.ClearOptions();
         List<String> playerlist = new List<String>();
@@ -418,5 +466,4 @@ public class CTsetup: MonoBehaviour
 
         ctunity.PlayerList = null;          // reset
     }
-
 }

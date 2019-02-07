@@ -53,7 +53,9 @@ public class PlayerController : MonoBehaviour {
         // if (moveHorizontal == 0 && moveVertical == 0) return;   // notta
 
         Transform leader = null;
-        if (followLeader && (moveHorizontal == 0 && moveVertical == 0))
+        if (followLeader 
+//            && (moveHorizontal == 0 && moveVertical == 0)
+        )
         {
             GameObject tgo = GameObject.Find(ctunity.Player + "/Base/Target");
             if (tgo != null && tgo != gameObject)

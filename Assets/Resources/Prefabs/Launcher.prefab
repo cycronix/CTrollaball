@@ -107,7 +107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   launchInterval: 2
   Nlaunch: 0
-  Missile: Rocket
+  Missile: _Rocket
 --- !u!114 &2740
 MonoBehaviour:
   m_ObjectHideFlags: 0

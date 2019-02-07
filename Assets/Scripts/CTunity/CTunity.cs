@@ -70,6 +70,7 @@ public class CTunity : MonoBehaviour
 	internal String Cancel = "<Cancel>";        // dropdown value to cancel/delete un-played deployed objects
 	internal String Clear = "<Clear>";          // dropdown value to delete all player objects
 	internal String Save = "<Save>";            // dropdown value to save player world
+    internal String Load = "<Load>";            // dropdown value to load player world
 	internal String Observer = "Observer";      // reserved player-name for observe-only mode
 	internal String Inventory = "Inventory";    // folder name for deployables
 
@@ -186,7 +187,7 @@ public class CTunity : MonoBehaviour
 	// SnapShot:  single-shot save current Player state to World-saves
 
 	internal void SnapShot() {
-//		Debug.Log("SnapShot: " + Player);
+		Debug.Log("SnapShot: " + Player);
 		if (Player.Equals("")) return;  // no active player
         
 		serverConnect();  // reset Player folder paths
@@ -196,11 +197,18 @@ public class CTunity : MonoBehaviour
 
         // archive World state
         ctsnapshot.setTime(ServerTime());
-        ctsnapshot.putData(CTchannel, CTstateString);
+        ctsnapshot.putData(CTchannel, CTstateString);  
 		ctsnapshot.flush();
 	}
 
-	//-------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------------------
+    // load world with implied name Inventory/_Player
+    internal void loadWorld()
+    {
+        deployInventory("_" + Player);     
+    }
+
+    //-------------------------------------------------------------------------------------------------------
     // OneShot:  single-shot save current Player state to GamePlay
 
     internal void OneShot()
@@ -392,7 +400,7 @@ public class CTunity : MonoBehaviour
 		GameObject tgo = GameObject.Find(objID);
 		if (tgo != null)
 		{
-			Debug.Log("Warning, create duplicate: " + objID);      // unregistered prefabs hit this check
+			Debug.Log("Warning, replace existing: " + objID);      // unregistered prefabs hit this check
             clearObject(tgo);  // clear vs leave in place?
 //			return tgo;
 		}
@@ -735,6 +743,7 @@ public class CTunity : MonoBehaviour
 
 	public void deployInventory(String world)           // get specific world or "*" for all
 	{
+        Debug.Log("deploy: " + world);
 		StartCoroutine(deployInventoryItem(world, null));        // get inventory object with default ID (from ctobject)
     }
 
@@ -1068,7 +1077,7 @@ public class CTunity : MonoBehaviour
 //			Debug.Log("OOPS serverConnect null Player!!!!!!");
 			return;
 		}
-
+//        Debug.Log("serverConnect: " + Player);
 		// CT vidcap source 
 		if (ctvideo != null) ctvideo.close();
 		ctvideo = new CTlib.CThttp(Session + "/ScreenCap/" + Player, blocksPerSegment, true, false, false, Server);
@@ -1077,7 +1086,9 @@ public class CTunity : MonoBehaviour
 
 		// CT snapshot source
 		if (ctsnapshot != null) ctsnapshot.close();
-		ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/" + Player, blocksPerSegment, true, true, true, Server);
+//        ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/" + Player, blocksPerSegment, true, true, true, Server);
+// snapshots store to Inventory/_Player (e.g. _Red)
+        ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/_" + Player, blocksPerSegment, true, true, true, Server);
 		ctsnapshot.login(user, password);
 		ctsnapshot.setAsync(AsyncMode);
 

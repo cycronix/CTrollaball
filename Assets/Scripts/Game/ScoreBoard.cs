@@ -107,9 +107,21 @@ public class ScoreBoard : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
-//        Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
-        if (collider == thisCollider) return;  // on going
-        doCollision(collider);
+ //       Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
+        //        if (collider == thisCollider) return;  // on going
+        //       doCollision(collider);
+
+        if (!showHP) return;
+        ScoreBoard tkso = collider.gameObject.GetComponent<ScoreBoard>();
+        //        if(tkso != null) Debug.Log("new kso.ATK: " + tkso.ATK + ", thisCollider: " + thisCollider);
+
+        if (tkso != null && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(collider.gameObject))
+        {
+            kso = tkso;
+            thisCollider = collider;
+            targetScale = transform.localScale;
+            stopWatch = damageInterval;     // quick hit to start
+        }
     }
 
     void OnTriggerExit(Collider collider)
@@ -117,10 +129,10 @@ public class ScoreBoard : MonoBehaviour
  //      Debug.Log(CTunity.fullName(gameObject) + ", END Trigger with: " + collider.name);
         if (thisCollider == collider) thisCollider = null;
     }
-
+    /*
     private void OnTriggerStay(Collider collider)
     {
-        //       Debug.Log(CTunity.fullName(gameObject) + ", STAY Trigger with: " + collider.name);
+        Debug.Log(CTunity.fullName(gameObject) + ", STAY Trigger with: " + collider.name);
         if (collider != thisCollider) return;
 
         stopWatch += Time.deltaTime;
@@ -130,7 +142,7 @@ public class ScoreBoard : MonoBehaviour
             stopWatch = 0;
         }
     }
-
+    */
     //----------------------------------------------------------------------------------------------------------------
     // detect collisions
 
@@ -160,6 +172,7 @@ public class ScoreBoard : MonoBehaviour
     //----------------------------------------------------------------------------------------------------------------
     void doCollision(Collider other)
     {
+//        Debug.Log("doCollision, showHP: " + showHP + ", kso: " + kso);
         if (!showHP || kso==null) return;                                        // no game
 
         String myName = CTunity.fullName(gameObject);
@@ -179,7 +192,6 @@ public class ScoreBoard : MonoBehaviour
         if (HP < 0) HP = 0;
         ctclient.putCustom("HP", HP);
         if (HP <= 0) ctunity.clearObject(gameObject, false);  // can't destroyImmediate inside collision callback
-
 //        Debug.Log(myName + ", collide with: " + otherName+", damage: "+damage+", kso.ATK: "+kso.ATK+", AC: "+AC);
 
         if (scaleSize) targetScale = initialScale * (0.1f + 0.9f * ((float)(HP) / (float)initialHP));

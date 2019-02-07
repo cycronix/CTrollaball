@@ -58,9 +58,12 @@ public class Launcher : MonoBehaviour {
 //        Debug.Log(name + ", stopWatch: " + stopWatch);
 		if (stopWatch >= launchInterval)
 		{
+            String missile = ctclient.getCustom("M", Missile);  // optional custom missile
+//            Debug.Log(name + ", missile: " + missile+", custom: "+ctclient.custom);
+
             Ilaunch = ctclient.getCustom("N", Ilaunch);
             if (Nlaunch!=0 && Ilaunch >= Nlaunch) return;
-            ctunity.deployInventory(Missile, CTunity.fullName(gameObject) + "/R-" + Ilaunch);
+            ctunity.deployInventory(missile, CTunity.fullName(gameObject) + "/R-" + Ilaunch);
 //            ctunity.newPlayer(ctunity.Player + "/R-" + myHash + "-" + Ilaunch, Missile);   // unique names         
             Ilaunch++;
             ctclient.putCustom("N", Ilaunch);

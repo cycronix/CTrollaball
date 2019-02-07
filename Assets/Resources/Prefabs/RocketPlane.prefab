@@ -2072,6 +2072,7 @@ MonoBehaviour:
   freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
+  TrackSpeed: 2
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
@@ -2093,6 +2094,7 @@ MonoBehaviour:
   maxSpeed: 5
   liftForce: 1.1
   isVehicle: 1
+  followLeader: 0
 --- !u!114 &114244598297006848
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2214,7 +2216,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   HP: 10
   ATK: 1
+  AC: 1
   showHP: 1
+  scaleSize: 0
+  damageInterval: 1
 --- !u!135 &1140091561154001557
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3004,7 +3009,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   launchInterval: 2
   Nlaunch: 0
-  Missile: RocketA2A
+  Missile: _RocketA2A
 --- !u!1 &1921949389858062
 GameObject:
   m_ObjectHideFlags: 0
