@@ -425,7 +425,8 @@ public class CTsetup: MonoBehaviour
                         //UnityEngine.Debug.Log("gstring: " + gstring + ", prefix: " + prefix);
                         String thisSource = gstring.Substring(prefix.Length, gstring.Length - prefix.Length - 2);
                         if (!sourceList.Contains(thisSource)
-                            && !thisSource.StartsWith("_") )        // no-list underscore _Item
+                            && (ctunity.user.Equals(ctunity.rootPlayer) || !thisSource.StartsWith("_"))  // no-list underscore _Item
+                            )       
                         {
                             sourceList.Add(thisSource);
                             NumInventory++;
@@ -462,7 +463,10 @@ public class CTsetup: MonoBehaviour
         playerlist.Add("Observer");
         if (NumInventory > 0)   // no inventory, no player
         {
-            foreach (string p in ctunity.PlayerList) if (!p.Equals("World")) playerlist.Add(p);         // hard-wire filter "World" player?
+            foreach (string p in ctunity.PlayerList)
+            {
+                if (ctunity.user.Equals(ctunity.rootPlayer) || !p.Equals("World")) playerlist.Add(p);      // hard-wire filter "World" player
+            }
         }
 //        playerlist.AddRange(ctunity.PlayerList);
         d.AddOptions(playerlist);                   // reset Player dropdown option list:

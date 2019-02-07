@@ -54,10 +54,18 @@ public class ScoreBoard : MonoBehaviour
         //       if (showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP)
         {
-            HP = ctclient.getCustom("HP", 0);
-            //            Debug.Log(CTunity.fullName(gameObject)+": startup Custom: " + ctclient.custom);
-            if (HP == 0) showHP = false;        // enabled by startup JSON having HP custom field
-            else initialHP = HP;
+ //           int HP = ctclient.getCustom("HP", 0);
+ //           if (HP == 0) showHP = false;        // enabled by startup JSON having HP custom field
+ //            else initialHP = HP;
+
+            int hp = ctclient.getCustom("HP", 0);
+ //           Debug.Log(name+",startup HP: "+HP+", hp: " + hp + ", custom: " + ctclient.custom);
+            if (hp != 0)
+            {
+                HP = hp;                   // over-ride baked-in if custom present
+                initialHP = HP;
+            }
+            if (HP == 0) showHP = false;    // nope
         }
 
         initialScale = transform.localScale;
@@ -85,6 +93,7 @@ public class ScoreBoard : MonoBehaviour
     {
         //        if(showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP) HP = ctclient.getCustom("HP", HP);
+ //       Debug.Log(name + ",Update HP: " + HP + ", custom: " + ctclient.custom);
 
         if (scaleSize && thisCollider != null)
         {

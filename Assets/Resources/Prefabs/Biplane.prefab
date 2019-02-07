@@ -2846,6 +2846,7 @@ MonoBehaviour:
   freezePhysics: 0
   smoothTrack: 1
   smoothReplay: 0
+  TrackSpeed: 2
   DeadReckon: 1.5
   SmoothTime: 0.4
   autoColor: 1
@@ -2867,6 +2868,7 @@ MonoBehaviour:
   maxSpeed: 5
   liftForce: 1.1
   isVehicle: 1
+  followLeader: 0
 --- !u!114 &114390603842569486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3000,9 +3002,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98960d6e352da4422889cb5e9a10b064, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HP: 1
+  HP: 0
   ATK: 1
+  AC: 1
   showHP: 1
+  scaleSize: 0
+  damageInterval: 1
 --- !u!1 &1916816098030790
 GameObject:
   m_ObjectHideFlags: 0

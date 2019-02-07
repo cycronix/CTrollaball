@@ -73,6 +73,7 @@ public class CTunity : MonoBehaviour
     internal String Load = "<Load>";            // dropdown value to load player world
 	internal String Observer = "Observer";      // reserved player-name for observe-only mode
 	internal String Inventory = "Inventory";    // folder name for deployables
+    internal String rootPlayer = "World";        // root user has expanded privileges
 
     // CThttp IO classes
     internal CTlib.CThttp ctplayer = null;            // storage
@@ -586,8 +587,7 @@ public class CTunity : MonoBehaviour
 		}
 		else {
 			GameObject worldObject = GameObject.Find(worldName);
-			if (worldObject == null) Debug.Log("Null World! " + worldName);
-			else
+			if (worldObject != null)
 			{
 				worldObject.SetActive(false);        // hide for starters
 				DestroyImmediate(worldObject);
