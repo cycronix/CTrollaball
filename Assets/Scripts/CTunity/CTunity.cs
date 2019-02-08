@@ -370,7 +370,7 @@ public class CTunity : MonoBehaviour
 		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom);
+	//	Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom+", prefab: "+prefab);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
         // already exists?
@@ -430,7 +430,7 @@ public class CTunity : MonoBehaviour
 			if(cgo == null) {
                 if (requireParent && i > 1)     // sorry clugey
                 {
-//                    Debug.Log("oops missing parent: " + parent);
+                    Debug.Log("oops missing parent: " + parent);
                     return null;
                 }
 
