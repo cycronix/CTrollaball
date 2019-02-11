@@ -43,6 +43,7 @@ public class CTunity : MonoBehaviour
 	public int blocksPerSegment = 1000;          // CTlib.CThttp setting
 	public float fpsInterval = 0.1f;        // update interval for FPS info   
     public float LinkDeadTime = 10F;        // time without updates before (re)enabling player connect
+    public Boolean EnableScreenCap = false;  // open/enable screencap video
 
 	// flags:
 	public Boolean AsyncMode = true;               // true to use CTlib threads
@@ -190,8 +191,14 @@ public class CTunity : MonoBehaviour
 	internal void SnapShot() {
 		Debug.Log("SnapShot: " + Player);
 		if (Player.Equals("")) return;  // no active player
-        
-		serverConnect();  // reset Player folder paths
+
+        // CT snapshot source
+        if (ctsnapshot != null) ctsnapshot.close();
+        ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/_" + Player, blocksPerSegment, true, true, true, Server);
+        ctsnapshot.login(user, password);
+        ctsnapshot.setAsync(AsyncMode);
+
+//        serverConnect();  // reset Player folder paths
       
 		string CTstateString = CTserdes.serialize(this, JSON_Format ? CTserdes.Format.JSON : CTserdes.Format.CSV);
 		if (CTstateString == null) return;      // meh
@@ -428,9 +435,9 @@ public class CTunity : MonoBehaviour
 			GameObject cgo = GameObject.Find(parent);
 
 			if(cgo == null) {
-                if (requireParent && i > 1)     // sorry clugey
+                if (requireParent && i > 0)   // sorry clugey.  can happen with async deployInventory (e.g. Launcher)
                 {
-                    Debug.Log("oops missing parent: " + parent);
+                    Debug.Log("Null parent object! "+objID+": parent: " + parent);
                     return null;
                 }
 
@@ -591,6 +598,7 @@ public class CTunity : MonoBehaviour
 			{
 				worldObject.SetActive(false);        // hide for starters
 				DestroyImmediate(worldObject);
+    //            Destroy(worldObject);
 			}
 		}
 
@@ -766,6 +774,7 @@ public class CTunity : MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(pollInterval);
+            yield return null;      // and wait for next full Update
 
             // form HTTP GET URL
             string url1 = Server + "/CT/" + Session + "/" + Inventory + "/" +deploy +"/" + CTchannel+"?f=d";
@@ -806,8 +815,9 @@ public class CTunity : MonoBehaviour
 					CTobject ctobject = ctpair.Value;
                     if (objID != null) ctobject.id = objID;
 					if (!ctobject.id.StartsWith(Player+"/")) ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
-					newGameObject(ctobject, true);      // require parent in-place 
-				}
+	//				newGameObject(ctobject, true);      // require parent in-place 
+                    newGameObject(ctobject, objID!=null);      // require parents in-place (obscure)
+                }
             }
 //            newSession = false;          // flag new session???
 
@@ -1077,20 +1087,22 @@ public class CTunity : MonoBehaviour
 //			Debug.Log("OOPS serverConnect null Player!!!!!!");
 			return;
 		}
-//        Debug.Log("serverConnect: " + Player);
-		// CT vidcap source 
-		if (ctvideo != null) ctvideo.close();
-		ctvideo = new CTlib.CThttp(Session + "/ScreenCap/" + Player, blocksPerSegment, true, false, false, Server);
-		ctvideo.login(user, password);
-		ctvideo.setAsync(AsyncMode);
-
+        //        Debug.Log("serverConnect: " + Player);
+        // CT vidcap source 
+        if (EnableScreenCap)
+        {
+            if (ctvideo != null) ctvideo.close();
+            ctvideo = new CTlib.CThttp(Session + "/ScreenCap/" + Player, blocksPerSegment, true, false, false, Server);
+            ctvideo.login(user, password);
+            ctvideo.setAsync(AsyncMode);
+        }
+        /*
 		// CT snapshot source
 		if (ctsnapshot != null) ctsnapshot.close();
-//        ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/" + Player, blocksPerSegment, true, true, true, Server);
-// snapshots store to Inventory/_Player (e.g. _Red)
         ctsnapshot = new CTlib.CThttp(Session + "/" + Inventory + "/_" + Player, blocksPerSegment, true, true, true, Server);
 		ctsnapshot.login(user, password);
 		ctsnapshot.setAsync(AsyncMode);
+        */
 
 		// CT player source
 		if (ctplayer != null) ctplayer.close();

@@ -407,7 +407,7 @@ public class CTsetup: MonoBehaviour
             sourceList.Clear();
 			sourceList.Add("");             // seed with blank
 			sourceList.Add(ctunity.Clear);
-			sourceList.Add(ctunity.Save);
+			if(ctunity.user.Equals(ctunity.rootPlayer)) sourceList.Add(ctunity.Save);
             sourceList.Add(ctunity.Load);
 
             NumInventory = 0;

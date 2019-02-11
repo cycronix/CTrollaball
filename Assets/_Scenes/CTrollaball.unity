@@ -6069,6 +6069,7 @@ MonoBehaviour:
   blocksPerSegment: 1000
   fpsInterval: 0.5
   LinkDeadTime: 10
+  EnableScreenCap: 0
   AsyncMode: 1
 --- !u!1 &1713389157
 GameObject:
