@@ -303,7 +303,7 @@ public class CTunity : MonoBehaviour
                 // set object state with CTclient
                 GameObject mygo;
                 Boolean isOnList = CTlist.TryGetValue(ctobject.id, out mygo);
-                if (isOnList)       // object exists
+                if (isOnList && mygo != null)       // object exists
                 {
                     if ((isReplayMode() || !world.player.Equals(Player)))  // check for change of prefab
                     {
@@ -313,6 +313,7 @@ public class CTunity : MonoBehaviour
                             // Debug.Log("change prefab: " + ctobject.model + " --> " + pf);
                             newGameObject(ctobject);
                         }
+
                     }
                     setState(ctobject.id, ctobject, mygo);  // use pre-fetched mygo if possible 
                 }
@@ -341,7 +342,7 @@ public class CTunity : MonoBehaviour
 	void printCTworld(CTworld ctworld) {
 		String p = "CTworld:\n";
         p += ("name: " + ctworld.player + "\n");      // redundant Key, name?
-        p += ("mode: " + ctworld.mode + "\n");
+//        p += ("mode: " + ctworld.mode + "\n");
         p += ("time: " + ctworld.time + "\n");
         p += ("Objects:" + "\n");
 		if (ctworld.objects == null) p += "<null>";
@@ -351,7 +352,7 @@ public class CTunity : MonoBehaviour
 			{
 				p += ("\tkey: " + ctobject.id + "\n");          // redundant Key, id?
 				p += ("\tprefab: " + ctobject.model + "\n");         // object class
-				p += ("\tstate: " + ctobject.state + "\n");
+//				p += ("\tstate: " + ctobject.state + "\n");
 				p += ("\tpos: " + ctobject.pos + "\n");
 			}
 		}
@@ -374,7 +375,7 @@ public class CTunity : MonoBehaviour
 		Vector3 position = ctobject.pos;
 		Quaternion rotation = ctobject.rot;
 		Vector3 scale = ctobject.scale;
-		Boolean isactive = ctobject.state;
+//		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
 	//	Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom+", prefab: "+prefab);
@@ -420,7 +421,7 @@ public class CTunity : MonoBehaviour
 			Debug.Log("NULL prefab: " + prefab);
 			return null;
 		}
-		pfgo.SetActive(isactive);
+//		pfgo.SetActive(isactive);
 
 		// build hierarchical path to new object: Players/<Player>/object-path
 		String parent = "Players";
@@ -1106,6 +1107,7 @@ public class CTunity : MonoBehaviour
 
 		// CT player source
 		if (ctplayer != null) ctplayer.close();
+        if (Player.Equals("Observer")) return;          // observers are read-only
 		ctplayer = new CTlib.CThttp(Session + "/GamePlay/" + Player, blocksPerSegment, true, true, true, Server);
 		ctplayer.login(user, password);
 		ctplayer.setAsync(AsyncMode);
