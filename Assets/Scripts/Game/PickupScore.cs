@@ -57,6 +57,8 @@ public class PickupScore : MonoBehaviour {
  
     void PlayerCount()
     {
+        if (ctunity.PlayerList == null) return;  // nothing new
+
         Dictionary<String, int> cts = new Dictionary<String, int>();
  //       foreach (String player in ctunity.PlayerList) cts.Add(player, 0);   // init
 
@@ -74,10 +76,21 @@ public class PickupScore : MonoBehaviour {
         {
             int nactive = cts[player];
             if (nactive > 0 || (ctunity.Player.Equals(player) && !player.Equals("Observer")))
-                scoreboard += "<color=" + player + ">" + player + ": " + nactive + "</color>   ";
+            {
+                String bold = "", ebold = "";
+                if (ctunity.Player.Equals(player) || !ctunity.PlayerList.Contains(player) )
+                {
+//                    Debug.Log("Active Player: " + player);
+                    bold = "<b><i>";  ebold = "</i></b>";
+                }
+  //              else
+  //                  Debug.Log("INACTIVE: " + player+", plist: "+ctunity.PlayerList);
+
+                scoreboard += (bold + "<color=" + player + ">" + player + ": " + nactive + "</color>  " + ebold);
+            }
         }
 
-        //      Debug.Log("scoreboard: " + scoreboard+", plist.len: "+ctunity.PlayerList.Count);
+//        Debug.Log("scoreboard: " + scoreboard);
         countText.text = scoreboard;
         winText.text = "<color=" + ctunity.Player + ">" + ctunity.Player + "</color>";  // right place to set this?
     }

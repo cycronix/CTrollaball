@@ -55,7 +55,7 @@ public class CTserdes
 	{
 		public string player;
 		public double time = 0F;            // header-time used for optional "staleness" test
-		public string mode = "Live";        // default mode
+//		public string mode = "Live";        // default mode
 		public List<CTobjectJson> objects;
 	}
 	[Serializable]
@@ -63,11 +63,11 @@ public class CTserdes
 	{
 		public string id;
 		public string model;
-		public Boolean state = true;                                    // default state is true
+//		public Boolean state = true;                                    // default state is true
 		public List<Double> pos = new List<Double> { 0, 0, 0 };
 		public List<Double> rot = new List<Double> { 0, 0, 0 };
 		public List<Double> scale = new List<Double> { 0, 0, 0 };       // default Vector3.zero means no change native scale
-		public string link = null;
+//		public string link = null;
 		public List<Double> color = new List<Double> { 0, 0, 0, 0 };    // default Color.clear means use native object-color
 		public string custom = null;
 	}
@@ -162,7 +162,7 @@ public class CTserdes
 			CTworld CTW = new CTworld();
 			CTW.objects = new Dictionary<String, CTobject>();
 
-			CTW.mode = header[0];
+//			CTW.mode = header[0];
 			CTW.time = Double.Parse(header[1]);
 			CTW.player = header[2];
 
@@ -176,7 +176,7 @@ public class CTserdes
 				CTobject ctobject = new CTobject();
 				ctobject.id = parts[0];
 				ctobject.model = parts[1];
-				ctobject.state = !parts[2].Equals("0");
+//				ctobject.state = !parts[2].Equals("0");
 
 				// parse ctobject.pos
 				string pstate = parts[3].Substring(1, parts[3].Length - 2);     // drop parens
@@ -189,7 +189,7 @@ public class CTserdes
 				ctobject.rot = Quaternion.Euler(float.Parse(pvec[0]), float.Parse(pvec[1]), float.Parse(pvec[2]));
                 
 				// custom field (used for indirect URL):
-				if (parts.Length > 5) ctobject.link = parts[5];
+//				if (parts.Length > 5) ctobject.link = parts[5];
 
                 CTW.objects.Add(ctobject.id, ctobject);
 			}
@@ -252,7 +252,7 @@ public class CTserdes
 			CTworld jCTW = new CTworld();
 			jCTW.player = dataFromJson.player;
 			jCTW.time = dataFromJson.time;
-			jCTW.mode = dataFromJson.mode;
+//			jCTW.mode = dataFromJson.mode;
 			jCTW.objects = new Dictionary<String, CTobject>();
 			foreach (CTobjectJson ctobject in dataFromJson.objects)
 			{
@@ -264,8 +264,8 @@ public class CTserdes
 				else if (cto.id.StartsWith(jCTW.player + ".")) cto.id = cto.id.Remove(0, jCTW.player.Length + 1);
 
 				cto.model = ctobject.model;
-				cto.state = ctobject.state;
-				cto.link = ctobject.link;
+//				cto.state = ctobject.state;
+//				cto.link = ctobject.link;
 				cto.pos = new Vector3((float)ctobject.pos[0], (float)ctobject.pos[1], (float)ctobject.pos[2]);
 				cto.rot = Quaternion.Euler((float)ctobject.rot[0], (float)ctobject.rot[1], (float)ctobject.rot[2]);
 				cto.scale = new Vector3((float)ctobject.scale[0], (float)ctobject.scale[1], (float)ctobject.scale[2]);
@@ -355,7 +355,7 @@ public class CTserdes
 		CTworldJson world = new CTworldJson();
 		world.player = ctunityI.Player;
 		world.time = ctunityI.ServerTime();
-		world.mode = ctunityI.replayText;
+//		world.mode = ctunityI.replayText;
 		world.objects = new List<CTobjectJson>();
 
 		int objectCount = 0;
@@ -383,7 +383,7 @@ public class CTserdes
 //			Debug.Log("CTserdes obj.id: " + obj.id+", world.player: "+world.player);
                      
 			obj.model = prefab;
-			obj.state = (ct.activeSelf ? true : false);
+//			obj.state = (ct.activeSelf ? true : false);
 			// NOTE: limit floating point values to 4 decimal places
 			obj.pos = new List<Double>();
 			obj.pos.Add(LimitPrecision(ct.transform.localPosition.x, 4));    //  was .position
@@ -410,7 +410,7 @@ public class CTserdes
 				obj.color.Add(LimitPrecision(mycolor.a, 4));
 			}
 
-			if (ctp.link != null && ctp.link.Length > 0) obj.link = ctp.link;
+//			if (ctp.link != null && ctp.link.Length > 0) obj.link = ctp.link;
 			if (ctp.custom != null && ctp.custom.Length > 0) obj.custom = ctp.custom;
 
 			world.objects.Add(obj);

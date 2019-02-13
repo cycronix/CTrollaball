@@ -140,7 +140,7 @@ public class CTclient : MonoBehaviour
         // locals for immediate action:
         if (replayMode || !isLocalObject())
         {
-            gameObject.SetActive(cto.state);            // need to activate here (vs Update callback)
+//            gameObject.SetActive(cto.state);            // need to activate here (vs Update callback)
             setColor(cto.color);                        // set color for non-local objects
         }
 
