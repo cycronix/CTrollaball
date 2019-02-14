@@ -430,18 +430,20 @@ public class CTunity : MonoBehaviour
 		String[] pathparts = fullpath.Split(delims);
         
 		GameObject pgo = GameObject.Find(parent);   // "Players" at this point
-		for (int i = 1; i < pathparts.Length-1; i++)
+//        Debug.Log("create objID: " + objID);
+
+        for (int i = 1; i < pathparts.Length-1; i++)
 		{
 			parent = parent + "/" + pathparts[i];
 			GameObject cgo = GameObject.Find(parent);
 
 			if(cgo == null) {
-                if (requireParent && i > 0)   // sorry clugey.  can happen with async deployInventory (e.g. Launcher)
+                if (requireParent && i > 1)   // sorry clugey.  can happen with async deployInventory (e.g. Launcher)
                 {
-                    Debug.Log("Null parent object! "+objID+": parent: " + parent);
+                    Debug.Log("Null parent! "+objID);
                     return null;
                 }
-
+    //            Debug.Log("Create empty parent: " + pathparts[i]);
                 cgo = new GameObject();    // empty gameObject; trunk-node in hierarchy
                 cgo.name = pathparts[i];
                 cgo.transform.SetParent(pgo.transform, true);
@@ -449,7 +451,8 @@ public class CTunity : MonoBehaviour
 			pgo = cgo;
 		}
 
-		pgo = GameObject.Find(parent);
+
+        pgo = GameObject.Find(parent);
 		if(pgo == null) {    // parent missing
 			Debug.Log("Missing parent: " + parent+", child: "+objID);  // init issue, catch it next update...
 			return null;
@@ -462,7 +465,6 @@ public class CTunity : MonoBehaviour
 		Transform newp = Instantiate(pf, tparent, false);    // rez prefab with set parent
 		newp.localPosition = position /* + pf.position */;    // offset by prefab built-in position?
 		newp.localRotation = rotation * pf.rotation;
-//		newp.localRotation = rotation;      // nope
 //		Debug.Log(objID + ": instantiate child at: " + position+", parent: "+tparent.name);
 
 		if (scale.Equals(Vector3.zero)) newp.localScale = pf.localScale;
@@ -816,8 +818,8 @@ public class CTunity : MonoBehaviour
 					CTobject ctobject = ctpair.Value;
                     if (objID != null) ctobject.id = objID;
 					if (!ctobject.id.StartsWith(Player+"/")) ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
-	//				newGameObject(ctobject, true);      // require parent in-place 
-                    newGameObject(ctobject, objID!=null);      // require parents in-place (obscure)
+					newGameObject(ctobject, true);      // require parent in-place 
+   //                 newGameObject(ctobject, objID!=null);      // require parents in-place (obscure)
                 }
             }
 //            newSession = false;          // flag new session???
