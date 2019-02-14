@@ -440,7 +440,7 @@ public class CTunity : MonoBehaviour
 			if(cgo == null) {
                 if (requireParent && i > 1)   // sorry clugey.  can happen with async deployInventory (e.g. Launcher)
                 {
-                    Debug.Log("Null parent! "+objID);
+                    Debug.Log("Null parent! "+objID);   // this can strand empty grandparent (benign)
                     return null;
                 }
     //            Debug.Log("Create empty parent: " + pathparts[i]);
