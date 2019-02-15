@@ -737,7 +737,11 @@ public class CTunity : MonoBehaviour
                 // parse to class structure...
                 List<CTworld> ws = CTserdes.deserialize(this, www1.downloadHandler.text);
                 CTworld CTW = mergeCTworlds(ws);
-                if (CTW == null || CTW.objects == null) continue;          // notta      
+                if (CTW == null || CTW.objects == null)
+                {
+                    yield return null;          // ease up until next Update()
+                    continue;          // notta      
+                }
 
                 if (pendingSession)
                 {
@@ -774,9 +778,10 @@ public class CTunity : MonoBehaviour
 
         //        Debug.Log("deployInventory: " + deploy+", id: "+objID);
 
+        WaitForSeconds delay = new WaitForSeconds(pollInterval);
         while (true)
         {
-            yield return new WaitForSeconds(pollInterval);
+            yield return delay;
             yield return null;      // and wait for next full Update
 
             // form HTTP GET URL
@@ -981,9 +986,10 @@ public class CTunity : MonoBehaviour
 		syncError = true;
 		int maxTry = 5;
 
-		while (true)
+        WaitForSeconds delay = new WaitForSeconds(0.1F);
+        while (true)
 		{
-			yield return new WaitForSeconds(0.1F);
+			yield return delay;
             
 			UnityWebRequest www1 = UnityWebRequest.Get(url1);
 			www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
