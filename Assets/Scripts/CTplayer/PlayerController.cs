@@ -29,6 +29,7 @@ public class PlayerController : MonoBehaviour {
 
     private CTunity ctunity;
     private Quaternion baseRotation = new Quaternion(0, 0, 0, 0);
+    private GameObject targetObject = null;
 
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
@@ -57,11 +58,12 @@ public class PlayerController : MonoBehaviour {
 //            && (moveHorizontal == 0 && moveVertical == 0)
         )
         {
-            GameObject tgo = GameObject.Find(ctunity.Player + "/Base/Target");
-            if (tgo != null && tgo != gameObject)
+            if(targetObject == null) targetObject = GameObject.Find(ctunity.Player + "/Base/Target");
+  //          GameObject tgo = GameObject.Find(ctunity.Player + "/Base/Target");
+            if (targetObject != null && targetObject != gameObject)
             {
-                leader = tgo.transform;
-                //   Debug.Log(CTunity.fullName(gameObject) + ", myleader: " + CTunity.fullName(tgo));
+                leader = targetObject.transform;
+                //   Debug.Log(CTunity.fullName(gameObject) + ", myleader: " + CTunity.fullName(targetObject));
             }
         }
 

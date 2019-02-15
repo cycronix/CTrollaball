@@ -167,33 +167,6 @@ public class CTsetup: MonoBehaviour
 		modeSelect();
     }
 
-    /*
-    public void OnPointerEnter(PointerEventData evd)
-    {
-        Debug.Log("OnPointerEnter: "+evd);
-    }
-    public void OnPointerExit(PointerEventData evd)
-    {
-        Debug.Log("OnPointerExit");
-    }
-    public void OnPointerClick(PointerEventData evd)
-    {
-        Debug.Log("OnPointerClick");
-    }
-    public void OnPointerDown(PointerEventData evd)
-    {
-        Debug.Log("OnPointerDown");
-    }
-    public void OnPointerUp(PointerEventData evd)
-    {
-        Debug.Log("OnPointerUp");
-    }
-    public void OnSelect(BaseEventData evd)
-    {
-        Debug.Log("OnSelect");
-    }
-    */
-
     //----------------------------------------------------------------------------------------------------------------
     // keep menu state updated (inefficient!)
 
@@ -457,7 +430,9 @@ public class CTsetup: MonoBehaviour
         if (!gameOptions.activeSelf) return;            // nothing to show
 
 //        Debug.Log("setPlayer: " + ctunity.Player);
-        Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
+//        Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
+        Dropdown d = Player.gameObject.GetComponent<Dropdown>();
+
         d.ClearOptions();
         List<String> playerlist = new List<String>();
         playerlist.Add("Observer");
