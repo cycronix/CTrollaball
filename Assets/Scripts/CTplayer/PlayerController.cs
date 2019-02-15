@@ -31,6 +31,8 @@ public class PlayerController : MonoBehaviour {
     private Quaternion baseRotation = new Quaternion(0, 0, 0, 0);
     private GameObject targetObject = null;
 
+    private Camera mainCamera = null;
+
     //----------------------------------------------------------------------------------------------------------------
     // Use this for initialization
     void Start() {
@@ -39,6 +41,7 @@ public class PlayerController : MonoBehaviour {
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
         rb = GetComponent<Rigidbody>();
         baseRotation = transform.rotation;          // for relative rotation setting
+        mainCamera = Camera.main;                   // up front for efficiency
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -104,7 +107,7 @@ public class PlayerController : MonoBehaviour {
             }
             else
             {
-                movement = Camera.main.transform.rotation * movement;   // align force to direction of camera 
+                movement = mainCamera.transform.rotation * movement;   // align force to direction of camera 
             }
 
             if (moveVertical >= 0)      // no spin in reverse

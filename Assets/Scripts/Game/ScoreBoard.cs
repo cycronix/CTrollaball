@@ -26,7 +26,7 @@ public class ScoreBoard : MonoBehaviour
 {
     private CTunity ctunity;
     private CTclient ctclient;
-    //    private CTledger ctledger;
+    private Camera mainCamera = null;
 
     public int HP = 10;        // max hits before killed
     public int ATK = 1;         // amount of damage
@@ -70,7 +70,8 @@ public class ScoreBoard : MonoBehaviour
 
         initialScale = transform.localScale;
         stopWatch = 0;
-//        Debug.Log(name + ", showHP: " + showHP);
+        //        Debug.Log(name + ", showHP: " + showHP);
+        mainCamera = Camera.main;                   // up front for efficiency
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -79,7 +80,7 @@ public class ScoreBoard : MonoBehaviour
     {
         if (showHP && ctunity.trackEnabled)
         {
-            Vector2 targetPos = Camera.main.WorldToScreenPoint(transform.position);
+            Vector2 targetPos = mainCamera.WorldToScreenPoint(transform.position);
             int w = 32;
             w = ctclient.custom.Length * 7 + 14;
             int h = 24;

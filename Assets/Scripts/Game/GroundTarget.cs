@@ -25,13 +25,15 @@ public class GroundTarget : MonoBehaviour
     private CTunity ctunity;
     private Vector3 targetPos = Vector3.one;
     internal GameObject targetObj = null;
-    
+    private Camera mainCamera = null;
+
     // Use this for initialization
     void Start()
     {
 //       ctunity = GameObject.Find("CTunity");
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();
         targetPos = transform.position;
+        mainCamera = Camera.main;                   // up front for efficiency
     }
 
     void OnGUI()
@@ -47,7 +49,7 @@ public class GroundTarget : MonoBehaviour
             /* || (m_Event.type == EventType.MouseDrag) */ )
         {
             RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            Ray ray = mainCamera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit, maxDistance))
             {
                 if(hit.collider.gameObject == gameObject)  // double click delete target
