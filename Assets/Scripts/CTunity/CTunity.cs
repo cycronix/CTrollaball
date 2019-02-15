@@ -671,7 +671,6 @@ public class CTunity : MonoBehaviour
         {
             if (gamePaused || (replayActive && (replayTime == oldTime)))  // no dupes (e.g. paused)
             {
-//                BPS = 0;
                 yield return null;          // ease up until next Update()
                 continue;
             }
@@ -687,16 +686,8 @@ public class CTunity : MonoBehaviour
                 yield return null;
                 continue;
             }
-            //            else    yield return null;
             loopTime = thisTime;
-
-            //         Debug.Log("waitInterval: " + waitInterval+", deltaTime: "+deltaTime+", waitInterval: "+waitInterval);
-
-            if (newSession)
-            {
-                //Debug.Log("getGameState, newSession, replayActive: "+replayActive);
-                pendingSession = true;
-            }
+            if (newSession) pendingSession = true;
 
             // form HTTP GET URL
             String urlparams = "";    // "?f=d" is no-op for wildcard request
@@ -711,11 +702,7 @@ public class CTunity : MonoBehaviour
                 www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
                 yield return www1.SendWebRequest();
 
-                if (newSession && !pendingSession)
-                {
-//                    Debug.Log("WHOA wait for pending session!");
-                    continue;
-                }
+                if (newSession && !pendingSession) continue;
 
                 // proceed with parsing CTstates.txt
                 if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10)
@@ -729,26 +716,14 @@ public class CTunity : MonoBehaviour
                 CTdebug(null);          // clear error
 
                 double stime = ServerTime();
-                if (stime > lastReadTime)
-//                    BPS = Math.Round(1F / (stime - lastReadTime));
-                    BPS = Math.Round( (BPS + (1F / (stime - lastReadTime)))/2F );       // block per sec (moving avg)
+                if (stime > lastReadTime) BPS = Math.Round((BPS + (1F/(stime - lastReadTime)))/2F); // block/sec (moving avg)
                 lastReadTime = stime;
 
                 // parse to class structure...
                 List<CTworld> ws = CTserdes.deserialize(this, www1.downloadHandler.text);
                 CTworld CTW = mergeCTworlds(ws);
-                if (CTW == null || CTW.objects == null)
-                {
-                    yield return null;          // ease up until next Update()
-                    continue;          // notta      
-                }
-
-                if (pendingSession)
-                {
-                    //				Debug.Log("END newSession!");
-                    pendingSession = newSession = false;               // (re)enable Update getData
-//                    Debug.Log("newSession OFF");
-                }
+                if (CTW == null || CTW.objects == null) continue;           // notta      
+                if (pendingSession) pendingSession = newSession = false;    // (re)enable Update getData
             }
         }              // end while(true)   
     }
