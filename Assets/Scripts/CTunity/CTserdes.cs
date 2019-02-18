@@ -259,10 +259,10 @@ public class CTserdes
 				CTobject cto = new CTobject();
 				cto.id = ctobject.id;
 
-				// legacy format conversion:
-				if (cto.id.Equals(jCTW.player)) cto.id = cto.id + "/" + cto.id;  // convert old top-level player
-				else if (cto.id.StartsWith(jCTW.player + ".")) cto.id = cto.id.Remove(0, jCTW.player.Length + 1);
-
+                // legacy format conversion:
+                //				if (cto.id.Equals(jCTW.player)) cto.id = cto.id + "/" + cto.id;  // convert old top-level player
+                //				else if (cto.id.StartsWith(jCTW.player + ".")) cto.id = cto.id.Remove(0, jCTW.player.Length + 1);
+//                Debug.Log("deserialize id: " + cto.id);
 				cto.model = ctobject.model;
 //				cto.state = ctobject.state;
 //				cto.link = ctobject.link;
@@ -379,8 +379,8 @@ public class CTserdes
             // strip leading world-name from embedded object name
 			String fullName = CTunity.fullName(ct);
             if (fullName.StartsWith(world.player + "/")) fullName = fullName.Remove(0, world.player.Length + 1);
-			obj.id = fullName;
-//			Debug.Log("CTserdes obj.id: " + obj.id+", world.player: "+world.player);
+ //           Debug.Log("CTserdes obj.id: " + obj.id + ", world.player: " + world.player+", fullName: "+fullName);
+            obj.id = fullName;
                      
 			obj.model = prefab;
 //			obj.state = (ct.activeSelf ? true : false);

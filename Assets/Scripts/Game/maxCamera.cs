@@ -88,17 +88,21 @@ public class maxCamera : MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
 	public void setTarget(Transform itarget)
 	{
- //       Debug.Log("setTarget: "+transform.position);
-		target = itarget;
-        targetName = itarget.name;
-        newTarget = true;
-        oldTarget = target.position;
-	}
+        if (itarget == null) target = GameObject.Find("Players").transform;
+        else
+        {
+            target = itarget;
+            targetName = itarget.name;
+            newTarget = true;
+            oldTarget = target.position;
+        }
+        //       Debug.Log("setTarget: "+transform.position);
+    }
 
-	//----------------------------------------------------------------------------------------------------------------
-	// handle near/far camera modes, auto-target Player
+    //----------------------------------------------------------------------------------------------------------------
+    // handle near/far camera modes, auto-target Player
 
-	private void Update()
+    private void Update()
 	{
 		// check for right-mouse double-click 
 		Boolean mouseToggle = false;

@@ -287,7 +287,7 @@ public class CTunity : MonoBehaviour
             foreach (KeyValuePair<String, CTobject> ctpair in world.objects)
             {
                 CTobject ctobject = ctpair.Value;
-                if (!ctobject.id.StartsWith(world.player + "/"))
+ //               if (!ctobject.id.StartsWith(world.player + "/"))
                     ctobject.id = world.player + "/" + ctobject.id;      // auto-prepend world name to object
 
                 // accumulate objects owned by each world      
@@ -321,7 +321,7 @@ public class CTunity : MonoBehaviour
                 {
                     if ((newSession || replayActive || !world.player.Equals(Player)))  // mjm 12/3/18
                     {
-                        // Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
+//                        Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
                         newGameObject(ctobject);
                     }
                     setState(ctobject.id, ctobject); 
@@ -409,9 +409,9 @@ public class CTunity : MonoBehaviour
 		GameObject tgo = GameObject.Find(objID);
 		if (tgo != null)
 		{
-			Debug.Log("Warning, replace existing: " + objID);      // unregistered prefabs hit this check
-            clearObject(tgo);  // clear vs leave in place?
-//			return tgo;
+			Debug.Log("Warning, existing object: " + objID);      // unregistered prefabs hit this check
+//            clearObject(tgo);  // clear vs leave in place?
+			return tgo;
 		}
 
         // load prefab
@@ -430,7 +430,7 @@ public class CTunity : MonoBehaviour
 		String[] pathparts = fullpath.Split(delims);
         
 		GameObject pgo = GameObject.Find(parent);   // "Players" at this point
-//        Debug.Log("create objID: " + objID);
+//        Debug.Log("create objID: " + objID+", fullpath: "+fullpath);
 
         for (int i = 1; i < pathparts.Length-1; i++)
 		{
@@ -797,7 +797,8 @@ public class CTunity : MonoBehaviour
 				{
 					CTobject ctobject = ctpair.Value;
                     if (objID != null) ctobject.id = objID;
-					if (!ctobject.id.StartsWith(Player+"/")) ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
+					if (!ctobject.id.StartsWith(Player+"/")) 
+                        ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
 					newGameObject(ctobject, true);      // require parent in-place 
    //                 newGameObject(ctobject, objID!=null);      // require parents in-place (obscure)
                 }

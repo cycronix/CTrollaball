@@ -238,6 +238,8 @@ public class CTsetup: MonoBehaviour
 		ctunity.CTdebug(null);                  // clear debug msg
 		ctunity.newSession = true;
 		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
+
+        myCamera.setTarget(null);               // reset cam target to default
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
