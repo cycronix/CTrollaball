@@ -489,15 +489,16 @@ public class CTunity : MonoBehaviour
 	//  clear and destroy a game object by name:
 
 	public void clearObject(String objectName) {
-//		Debug.Log("clearObject: " + objectName);
+//		Debug.Log("clearObject1: " + objectName);
 		if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
 		GameObject go = GameObject.Find(objectName);
 		if (go != null)
 		{
-			clearObject(go, false);
-		}
-		else
+//			clearObject(go, false);
+            clearObject(go, true);
+        }
+        else
 		{
 			CTlist.Remove(objectName);
 		}
@@ -505,7 +506,7 @@ public class CTunity : MonoBehaviour
 
     public void clearObject(String objectName, Boolean destroyImmediate)
     {
-//        Debug.Log("clearObject: " + objectName);
+//        Debug.Log("clearObject2: " + objectName);
         if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
         GameObject go = GameObject.Find(objectName);
@@ -526,7 +527,7 @@ public class CTunity : MonoBehaviour
 
     public void clearObject(GameObject go, Boolean destroyImmediate)
     {
-//        Debug.Log("clearObject: " + fullName(go)+", di: "+destroyImmediate);
+//        Debug.Log("clearObject3: " + fullName(go)+", di: "+destroyImmediate);
         if (go != null)
         {
             string objectName = fullName(go);
