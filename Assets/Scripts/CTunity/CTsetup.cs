@@ -105,6 +105,7 @@ public class CTsetup: MonoBehaviour
 					{
 						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
 						updateSession();
+                        myCamera.setTarget(null);               // reset cam target to default
 
                         if (playerDrop != null)
 						{
@@ -202,7 +203,8 @@ public class CTsetup: MonoBehaviour
 				case "Server":
 					ctunity.Server = c.text;
 					if (!ctunity.Server.Contains(":")) ctunity.Server += ":" + defaultPort;             // default port :8000
-					if (!ctunity.Server.StartsWith("http://")) ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
+					if (!ctunity.Server.StartsWith("http://") && !ctunity.Server.StartsWith("https://")) 
+                        ctunity.Server = "http://" + ctunity.Server;     // enforce leading http://
 					break;
 				case "User":
 					ctunity.user = c.text;
@@ -239,7 +241,7 @@ public class CTsetup: MonoBehaviour
 		ctunity.newSession = true;
 		ctunity.gamePaused = false;               // start updating world (set at completion of async getWorldState)
 
-        myCamera.setTarget(null);               // reset cam target to default
+//        myCamera.setTarget(null);               // reset cam target to default
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
