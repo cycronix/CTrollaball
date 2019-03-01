@@ -6067,9 +6067,10 @@ MonoBehaviour:
   blockRate: 10
   maxPointRate: 100
   blocksPerSegment: 1000
-  fpsInterval: 0.5
+  fpsInterval: 1
   LinkDeadTime: 10
   EnableScreenCap: 0
+  PaceTime: 1
   AsyncMode: 1
 --- !u!1 &1713389157
 GameObject:
