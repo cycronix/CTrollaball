@@ -270,7 +270,8 @@ public class CTunity : MonoBehaviour
         // second pass, screen masterTime, consolidate masterWorld
         foreach (CTworld world in worlds)
         {
-            if (world.time > updateTime) updateTime = world.time;      // keep track of most-recent CTW time
+            if (world.time > updateTime && !world.player.Equals(Player)) 
+                updateTime = world.time;      // keep track of most-recent CTW time
 
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
             if ((SyncTime > 0) && (delta > SyncTime))         // reject stale times
@@ -668,7 +669,7 @@ public class CTunity : MonoBehaviour
     // getGameState: GET <Session>/GamePlay/* from CT, update world objects (all modes)
 
     double oldTime = 0;
-    double loopTime = 0;
+    double lastTime = 0;
     float waitTime = 0;
     public IEnumerator getGameState()
     {
@@ -683,10 +684,11 @@ public class CTunity : MonoBehaviour
             oldTime = replayTime;
 
             double thisTime = ServerTime();
-            double deltaTime = thisTime - loopTime;
+            double deltaTime = thisTime - lastTime;
             float pointTime = 1F / maxPointRate;
-            if (replayActive || deltaWorldTime > 0) waitTime = pointTime;
-            else                                    waitTime = Math.Min(PaceTime, waitTime * 1.1f);
+            if (replayActive || deltaWorldTime > 0) 
+                    waitTime = pointTime;                               // fast waitTime if active
+            else    waitTime = Math.Min(PaceTime, waitTime * 1.1f);     // grow waitTime if idle
 //            Debug.Log("waitTime: " + waitTime + ", pointTime: " + pointTime + ", pollInterval: " + pollInterval + ", deltaWorldTime: " + deltaWorldTime+", deltaTime: "+deltaTime);
             if (deltaTime < waitTime)
             {
@@ -694,7 +696,7 @@ public class CTunity : MonoBehaviour
                 continue;
             }
  //           else Debug.Log("doGET! waitTime: "+waitTime+", deltaTime: "+deltaTime);
-            loopTime = thisTime;
+            lastTime = thisTime;
             if (newSession) pendingSession = true;
 
             // form HTTP GET URL
@@ -724,7 +726,7 @@ public class CTunity : MonoBehaviour
                 CTdebug(null);          // clear error
 
                 double stime = ServerTime();
-                if (stime > lastReadTime) BPS = Math.Round((BPS + (1F/(stime - lastReadTime)))/2F); // block/sec (moving avg)
+                if (stime > lastReadTime) BPS = Math.Ceiling((BPS + (1F/(stime - lastReadTime)))/2F); // block/sec (moving avg)
                 lastReadTime = stime;
 
                 // parse to class structure...
