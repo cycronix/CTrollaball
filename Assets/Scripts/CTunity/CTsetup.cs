@@ -127,7 +127,7 @@ public class CTsetup: MonoBehaviour
                             if (svalue.Equals(ctunity.Save))
                             {
                                 ctunity.SnapShot();
-                                //								StartCoroutine("getInventoryList");         // update list of "World" prefabs
+                                //	StartCoroutine("getInventoryList");         // update list of "World" prefabs
                             }
                             else if (svalue.Equals(ctunity.Clear)) ctunity.clearWorld();
                             else if (svalue.Equals(ctunity.Load))
@@ -433,18 +433,21 @@ public class CTsetup: MonoBehaviour
         if (ctunity.PlayerList == null) return;         // nothing new
         if (!gameOptions.activeSelf) return;            // nothing to show
 
-//        Debug.Log("setPlayer: " + ctunity.Player);
-//        Dropdown d = transform.Find("Player1").gameObject.GetComponent<Dropdown>();
+//        Debug.Log("setPlayer: " + ctunity.Player+", NumInventory: "+NumInventory+", playerList.Count: "+ctunity.PlayerList.Count);
         Dropdown d = Player.gameObject.GetComponent<Dropdown>();
 
         d.ClearOptions();
         List<String> playerlist = new List<String>();
         playerlist.Add("Observer");
+  //      if (ctunity.user.Equals(ctunity.rootPlayer)) playerlist.Add(ctunity.rootPlayer); // nope
+
         if (NumInventory > 0)   // no inventory, no player
         {
             foreach (string p in ctunity.PlayerList)
             {
+//                Debug.Log("pl: " + p);
                 if (ctunity.user.Equals(ctunity.rootPlayer) || !p.Equals("World")) playerlist.Add(p);      // hard-wire filter "World" player
+//                if (!p.Equals(ctunity.rootPlayer)) playerlist.Add(p);      // hard-wire filter "World" player
             }
         }
 //        playerlist.AddRange(ctunity.PlayerList);

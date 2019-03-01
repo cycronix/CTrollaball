@@ -44,6 +44,7 @@ public class CTunity : MonoBehaviour
 	public float fpsInterval = 0.1f;        // update interval for FPS info   
     public float LinkDeadTime = 10F;        // time without updates before (re)enabling player connect
     public Boolean EnableScreenCap = false;  // open/enable screencap video
+    public float PaceTime = 1f;                 // update rate while all-quiet
 
 	// flags:
 	public Boolean AsyncMode = true;               // true to use CTlib threads
@@ -59,7 +60,9 @@ public class CTunity : MonoBehaviour
     internal SortedDictionary<String, GameObject> CTlist = new SortedDictionary<String, GameObject>();
 	internal List<String> PlayerList = new List<String>();
 
-	internal double latestTime = 0F;
+	internal double latestWorldTime = 0F;
+    internal double deltaWorldTime = 0;
+
     internal string Server = "http://localhost:8000";
     internal string Player = "";
     internal string Model = "Ball";
@@ -332,7 +335,8 @@ public class CTunity : MonoBehaviour
 		// scan for missing objects
 		clearMissing(CTW);
 
-		latestTime = updateTime;                    // for replay reference
+        deltaWorldTime = updateTime - latestWorldTime;
+		latestWorldTime = updateTime;                    // for replay reference
 		PlayerList = tsourceList;                   // update list of active sources
 
 		return CTW;                                 // consolidated CTworld
@@ -665,6 +669,7 @@ public class CTunity : MonoBehaviour
 
     double oldTime = 0;
     double loopTime = 0;
+    float waitTime = 0;
     public IEnumerator getGameState()
     {
         Boolean pendingSession = false;
@@ -680,13 +685,15 @@ public class CTunity : MonoBehaviour
             double thisTime = ServerTime();
             double deltaTime = thisTime - loopTime;
             float pointTime = 1F / maxPointRate;
-            float waitInterval = replayActive ? pointTime : pollInterval;       // pointInterval for faster response
-            waitInterval = waitInterval - (float)deltaTime;                     // extra wait?
-            if (waitInterval > pointTime)
+            if (replayActive || deltaWorldTime > 0) waitTime = pointTime;
+            else                                    waitTime = Math.Min(PaceTime, waitTime * 1.1f);
+//            Debug.Log("waitTime: " + waitTime + ", pointTime: " + pointTime + ", pollInterval: " + pollInterval + ", deltaWorldTime: " + deltaWorldTime+", deltaTime: "+deltaTime);
+            if (deltaTime < waitTime)
             {
                 yield return null;
                 continue;
             }
+ //           else Debug.Log("doGET! waitTime: "+waitTime+", deltaTime: "+deltaTime);
             loopTime = thisTime;
             if (newSession) pendingSession = true;
 
@@ -695,7 +702,7 @@ public class CTunity : MonoBehaviour
             if (replayActive) urlparams = "?t=" + replayTime;          // replay at masterTime
             else urlparams = "?c=" + Math.Round(pollInterval * 1000F);         //  set cache interval 
             string url1 = Server + "/CT/" + Session + "/GamePlay/*/" + CTchannel + urlparams;
-            //           Debug.Log("url1: " + url1);
+//            Debug.Log("url1: " + url1);
 
             // enclose in "using" to ensure www1 object properly disposed:
             using (UnityWebRequest www1 = UnityWebRequest.Get(url1))
@@ -721,6 +728,7 @@ public class CTunity : MonoBehaviour
                 lastReadTime = stime;
 
                 // parse to class structure...
+//                Debug.Log("wtext: " + www1.downloadHandler.text);
                 List<CTworld> ws = CTserdes.deserialize(this, www1.downloadHandler.text);
                 CTworld CTW = mergeCTworlds(ws);
                 if (CTW == null || CTW.objects == null) continue;           // notta      

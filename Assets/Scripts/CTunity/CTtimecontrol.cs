@@ -148,7 +148,7 @@ public class CTtimecontrol : MonoBehaviour {
 //		double timeDelay = replayDuration;
 		//		if (ctunity.observerFlag) timeDelay = longReplayDuration;           
         
-		endReplayTime = ctunity.latestTime + (2F / ctunity.blockRate);  // add a little time?
+		endReplayTime = ctunity.latestWorldTime + (2F / ctunity.blockRate);  // add a little time?
 
 		startReplayTime = endReplayTime - replayDuration;
 //		durationReplayTime = endReplayTime - startReplayTime;
