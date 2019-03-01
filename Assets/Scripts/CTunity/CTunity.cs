@@ -273,6 +273,7 @@ public class CTunity : MonoBehaviour
             if (world.time > updateTime && !world.player.Equals(Player)) 
                 updateTime = world.time;      // keep track of most-recent CTW time
 
+//            Debug.Log("world: " + world.player + ", time: " + world.time + ", updateTime: " + updateTime);
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
             if ((SyncTime > 0) && (delta > SyncTime))         // reject stale times
             {
@@ -670,7 +671,7 @@ public class CTunity : MonoBehaviour
 
     double oldTime = 0;
     double lastTime = 0;
-    float waitTime = 0;
+    double waitTime = 0;
     public IEnumerator getGameState()
     {
         Boolean pendingSession = false;
@@ -685,11 +686,11 @@ public class CTunity : MonoBehaviour
 
             double thisTime = ServerTime();
             double deltaTime = thisTime - lastTime;
-            float pointTime = 1F / maxPointRate;
-            if (replayActive || deltaWorldTime > 0) 
-                    waitTime = pointTime;                               // fast waitTime if active
-            else    waitTime = Math.Min(PaceTime, waitTime * 1.1f);     // grow waitTime if idle
-//            Debug.Log("waitTime: " + waitTime + ", pointTime: " + pointTime + ", pollInterval: " + pollInterval + ", deltaWorldTime: " + deltaWorldTime+", deltaTime: "+deltaTime);
+            double pointTime = 1F / maxPointRate;
+            if (replayActive) waitTime = pointTime;
+
+//           Debug.Log("waitTime: " + waitTime + ", pointTime: " + pointTime + ", pollInterval: " + pollInterval + ", deltaWorldTime: " + deltaWorldTime+", deltaTime: "+deltaTime);
+            // idle-loop until expected amount of time for next update
             if (deltaTime < waitTime)
             {
                 yield return null;
@@ -726,7 +727,12 @@ public class CTunity : MonoBehaviour
                 CTdebug(null);          // clear error
 
                 double stime = ServerTime();
-                if (stime > lastReadTime) BPS = Math.Ceiling((BPS + (1F/(stime - lastReadTime)))/2F); // block/sec (moving avg)
+                if (stime > lastReadTime)  // block/sec (moving avg)
+                {
+//                    BPS = Math.Round((BPS + (1F / (stime - lastReadTime))) / 2F); 
+                    if (BPS < 1F)   BPS = Math.Ceiling((BPS + (1F / (stime - lastReadTime))) / 2F); // don't round to 0
+                    else            BPS = Math.Round((BPS + (1F / (stime - lastReadTime))) / 2F);
+                }
                 lastReadTime = stime;
 
                 // parse to class structure...
@@ -735,6 +741,13 @@ public class CTunity : MonoBehaviour
                 CTworld CTW = mergeCTworlds(ws);
                 if (CTW == null || CTW.objects == null) continue;           // notta      
                 if (pendingSession) pendingSession = newSession = false;    // (re)enable Update getData
+
+                if(!replayActive)       // got a new deltaWorldTime...
+                {
+                    //  if (deltaWorldTime > 0) waitTime = Math.Max(0F, pollInterval-deltaTime);         // fast waitTime if active
+                    if (deltaWorldTime > 0) waitTime = pollInterval;         // fast waitTime if active
+                    else waitTime = Math.Min(PaceTime, waitTime * 1.1f);     // grow waitTime if idle
+                }
             }
         }              // end while(true)   
     }
