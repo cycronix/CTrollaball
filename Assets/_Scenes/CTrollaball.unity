@@ -5206,13 +5206,13 @@ MonoBehaviour:
   targetOffset: {x: 0, y: 0, z: 0}
   distance: 100
   maxDistance: 250
-  minDistance: 0.2
+  minDistance: 0.5
   xSpeed: 200
   ySpeed: 200
   yLimit: 89
-  zoomRate: 20
+  zoomRate: 15
   zoomDampening: 4
-  snapIn: 0.5
+  snapIn: 1
   snapOut: 2
 --- !u!1 &1480629243
 GameObject:

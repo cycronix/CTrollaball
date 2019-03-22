@@ -893,7 +893,7 @@ public class CTunity : MonoBehaviour
     // return True if this object should be written to CT
 	public Boolean activePlayer(GameObject go) {
 		Boolean isactive = localPlayer(go) && activeWrite && !newSession && go.activeSelf;  // whew
- //       Debug.Log(go.name + ", activeWrite: " + activeWrite + ", newSession: " + newSession + ", localP: " + localPlayer(go) + ", isactive: " + isactive);
+//        Debug.Log(go.name + ", activeWrite: " + activeWrite + ", newSession: " + newSession + ", localP: " + localPlayer(go) + ", isactive: " + isactive);
 		return isactive;
 	}
 

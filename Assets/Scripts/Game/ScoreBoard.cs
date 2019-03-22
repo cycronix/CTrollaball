@@ -34,6 +34,7 @@ public class ScoreBoard : MonoBehaviour
     public Boolean showHP = true;
     public Boolean scaleSize = false;
     public float damageInterval = 1f;            // seconds contact per damage ticks
+    public Boolean debug = false;
 
     private Vector3 initialScale = Vector3.one;
     private Vector3 targetScale = Vector3.one;
@@ -110,7 +111,7 @@ public class ScoreBoard : MonoBehaviour
 
     void OnTriggerEnter(Collider collider)
     {
- //       Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
+        if(debug) Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
 
         if (!showHP) return;
         ScoreBoard tkso = collider.gameObject.GetComponent<ScoreBoard>();
@@ -127,7 +128,7 @@ public class ScoreBoard : MonoBehaviour
 
     void OnTriggerExit(Collider collider)
     {
- //      Debug.Log(CTunity.fullName(gameObject) + ", END Trigger with: " + collider.name);
+        if(debug) Debug.Log(CTunity.fullName(gameObject) + ", END Trigger with: " + collider.name);
         if (thisCollider == collider) thisCollider = null;
     }
 
@@ -136,32 +137,37 @@ public class ScoreBoard : MonoBehaviour
 
     void OnCollisionEnter(Collision collision)
     {
-//        Debug.Log(CTunity.fullName(gameObject) + ", Collision with: " + CTunity.fullName(collision.collider.gameObject));
+        if(debug) Debug.Log(CTunity.fullName(gameObject) + ", Collision with: " + CTunity.fullName(collision.collider.gameObject));
         if (!showHP) return;
 
         ScoreBoard tkso = collision.collider.gameObject.GetComponent<ScoreBoard>();
-//        if(tkso != null) Debug.Log("new kso.ATK: " + tkso.ATK + ", thisCollider: " + thisCollider);
-
+        if (debug)
+        {
+ //           Debug.Log(gameObject.name + ", activePlayer: " + ctunity.activePlayer(gameObject) + ", activeWrite: " + CTunity.activeWrite + ", newSession: " + ctunity.newSession + ", localP: " + ctunity.localPlayer(gameObject));
+ //           Debug.Log("ctplayer: " + ctunity.ctplayer + ", paused: " + ctunity.gamePaused + ", replayActive: " + ctunity.replayActive + ", Player: " + ctunity.Player);
+        }
         if (tkso != null && ctunity.activePlayer(gameObject) && !ctunity.localPlayer(collision.gameObject))
         {
             kso = tkso;
             thisCollider = collision.collider;
             targetScale = transform.localScale;
             stopWatch = damageInterval;     // quick hit to start
+            if (debug) Debug.Log("HIT! thisCollider: "+thisCollider);
         }
     }
 
     void OnCollisionExit(Collision collision)
     {
-  //      Debug.Log(CTunity.fullName(gameObject) + ", END Collision with: " + collision.collider.name);
+        if(debug) Debug.Log(CTunity.fullName(gameObject) + ", END Collision with: " + collision.collider.name);
         if (thisCollider == collision.collider) thisCollider = null;
     }
 
     //----------------------------------------------------------------------------------------------------------------
     void doCollision(Collider other)
     {
-//        Debug.Log("doCollision, showHP: " + showHP + ", kso: " + kso);
+        if(debug) Debug.Log(name+": doCollision, showHP: " + showHP + ", kso: " + kso);
         if (!showHP || kso==null) return;                                        // no game
+//        if (!showHP || kso == null || !ctunity.activePlayer(gameObject)) return;                                        // no game
 
         String myName = CTunity.fullName(gameObject);
         String otherName = CTunity.fullName(other.gameObject);
