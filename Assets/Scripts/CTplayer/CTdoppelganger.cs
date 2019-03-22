@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -52,9 +52,6 @@ public class CTdoppelganger : MonoBehaviour {
 	//----------------------------------------------------------------------------------------------------------------
 	void Update()
 	{
-		//		if (!ctclient.isLocalObject()) return;   // notta unless locally recorded object
-//		TrackTarget = ctclient.custom;
-//		if (TrackTarget.Equals("")) TrackTarget = ctunity.Player;                   // default to track parent
 		if (trackobject == null || !TrackTarget.Equals(trackobject.name)) 
 			trackobject = GameObject.Find(TrackTarget);     // child-init
 

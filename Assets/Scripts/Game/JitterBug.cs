@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -49,9 +49,7 @@ public class JitterBug : MonoBehaviour {
     
 	void Update()
 	{
-//		if (!ctclient.isLocalControl()) return;                 // notta unless under local-control
-//		if (!CTunity.activeWrite) return;
-		if (!ctunity.activePlayer(gameObject) /* || !CTunity.activeWrite */) return;   // consolidate to single check...
+		if (!ctunity.activePlayer(gameObject)) return;   // notta
 
 		stopWatch += Time.deltaTime;
 		if (stopWatch >= UpdateInterval)

@@ -54,10 +54,6 @@ public class ScoreBoard : MonoBehaviour
         //       if (showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP)
         {
- //           int HP = ctclient.getCustom("HP", 0);
- //           if (HP == 0) showHP = false;        // enabled by startup JSON having HP custom field
- //            else initialHP = HP;
-
             int hp = ctclient.getCustom("HP", 0);
  //           Debug.Log(name+",startup HP: "+HP+", hp: " + hp + ", custom: " + ctclient.custom);
             if (hp != 0)
@@ -84,15 +80,12 @@ public class ScoreBoard : MonoBehaviour
             int w = 32;
             w = ctclient.custom.Length * 7 + 14;
             int h = 24;
-            //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), HP + "");
             GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
-            //         GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), new GUIContent(HP + "", ctclient.custom));
         }
     }
 
     private void Update()
     {
-        //        if(showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP) HP = ctclient.getCustom("HP", HP);
  //       Debug.Log(name + ",Update HP: " + HP + ", custom: " + ctclient.custom);
 
@@ -118,8 +111,6 @@ public class ScoreBoard : MonoBehaviour
     void OnTriggerEnter(Collider collider)
     {
  //       Debug.Log(CTunity.fullName(gameObject) + ", Trigger with: " + collider.name);
-        //        if (collider == thisCollider) return;  // on going
-        //       doCollision(collider);
 
         if (!showHP) return;
         ScoreBoard tkso = collider.gameObject.GetComponent<ScoreBoard>();
@@ -139,20 +130,7 @@ public class ScoreBoard : MonoBehaviour
  //      Debug.Log(CTunity.fullName(gameObject) + ", END Trigger with: " + collider.name);
         if (thisCollider == collider) thisCollider = null;
     }
-    /*
-    private void OnTriggerStay(Collider collider)
-    {
-        Debug.Log(CTunity.fullName(gameObject) + ", STAY Trigger with: " + collider.name);
-        if (collider != thisCollider) return;
 
-        stopWatch += Time.deltaTime;
-        if (stopWatch >= damageInterval)
-        {
-            doCollision(collider);
-            stopWatch = 0;
-        }
-    }
-    */
     //----------------------------------------------------------------------------------------------------------------
     // detect collisions
 
@@ -206,27 +184,4 @@ public class ScoreBoard : MonoBehaviour
 
         if (scaleSize) targetScale = initialScale * (0.1f + 0.9f * ((float)(HP) / (float)initialHP));
     }
-
-    /*
-    //----------------------------------------------------------------------------------------------------------------
-    public void OnMouseDown()
-    {
-        String myname = CTunity.fullName(gameObject);
-        Debug.Log("target: " + myname + ", oldcustom: "+custom);
-        if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
-        {
-            custom = myname;
-        }
-    }
-
-    public void OnMouseUp()
-    {
-        String myname = CTunity.fullName(gameObject);
-        Debug.Log("UNtarget: " + myname + ", oldcustom: " + custom);
-        if (!EventSystem.current.IsPointerOverGameObject())     // avoid "click through" from UI elements
-        {
-            custom = null;
-        }
-    }
-    */
 }

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ public class CTunity : MonoBehaviour
 	#region Globals
 	public float TrackDur = 10f;
 	public float SyncTime = 0;        // nix inactive players beyond this time (sec)
-//	public int BlockPts = 5;                        // 5/50 = 0.1s
 	internal float pollInterval = 0.1F;       // global update-interval (sets BlockPts)
 	[Range(1,100)]
 	public int blockRate = 20;                   // rate to send file updates (Hz)
@@ -52,7 +51,6 @@ public class CTunity : MonoBehaviour
 	internal static Boolean activeWrite = false;
     internal static Boolean activeRead = false;         // to do...
     internal Boolean newSession = true;
-	//    internal Boolean observerFlag = true;
     internal Boolean trackEnabled = false;             // enable player-tracks
 	internal Boolean replayActive = false;
     

@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ using UnityEngine.UI;
 //----------------------------------------------------------------------------------------------------------------
 public class CTtimecontrol : MonoBehaviour {
 	public double masterTime = 0;
-//	private double now = 0;
 	public Boolean replayActive = false;
 	public Text replayText;                     // set via GUI component
 	public Text timeText;
@@ -40,7 +39,6 @@ public class CTtimecontrol : MonoBehaviour {
 	private static string replayLabel = "Replay";
 	private static string pausedLabel = "Paused";
 	private static string liveLabel = "Live";
-//	private static string remoteLabel = "Remote";
 	private static string stateString = pausedLabel;
 
 	internal double playFactor = 0F;          // factor to auto-play masterTime back, pause, forward

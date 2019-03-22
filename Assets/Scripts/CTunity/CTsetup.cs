@@ -1,5 +1,5 @@
 ﻿/*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -30,12 +30,6 @@ using UnityEngine.EventSystems;
 
 //----------------------------------------------------------------------------------------------------------------
 public class CTsetup: MonoBehaviour
-//    , IPointerClickHandler,
-//      IPointerDownHandler,
-//     IPointerUpHandler,
-//     IPointerEnterHandler,
-//     IPointerExitHandler,
-//     ISelectHandler
 {
     public int defaultPort = 8000;
 
@@ -285,7 +279,6 @@ public class CTsetup: MonoBehaviour
 				break;
 		}
 
-//        setPlayerList();
     }
     
 	//----------------------------------------------------------------------------------------------------------------

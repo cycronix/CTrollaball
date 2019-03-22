@@ -7,7 +7,7 @@
 // extensively modified Cycronix 3/2018
 
 /*
-Copyright 2018 Cycronix
+Copyright 2019 Cycronix
  
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,7 +60,6 @@ public class maxCamera : MonoBehaviour
 	private String targetName = "";
 	private Vector3 oldTarget = Vector3.zero;
 	private CTunity ctunity;
-    //	private Stopwatch stopWatch;
     private Boolean newTarget = false;
     private Vector3 velocity = Vector3.zero;
 
@@ -221,16 +220,6 @@ public class maxCamera : MonoBehaviour
             transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
  //           Debug.Log("Lerp target dx: "+dx);
             if (dx < 0.01F) newTarget = false;
-
-              //          float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
- //           if (deltaRot < 0.1F) newTarget = false;
-  //          transform.LookAt(target);
-            
-  //          desiredRotation = Quaternion.LookRotation(target.position-transform.position, Vector3.up);
-  //          transform.rotation = Quaternion.Lerp(transform.rotation, desiredRotation, Time.deltaTime * zoomDampening);  // fast!?
-  //          currentDistance = desiredDistance = Vector3.Magnitude(transform.position - target.position);
-  //          float deltaRot = Math.Abs(Quaternion.Angle(transform.rotation, desiredRotation));
- //           if (deltaRot < 0.1F) newTarget = false;
         }
         else
         {
