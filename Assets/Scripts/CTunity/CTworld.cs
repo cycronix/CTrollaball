@@ -27,6 +27,7 @@ namespace CTworldNS
 //        public string mode { get; set; }
         //        public List<CTobject> objects;
         public Dictionary<String, CTobject> objects;
+        public Boolean active { get; set; }
     }
 
 	public class CTobject

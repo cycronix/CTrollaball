@@ -35,6 +35,7 @@ public class ScoreBoard : MonoBehaviour
     public Boolean scaleSize = false;
     public float damageInterval = 1f;            // seconds contact per damage ticks
     public Boolean debug = false;
+    public Boolean killParent = false;          // kill parent (self and siblings) upon death
 
     private Vector3 initialScale = Vector3.one;
     private Vector3 targetScale = Vector3.one;
@@ -55,8 +56,9 @@ public class ScoreBoard : MonoBehaviour
         //       if (showHP) int.TryParse(ctclient.getCustom("HP", HP + ""), out HP);
         if (showHP)
         {
+            initialHP = HP;         // init to static global value
             int hp = ctclient.getCustom("HP", 0);
- //           Debug.Log(name+",startup HP: "+HP+", hp: " + hp + ", custom: " + ctclient.custom);
+//            Debug.Log(name+",startup HP: "+HP+", hp: " + hp + ", custom: " + ctclient.custom);
             if (hp != 0)
             {
                 HP = hp;                   // over-ride baked-in if custom present
@@ -185,7 +187,12 @@ public class ScoreBoard : MonoBehaviour
         HP -= damage;
         if (HP < 0) HP = 0;
         ctclient.putCustom("HP", HP);
-        if (HP <= 0) ctunity.clearObject(gameObject, false);  // can't destroyImmediate inside collision callback
+        if (HP <= 0)
+        {
+            if(killParent)  // can't destroyImmediate inside collision callback
+                    ctunity.clearObject(gameObject.transform.parent.gameObject, false);  
+            else    ctunity.clearObject(gameObject, false);  
+        }
 //        Debug.Log(myName + ", collide with: " + otherName+", damage: "+damage+", kso.ATK: "+kso.ATK+", AC: "+AC);
 
         if (scaleSize) targetScale = initialScale * (0.1f + 0.9f * ((float)(HP) / (float)initialHP));

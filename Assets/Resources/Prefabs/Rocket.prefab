@@ -160,10 +160,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   HP: 10
-  ATK: 5
+  ATK: 50
   AC: 1
   showHP: 1
   scaleSize: 1
+  damageInterval: 1
+  debug: 0
+  killParent: 0
 --- !u!64 &1498003119086088858
 MeshCollider:
   m_ObjectHideFlags: 0

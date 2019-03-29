@@ -56,9 +56,10 @@ public class CTunity : MonoBehaviour
     
     // internal variable accessible from other scripts but not Editor Inspector
     internal SortedDictionary<String, GameObject> CTlist = new SortedDictionary<String, GameObject>();
-	internal List<String> PlayerList = new List<String>();
+//	internal List<String> PlayerList = new List<String>();
+    internal List<CTworld> WorldList = new List<CTworld>();
 
-	internal double latestWorldTime = 0F;
+    internal double latestWorldTime = 0F;
     internal double deltaWorldTime = 0;
 
     internal string Server = "http://localhost:8000";
@@ -72,7 +73,7 @@ public class CTunity : MonoBehaviour
 	internal String Cancel = "<Cancel>";        // dropdown value to cancel/delete un-played deployed objects
 	internal String Clear = "<Clear>";          // dropdown value to delete all player objects
 	internal String Save = "<Save>";            // dropdown value to save player world
-    internal String Load = "<Load>";            // dropdown value to load player world
+    internal String Load = "<Reset>";            // dropdown value to load player world
 	internal String Observer = "Observer";      // reserved player-name for observe-only mode
 	internal String Inventory = "Inventory";    // folder name for deployables
     internal String rootPlayer = "World";        // root user has expanded privileges
@@ -86,7 +87,7 @@ public class CTunity : MonoBehaviour
 	internal String replayText = "Live";
 
     // login user/pw
-	internal string user = "CloudTurbine";
+	internal string user = "World";             // default user (if none present)
 	internal String password = "RBNB";
 	#endregion
 
@@ -262,8 +263,7 @@ public class CTunity : MonoBehaviour
 		CTW.time = masterTime;
 
 		CTW.objects = new Dictionary<String, CTobject>();
-		List<String> tsourceList = new List<String>();
-		if (!Player.Equals("") && !Player.Equals("Observer")) tsourceList.Add(Player);    // always include self
+        List<CTworld> tworldList = new List<CTworld>();
 
         // second pass, screen masterTime, consolidate masterWorld
         foreach (CTworld world in worlds)
@@ -271,7 +271,6 @@ public class CTunity : MonoBehaviour
             if (world.time > updateTime && !world.player.Equals(Player)) 
                 updateTime = world.time;      // keep track of most-recent CTW time
 
-//            Debug.Log("world: " + world.player + ", time: " + world.time + ", updateTime: " + updateTime);
             double delta = Math.Abs(world.time - masterTime);   // masterTime NG on Remote... ???         
             if ((SyncTime > 0) && (delta > SyncTime))         // reject stale times
             {
@@ -279,11 +278,10 @@ public class CTunity : MonoBehaviour
                 continue;
             }
 
-            if (!tsourceList.Contains(world.player))
+            if (world.objects.Count > 0)                    // skip empty place-holder worlds
             {
-//                Debug.Log("tsourceList.Add: " + world.player + ", delta: " + delta);
-                if(delta > LinkDeadTime)
-                    tsourceList.Add(world.player);     // build list of active worlds
+                world.active = (delta < LinkDeadTime);
+                tworldList.Add(world);                      // build list of active worlds
             }
 
 //            Debug.Log("mergeWorlds player: " + world.player+", objects: "+world.objects.Count);
@@ -306,6 +304,7 @@ public class CTunity : MonoBehaviour
                 // set object state with CTclient
                 GameObject mygo;
                 Boolean isOnList = CTlist.TryGetValue(ctobject.id, out mygo);
+
                 if (isOnList && mygo != null)       // object exists
                 {
                     if ((isReplayMode() || !world.player.Equals(Player)))  // check for change of prefab
@@ -324,7 +323,6 @@ public class CTunity : MonoBehaviour
                 {
                     if ((newSession || replayActive || !world.player.Equals(Player)))  // mjm 12/3/18
                     {
-//                        Debug.Log("newGameObject, name: " + ctobject.id+", world.player: "+world.player+", Player: "+Player);
                         newGameObject(ctobject);
                     }
                     setState(ctobject.id, ctobject); 
@@ -337,8 +335,9 @@ public class CTunity : MonoBehaviour
 
         deltaWorldTime = updateTime - latestWorldTime;
 		latestWorldTime = updateTime;                    // for replay reference
-		PlayerList = tsourceList;                   // update list of active sources
+        WorldList = tworldList;                     // update set of worlds
 
+//        Debug.Log("new Worldlist!");  foreach(CTworld ctw in WorldList) Debug.Log("ctw: " + ctw.player+", time: "+ctw.time+", nobjects: "+ctw.objects.Count);
 		return CTW;                                 // consolidated CTworld
 	}
 
@@ -379,10 +378,9 @@ public class CTunity : MonoBehaviour
 		Vector3 position = ctobject.pos;
 		Quaternion rotation = ctobject.rot;
 		Vector3 scale = ctobject.scale;
-//		Boolean isactive = ctobject.state;
 		Color color = ctobject.color;
 
-	//	Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom+", prefab: "+prefab);
+//		Debug.Log("newGameObject: " + objID+", prefab: "+prefab+", custom: "+ctobject.custom+", prefab: "+prefab+", color: "+color);
 		if (prefab.Equals("")) return null;         // in-game player without prefab
 
         // already exists?
@@ -493,13 +491,11 @@ public class CTunity : MonoBehaviour
 	//  clear and destroy a game object by name:
 
 	public void clearObject(String objectName) {
-//		Debug.Log("clearObject1: " + objectName);
 		if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
 		GameObject go = GameObject.Find(objectName);
 		if (go != null)
 		{
-//			clearObject(go, false);
             clearObject(go, true);
         }
         else
@@ -510,7 +506,6 @@ public class CTunity : MonoBehaviour
 
     public void clearObject(String objectName, Boolean destroyImmediate)
     {
-//        Debug.Log("clearObject2: " + objectName);
         if (!CTlist.ContainsKey(objectName)) return;            // not already there
 
         GameObject go = GameObject.Find(objectName);
@@ -531,7 +526,6 @@ public class CTunity : MonoBehaviour
 
     public void clearObject(GameObject go, Boolean destroyImmediate)
     {
-//        Debug.Log("clearObject3: " + fullName(go)+", di: "+destroyImmediate);
         if (go != null)
         {
             string objectName = fullName(go);
@@ -630,11 +624,11 @@ public class CTunity : MonoBehaviour
         if (newSession) return;
 
 		List<String> destroyList = new List<String>();  // make copy; avoid sync error
-        
-		foreach (KeyValuePair<string, GameObject> entry in CTlist)      // cycle through objects in world
+
+        foreach (KeyValuePair<string, GameObject> entry in CTlist)      // cycle through objects in world
         {
-			GameObject go = entry.Value;
-			String goName = entry.Key;
+            GameObject go = entry.Value;
+            String goName = entry.Key;
 
             if ((go == null) || !go.activeSelf)         // prune inactive objects
             {
@@ -642,8 +636,6 @@ public class CTunity : MonoBehaviour
             }
             else
             {
-                //				if (!ctworld.objects.ContainsKey(goName))
-                //				{
                 //  don't deactivate locally owned Player objects (might be instantiated but not yet seen in ctworld)
                 if (!activeWrite || !goName.StartsWith(Player))
                 {
@@ -656,12 +648,15 @@ public class CTunity : MonoBehaviour
                         }
                     }
                 }
-                //				}
             }
         }
-        
+
         // clear out destroylist
-		foreach (String t in destroyList) clearObject(t);  // destroy while iterating wrecks list
+        foreach (String t in destroyList)
+        {
+//            Debug.Log("clearMissing: " + t);
+            clearObject(t);  // destroy while iterating wrecks list
+        }
     }
 
     //-------------------------------------------------------------------------------------------------------
@@ -689,12 +684,11 @@ public class CTunity : MonoBehaviour
 
 //           Debug.Log("waitTime: " + waitTime + ", pointTime: " + pointTime + ", pollInterval: " + pollInterval + ", deltaWorldTime: " + deltaWorldTime+", deltaTime: "+deltaTime);
             // idle-loop until expected amount of time for next update
-            if (deltaTime < waitTime)
+            if (deltaTime < waitTime || Session.Equals(""))
             {
                 yield return null;
                 continue;
             }
- //           else Debug.Log("doGET! waitTime: "+waitTime+", deltaTime: "+deltaTime);
             lastTime = thisTime;
             if (newSession) pendingSession = true;
 
@@ -734,7 +728,6 @@ public class CTunity : MonoBehaviour
                 lastReadTime = stime;
 
                 // parse to class structure...
-//                Debug.Log("wtext: " + www1.downloadHandler.text);
                 List<CTworld> ws = CTserdes.deserialize(this, www1.downloadHandler.text);
                 CTworld CTW = mergeCTworlds(ws);
                 if (CTW == null || CTW.objects == null) continue;           // notta      
@@ -772,8 +765,7 @@ public class CTunity : MonoBehaviour
             yield break;
         }
         String myPlayer = String.Copy(Player);
-
-        //        Debug.Log("deployInventory: " + deploy+", id: "+objID);
+        //  Debug.Log("deployInventory: " + deploy+", id: "+objID);
 
         WaitForSeconds delay = new WaitForSeconds(pollInterval);
         while (true)
@@ -787,9 +779,6 @@ public class CTunity : MonoBehaviour
             www1.SetRequestHeader("AUTHORIZATION", CTauthorization());
             yield return www1.SendWebRequest();
 
-//            newSession = true;          // flag new session???
-//           Debug.Log("newSession ON");
-
             // proceed with parsing CTstates.txt
             if (!string.IsNullOrEmpty(www1.error) || www1.downloadHandler.text.Length < 10) 
             {
@@ -798,7 +787,6 @@ public class CTunity : MonoBehaviour
             }
             CTdebug(null);          // clear error
 
-//            Debug.Log("url1: "+url1+", www.text: " + www1.downloadHandler.text);
             // parse to class structure...
             List<CTworld> worlds = CTserdes.deserialize(this, www1.downloadHandler.text);
 			if(worlds == null) {
@@ -822,10 +810,8 @@ public class CTunity : MonoBehaviour
 					if (!ctobject.id.StartsWith(Player+"/")) 
                         ctobject.id = Player + "/" + ctobject.id;      // auto-prepend Player name to object
 					newGameObject(ctobject, true);      // require parent in-place 
-   //                 newGameObject(ctobject, objID!=null);      // require parents in-place (obscure)
                 }
             }
-//            newSession = false;          // flag new session???
 
             yield break;
         }              // end while(true)   
@@ -1012,7 +998,7 @@ public class CTunity : MonoBehaviour
 				try
 				{
 					clocksync = (Double.Parse(www1.downloadHandler.text) / 1000f) - now;
-					UnityEngine.Debug.Log("syncClock: " + clocksync);
+					UnityEngine.Debug.Log("syncClock: " + (Math.Round(1000f * clocksync)/1000f) +" (s)");
 					syncError = false;
 				} 
 				catch (Exception e) {
@@ -1113,7 +1099,7 @@ public class CTunity : MonoBehaviour
 
 		// CT player source
 		if (ctplayer != null) ctplayer.close();
-        if (Player.Equals("Observer")) return;          // observers are read-only
+        if (Player.Equals(Observer)) return;          // observers are read-only
 		ctplayer = new CTlib.CThttp(Session + "/GamePlay/" + Player, blocksPerSegment, true, true, true, Server);
 		ctplayer.login(user, password);
 		ctplayer.setAsync(AsyncMode);

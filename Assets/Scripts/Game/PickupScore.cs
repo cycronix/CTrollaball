@@ -19,14 +19,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using CTworldNS;
 
 public class PickupScore : MonoBehaviour {
 	CTunity ctunity;
 
 	public Text countText;
 	public Text winText;
- //   public int updateInterval = 10;         // only count every N updates (save CPU)
- //   private int updateCount = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -40,54 +39,23 @@ public class PickupScore : MonoBehaviour {
 	
 	//-------------------------------------------------------------------------------------------------------
 	// get States from objects, keep score
-    
-	class CTscore
-    {
-        string player { get; set; }
-        public int nactive { get; set; }
-    }
 
     void LateUpdate()
     {
-//        if((updateCount % updateInterval) == 0) 
         PlayerCount();
-//        updateCount++;
     }
 
- 
+    // build scoreboard:
     void PlayerCount()
     {
-        if (ctunity.PlayerList == null) return;  // nothing new
+        if (ctunity.WorldList == null) return;  // nothing new
 
-        Dictionary<String, int> cts = new Dictionary<String, int>();
- //       foreach (String player in ctunity.PlayerList) cts.Add(player, 0);   // init
-
-        foreach (String key in ctunity.CTlist.Keys)
-        {
-            String player = key.Split('/')[0];                  // CTlist uses fullName as key
-            if (!cts.ContainsKey(player)) cts.Add(player,0);
-            ++cts[player];          // count up associated player objects in CTlist
-        }
-
-        // build scoreboard:
         String scoreboard = "";
-        foreach(String player in cts.Keys)
- //       foreach (String player in ctunity.PlayerList)
+        foreach (CTworld ctw in ctunity.WorldList)
         {
-            int nactive = cts[player];
-            if (nactive > 0 || (ctunity.Player.Equals(player) && !player.Equals("Observer")))
-            {
-                String bold = "", ebold = "";
-                if (ctunity.Player.Equals(player) || !ctunity.PlayerList.Contains(player) )
-                {
-//                    Debug.Log("Active Player: " + player);
-                    bold = "<b><i>";  ebold = "</i></b>";
-                }
-  //              else
-  //                  Debug.Log("INACTIVE: " + player+", plist: "+ctunity.PlayerList);
-
-                scoreboard += (bold + "<color=" + player + ">" + player + ": " + nactive + "</color>  " + ebold);
-            }
+            String bold = "", ebold = "";
+            if (ctw.active) { bold = "<b><i>"; ebold = "</i></b>"; }
+            scoreboard += (bold + "<color=" + ctw.player + ">" + ctw.player + ": " + ctw.objects.Count + "</color>  " + ebold);
         }
 
 //        Debug.Log("scoreboard: " + scoreboard);

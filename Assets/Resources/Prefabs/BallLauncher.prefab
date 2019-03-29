@@ -16,20 +16,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 122
   m_CollisionDetection: 0
---- !u!64 &8641665089981255449
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8330734577543379840}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Convex: 1
-  m_CookingOptions: 14
-  m_Mesh: {fileID: 10206, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &651338157769121496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -42,12 +28,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98960d6e352da4422889cb5e9a10b064, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  HP: 1000
+  HP: 10
   ATK: 0
   AC: 1
   showHP: 1
-  scaleSize: 0
+  scaleSize: 1
   damageInterval: 0.1
+  debug: 0
+  killParent: 0
 --- !u!1001 &8330734577543379072
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -137,6 +125,11 @@ PrefabInstance:
     - target: {fileID: 4604898199385408, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7129353529140209358, guid: 59962ae4669a840aba362a1d4d5a2a9d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 59962ae4669a840aba362a1d4d5a2a9d, type: 3}

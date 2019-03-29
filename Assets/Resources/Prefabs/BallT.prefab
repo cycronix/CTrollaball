@@ -7,6 +7,18 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 405, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: m_Name
+      value: BallT
+      objectReference: {fileID: 0}
+    - target: {fileID: 2653, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: followLeader
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2652, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
+      propertyPath: autoColor
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1351338773054246, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
       propertyPath: m_Name
       value: BallT
@@ -65,14 +77,6 @@ PrefabInstance:
       value: BallT
       objectReference: {fileID: 0}
     - target: {fileID: 2712, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
-      propertyPath: followLeader
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 405, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
-      propertyPath: m_Name
-      value: BallT
-      objectReference: {fileID: 0}
-    - target: {fileID: 2653, guid: fc2497b0428c44c9991877fb192bb622, type: 3}
       propertyPath: followLeader
       value: 1
       objectReference: {fileID: 0}

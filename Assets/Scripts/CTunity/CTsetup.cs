@@ -24,6 +24,7 @@ using System.Net.Sockets;
 using System.Text.RegularExpressions;
 using UnityEngine.Networking;
 using UnityEngine.EventSystems;
+using CTworldNS;
 
 // Config Menu for CTrollaball
 // Matt Miller, Cycronix, 6-16-2017
@@ -89,34 +90,33 @@ public class CTsetup: MonoBehaviour
 		Dropdown[] drops = gameObject.GetComponentsInChildren<Dropdown>();
 		foreach (Dropdown d in drops)
 		{
-			switch (d.name)
-			{
-				case "Session":
-                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
-
+            switch (d.name)
+            {
+                case "Session":
+                    //                    ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // initialize
                     // add listener to update session settings
-					d.onValueChanged.AddListener(delegate
-					{
-						ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
-						updateSession();
+                    d.onValueChanged.AddListener(delegate
+                    {
+                        ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
+                        updateSession();
                         myCamera.setTarget(null);               // reset cam target to default
 
                         if (playerDrop != null)
-						{
-							ctunity.Player = playerDrop.GetComponent<Dropdown>().options[0].text;
-							ctunity.serverConnect();  // reset player path
-							playerDrop.value = 0;
-						}
-					});
+                        {
+                            ctunity.Player = playerDrop.GetComponent<Dropdown>().options[0].text;
+                            ctunity.serverConnect();  // reset player path
+                            playerDrop.value = 0;
+                        }
+                    });
 
                     break;
 
-				case "Deploy":
+                case "Deploy":
                     // add listener to deploy new world 
                     d.onValueChanged.AddListener(delegate
-					{   if (d.value != 0)
-						{
-							string svalue = d.GetComponent<Dropdown>().options[d.value].text;
+                    { if (d.value != 0)
+                        {
+                            string svalue = d.GetComponent<Dropdown>().options[d.value].text;
 
                             if (svalue.Equals(ctunity.Save))
                             {
@@ -131,29 +131,28 @@ public class CTsetup: MonoBehaviour
                             }
                             else ctunity.deployInventory(svalue);
 
-							d.value = 0;        // reset to blank
-						}
+                            d.value = 0;        // reset to blank
+                        }
                     });
 
                     break;
-                   
-				case "Player1":
-					playerDrop = d;
-                    ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
-      //              playerDrop.GetComponent<Button>().onClick.AddListener(onClick);
 
+                case "Player1":
+                    playerDrop = d;
+                    ctunity.Player = d.GetComponent<Dropdown>().options[d.value].text;      // init?
+                    //  playerDrop.GetComponent<Button>().onClick.AddListener(onClick);
                     d.onValueChanged.AddListener(delegate
 					{
-                        //     ctunity.setReplay(true);        // needed?
- //                       updateSession();                  // avoid new player set as child of prior player?
                         String player = d.GetComponent<Dropdown>().options[d.value].text;
+//                        Debug.Log("onValueChanged, d.value: " + d.value + ", ctunity.Player: " + ctunity.Player + ", player: " + player);
                         if (!player.Equals(ctunity.Player))
                         {
                             updateSession();                  // avoid new player set as child of prior player?
                             ctunity.Player = player;
+//                           Debug.Log("new Player: " + player + ", d.value: " + d.value);
                             ctunity.serverConnect();  // reset player path
                         }
-                        replayControl.SetActive(ctunity.Player.Equals("Observer"));
+                        replayControl.SetActive(ctunity.observerMode());
 					});
                     break;
 			}
@@ -186,7 +185,7 @@ public class CTsetup: MonoBehaviour
 
 	void updateServer()
 	{
- //       Debug.Log("updateServer...");
+//        Debug.Log("updateServer...");
         ctunity.clearWorlds();      // clean slate all worlds
 
 		InputField[] fields = gameObject.GetComponentsInChildren<InputField>();
@@ -210,13 +209,11 @@ public class CTsetup: MonoBehaviour
 		}
 
         // update player to current dropdown value
-//		ctunity.Player = playerDrop.GetComponent<Dropdown>().options[playerDrop.value].text;      // init
-
-		StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
-		StartCoroutine("getInventoryList");         // init list of "World" prefabs
-
         ctunity.doSyncClock();                  // sync client/server clocks
-        //        Debug.Log("updateServer done.");
+        StartCoroutine("getSessionList");       // get list of current GamePlay Sessions
+        StartCoroutine("getInventoryList");         // init list of "World" prefabs
+
+//        Debug.Log("updateServer done.");
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -297,6 +294,7 @@ public class CTsetup: MonoBehaviour
 	//----------------------------------------------------------------------------------------------------------------
     // get session list
     List<String> sessionList = new List<String>();
+    Boolean gotSessionList = false;           // flag when done
 
     public IEnumerator getSessionList()
     {
@@ -319,7 +317,7 @@ public class CTsetup: MonoBehaviour
 
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sessionList.Clear();
-			sessionList.Add("CTrollaball");         // seed with a default session
+//			sessionList.Add("CTrollaball");         // seed with a default session
             
             Match match;
             for (match = regex.Match(www1.downloadHandler.text); match.Success; match = match.NextMatch())
@@ -338,20 +336,26 @@ public class CTsetup: MonoBehaviour
                     }
                 }
             }
+            if(sessionList.Count==0) sessionList.Add("CTrollaball");    // seed with default session
 
-			//            foreach (String s in sessionList) UnityEngine.Debug.Log("Session: " + s);
-			// reset Session dropdown option list:
-			Dropdown d = transform.Find("Session").gameObject.GetComponent<Dropdown>();
+            //            foreach (String s in sessionList) UnityEngine.Debug.Log("Session: " + s);
+            // reset Session dropdown option list:
+            Dropdown d = transform.Find("Session").gameObject.GetComponent<Dropdown>();
 			d.ClearOptions();
             d.AddOptions(sessionList);
 			d.value = 0;
+
+            ctunity.Session = d.GetComponent<Dropdown>().options[0].text;  // initialize
+            gotSessionList = true;
+//            Debug.Log("update Session: " + ctunity.Session);
             yield break;
         }
     }
-     
-	//----------------------------------------------------------------------------------------------------------------
+
+    //----------------------------------------------------------------------------------------------------------------
     // get/set world list for dropdown selection
 
+    Boolean gotInventoryList = false;           // flag when done
     public IEnumerator getInventoryList()
     {
 //		Debug.Log("getInventoryList...");
@@ -360,6 +364,12 @@ public class CTsetup: MonoBehaviour
         while (true)
         {
             yield return new WaitForSeconds(0.1F);
+            if (!gotSessionList)
+            {
+//                Debug.Log("waiting for session list...");
+                yield return null;    // wait for update
+                continue;
+            }
 
             string url1 = ctunity.Server + "/CT";
             UnityWebRequest www1 = UnityWebRequest.Get(url1);
@@ -376,8 +386,11 @@ public class CTsetup: MonoBehaviour
             Regex regex = new Regex("\".*?\"", RegexOptions.IgnoreCase);
             sourceList.Clear();
 			sourceList.Add("");             // seed with blank
-			sourceList.Add(ctunity.Clear);
-			if(ctunity.user.Equals(ctunity.rootPlayer)) sourceList.Add(ctunity.Save);
+            if (ctunity.user.Equals(ctunity.rootPlayer))
+            {
+                sourceList.Add(ctunity.Clear);
+                sourceList.Add(ctunity.Save);
+            }
             sourceList.Add(ctunity.Load);
 
             NumInventory = 0;
@@ -412,7 +425,8 @@ public class CTsetup: MonoBehaviour
             d.ClearOptions();
             d.AddOptions(sourceList);
             d.value = 0;
-//            Debug.Log("Got Inventory List, Count: "+sourceList.Count);
+            gotInventoryList = true;
+//            Debug.Log("Got Inventory List, Count: "+sourceList.Count+", NumInventory: "+NumInventory+", url: "+url1);
             yield break;
         }
     }
@@ -423,30 +437,33 @@ public class CTsetup: MonoBehaviour
 
     private void setPlayerList()
     {
-        if (ctunity.PlayerList == null) return;         // nothing new
+        if (ctunity.WorldList == null) return;         // nothing new
         if (!gameOptions.activeSelf) return;            // nothing to show
-
-//        Debug.Log("setPlayer: " + ctunity.Player+", NumInventory: "+NumInventory+", playerList.Count: "+ctunity.PlayerList.Count);
-        Dropdown d = Player.gameObject.GetComponent<Dropdown>();
-
-        d.ClearOptions();
-        List<String> playerlist = new List<String>();
-        playerlist.Add("Observer");
-  //      if (ctunity.user.Equals(ctunity.rootPlayer)) playerlist.Add(ctunity.rootPlayer); // nope
+        if (!gotInventoryList) return;
+        
+        HashSet<String> playerlist = new HashSet<String>();  //  no dupes
+        playerlist.Add(ctunity.Observer);
+        playerlist.Add(ctunity.Player);
 
         if (NumInventory > 0)   // no inventory, no player
         {
-            foreach (string p in ctunity.PlayerList)
+            foreach (CTworld ctw in ctunity.WorldList)
             {
-//                Debug.Log("pl: " + p);
-                if (ctunity.user.Equals(ctunity.rootPlayer) || !p.Equals("World")) playerlist.Add(p);      // hard-wire filter "World" player
-//                if (!p.Equals(ctunity.rootPlayer)) playerlist.Add(p);      // hard-wire filter "World" player
+                if (!ctw.active && !ctw.player.Equals(ctunity.rootPlayer))
+                    playerlist.Add(ctw.player);
             }
         }
-//        playerlist.AddRange(ctunity.PlayerList);
-        d.AddOptions(playerlist);                   // reset Player dropdown option list:
-        d.value = playerlist.IndexOf(ctunity.Player);
 
-        ctunity.PlayerList = null;          // reset
+        if (ctunity.user.Equals(ctunity.rootPlayer)) playerlist.Add(ctunity.rootPlayer);
+
+        List<String> plist = new List<String>(playerlist);
+        Dropdown d = Player.gameObject.GetComponent<Dropdown>();
+        d.ClearOptions();
+        d.AddOptions(plist);                   // reset Player dropdown option list:
+        int dv = plist.IndexOf(ctunity.Player);
+        if(dv>=0) d.value = dv;
+        ctunity.WorldList = null;          // reset
+
+        // Debug.Log("playerList.count: " + plist.Count + ", dv: " + dv + ", d.value: "+d.value+", uplayer: " + ctunity.Player);
     }
 }

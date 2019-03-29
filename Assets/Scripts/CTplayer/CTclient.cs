@@ -82,10 +82,11 @@ public class CTclient : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-        if (autoColor) setColor();          // set default color based on object name
+ //       if (autoColor) setColor();          // set default color based on object name
         fullName = CTunity.fullName(gameObject);        // get once in advance
         ctunity.CTregister(gameObject);                 // register with CTunity...
         trail = GetComponent<TrailRenderer>();          // optional trail track
+//        Debug.Log(name+": start ctunity: " + ctunity);
     }
 
     // custom startup method called from CTunity
@@ -139,7 +140,7 @@ public class CTclient : MonoBehaviour
         if (replayMode || !isLocalObject())
         {
 //            gameObject.SetActive(cto.state);            // need to activate here (vs Update callback)
-            setColor(cto.color);                        // set color for non-local objects
+//            setColor(cto.color);                        // set color for non-local objects
         }
 
         if (rb == null) rb = GetComponent<Rigidbody>();    // try again; async issue?
@@ -264,8 +265,7 @@ public class CTclient : MonoBehaviour
         Boolean localObject = false;
         if (ctunity == null) return false;
         //		if (CTunity.fullName(gameObject).StartsWith(ctunity.Player) && !prefab.Equals("Ghost") && !ctunity.observerFlag)
-        if (fullName.StartsWith(ctunity.Player + "/") && !prefab.Equals("Ghost") /* && !ctunity.observerFlag */)
-            localObject = true;
+        if (fullName.StartsWith(ctunity.Player + "/")) localObject = true;
 
         return localObject;
     }
@@ -281,14 +281,16 @@ public class CTclient : MonoBehaviour
 
     internal void setColor(Color color)
     {
-        if (color == Color.clear) return;          // use default color
-                                                   //		Debug.Log("setColor(" + color + "), autoColor: " + autoColor+", ctunity: "+ctunity);
+        if(ctunity==null) ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();     // async?
 
-        if (autoColor && ctunity != null)
+//        Debug.Log(name + ": setColor(" + color + "), autoColor: " + autoColor+", ctunity: "+ctunity+", clear: "+Color.clear);
+        if (autoColor && color==Color.clear && ctunity != null)
         {
             color = ctunity.objectColor(gameObject);
-            //			Debug.Log(">setColor(" + color + "), autoColor: " + autoColor);
+//            Debug.Log(">setColor(" + color + "), autoColor: " + autoColor);
         }
+        if (color == Color.clear) return;          // use default color
+
         myColor = color;
 
         Renderer rend = gameObject.GetComponent<Renderer>();

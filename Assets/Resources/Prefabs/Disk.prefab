@@ -146,3 +146,4 @@ MonoBehaviour:
   scaleSize: 1
   damageInterval: 1
   debug: 0
+  killParent: 1
