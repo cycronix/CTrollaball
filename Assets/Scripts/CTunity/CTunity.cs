@@ -278,7 +278,7 @@ public class CTunity : MonoBehaviour
                 continue;
             }
 
-            if (world.objects.Count > 0)                    // skip empty place-holder worlds
+ //           if (world.objects.Count > 0)                    // skip empty place-holder worlds
             {
                 world.active = (delta < LinkDeadTime);
                 tworldList.Add(world);                      // build list of active worlds
