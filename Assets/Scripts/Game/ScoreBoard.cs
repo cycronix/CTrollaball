@@ -79,11 +79,25 @@ public class ScoreBoard : MonoBehaviour
     {
         if (showHP && ctunity.trackEnabled)
         {
+            if (ctclient.custom == null || ctclient.custom.Length == 0) return;     // notta
             Vector2 targetPos = mainCamera.WorldToScreenPoint(transform.position);
-            int w = 32;
-            w = ctclient.custom.Length * 7 + 14;
-            int h = 24;
-            GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
+
+            // scale font with screensize, and GUI.box to font
+            GUIContent content = new GUIContent(ctclient.custom);
+            GUIStyle style = GUI.skin.box;
+            // style.fontSize = 12;    // scale 
+            // style.fontSize = (Screen.height / 100);
+            int fs = Screen.height / 100;
+            style.fontSize = (fs < 12) ? 12 : (fs > 20) ? 20 : fs;
+            style.alignment = TextAnchor.MiddleCenter;
+            Vector2 size = style.CalcSize(content);     // Compute how large the popup window needs to be
+            GUI.Box(new Rect(targetPos.x - size.x/2f, Screen.height - targetPos.y - 2*size.y, size.x, size.y), ctclient.custom);
+            // Debug.Log("Screen.height: " + Screen.height + ", fontSize: " + style.fontSize + ", fs: " + fs);
+
+            // int w = 32;
+            // w = ctclient.custom.Length * 7 + 14;
+            // int h = 24;
+            // GUI.Box(new Rect(targetPos.x - w / 2, Screen.height - targetPos.y - 2 * h, w, h), ctclient.custom);
         }
     }
 
