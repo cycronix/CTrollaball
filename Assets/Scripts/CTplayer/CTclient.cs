@@ -37,7 +37,7 @@ public class CTclient : MonoBehaviour
     public Boolean isRogue = false;             // "rogue" clients flag ignore local controls
 
     public CTobject ctobject = null;            // for public ref
-                                                //    public CTledger ctledger = null;
+    public Boolean LookAtMe = false;            // grab camera focus on start?
 
     internal String prefab = "";                  // programmatically set; reference value
     internal String link = "";                  // for sending custom info via CTstates.txt
@@ -86,7 +86,12 @@ public class CTclient : MonoBehaviour
         fullName = CTunity.fullName(gameObject);        // get once in advance
         ctunity.CTregister(gameObject);                 // register with CTunity...
         trail = GetComponent<TrailRenderer>();          // optional trail track
-//        Debug.Log(name+": start ctunity: " + ctunity);
+         // Debug.Log(name+": start ctunity: " + ctunity);
+
+        if (LookAtMe)
+        {
+            GameObject.Find("Main Camera").GetComponent<maxCamera>().setTarget(transform);
+        }
     }
 
     // custom startup method called from CTunity

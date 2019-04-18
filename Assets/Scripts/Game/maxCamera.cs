@@ -63,19 +63,32 @@ public class maxCamera : MonoBehaviour
     private Boolean newTarget = false;
     private Vector3 velocity = Vector3.zero;
 
+    private Vector3 initPosition = Vector3.zero;
+    private Quaternion initRotation = Quaternion.identity;
+
     //----------------------------------------------------------------------------------------------------------------
     void Start() { 
 		ctunity = GameObject.Find("CTunity").GetComponent<CTunity>();       // reference CTunity script
-		Init(); 
+//		Init(); 
 	}
 
 	//----------------------------------------------------------------------------------------------------------------
-	void OnEnable() { Init(); }
+	void OnEnable() {
+        initPosition = transform.position;
+        initRotation = transform.rotation;
+//        Debug.Log("initPostion: " + initPosition + ", initRotation: " + initRotation);
+        Init(); 
+    }
     
 	//----------------------------------------------------------------------------------------------------------------
 	public void Init()
 	{
-        if(target == null) target = GameObject.Find("Players").transform;  // something for init
+//        Debug.Log("RESET initPostion: " + initPosition + ", initRotation: " + initRotation);
+        transform.position = initPosition;         // reset original pos/rot
+        transform.rotation = initRotation;
+
+        //        if(target == null) 
+        target = GameObject.Find("Players").transform;  // something for init
 		distance = Vector3.Distance(transform.position, target.position);
 		currentDistance = distance;
 		desiredDistance = distance;
@@ -218,13 +231,13 @@ public class maxCamera : MonoBehaviour
         {
             //transform.position = Vector3.SmoothDamp(targetPos1, targetPos2, ref velocity, 1f / zoomDampening);
             transform.position = Vector3.Lerp(transform.position, tpos, Time.deltaTime * zoomDampening);
- //           Debug.Log("Lerp target dx: "+dx);
+//            Debug.Log("Lerp target dx: "+dx);
             if (dx < 0.01F) newTarget = false;
         }
         else
         {
             //         velocity = Vector3.zero;
-  //          Debug.Log("jump target");
+//            Debug.Log("jump target");
             transform.position = tpos;
         }
     }

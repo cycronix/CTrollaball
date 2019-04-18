@@ -100,6 +100,7 @@ public class CTsetup: MonoBehaviour
                         ctunity.Session = d.GetComponent<Dropdown>().options[d.value].text;  // set selected session
                         updateSession();
                         myCamera.setTarget(null);               // reset cam target to default
+                        myCamera.Init();
 
                         if (playerDrop != null)
                         {

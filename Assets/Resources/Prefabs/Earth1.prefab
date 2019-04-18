@@ -143,3 +143,4 @@ MonoBehaviour:
   SmoothTime: 0.4
   autoColor: 0
   isRogue: 0
+  LookAtMe: 0

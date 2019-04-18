@@ -80,7 +80,19 @@ public class ScoreBoard : MonoBehaviour
         if (showHP && ctunity.trackEnabled)
         {
             if (ctclient.custom == null || ctclient.custom.Length == 0) return;     // notta
+
+            // check for off-screen objects (cause "ghost" GUI.Boxes)
+            if (!gameObject.GetComponent<Renderer>().isVisible)
+            {
+//                Debug.Log(name + ", not visible!");
+                return;
+            }
             Vector2 targetPos = mainCamera.WorldToScreenPoint(transform.position);
+            if (targetPos.x < 0 || targetPos.x > Screen.width || targetPos.y < 0 || targetPos.y > Screen.height)
+            {
+//                Debug.Log(name + ", reject targetPos: " + targetPos);
+                return;
+            }
 
             // scale font with screensize, and GUI.box to font
             GUIContent content = new GUIContent(ctclient.custom);
@@ -91,9 +103,9 @@ public class ScoreBoard : MonoBehaviour
             style.fontSize = (fs < 12) ? 12 : (fs > 20) ? 20 : fs;
             style.alignment = TextAnchor.MiddleCenter;
             Vector2 size = style.CalcSize(content);     // Compute how large the popup window needs to be
-            GUI.Box(new Rect(targetPos.x - size.x/2f, Screen.height - targetPos.y - 2*size.y, size.x, size.y), ctclient.custom);
-            // Debug.Log("Screen.height: " + Screen.height + ", fontSize: " + style.fontSize + ", fs: " + fs);
 
+            GUI.Box(new Rect(targetPos.x - size.x/2f, Screen.height - targetPos.y - 2*size.y, size.x, size.y), ctclient.custom);
+//            Debug.Log("Screen.height: " + Screen.height + ", fontSize: " + style.fontSize + ", fs: " + fs);
             // int w = 32;
             // w = ctclient.custom.Length * 7 + 14;
             // int h = 24;

@@ -94,7 +94,7 @@ public class CTtimecontrol : MonoBehaviour {
             // adjust slider value if playFwd or playRvs
 			if (playFactor != 0)
             {
-				double dt = playFactor * (nowTime() - playTimeRef);
+				double dt = playFactor * (nowTime() - playTimeRef);   
 				slider.value = Mathf.Clamp(slider.value + (float)(dt / durationReplayTime), 0F, 1F);
 				playTimeRef = nowTime();
             }
@@ -108,7 +108,7 @@ public class CTtimecontrol : MonoBehaviour {
                 playPause();
                 slider.value = 1F;
             }
-            else if (slider.value <= 0F)
+            else if (slider.value <= 0F)     // was <=0
             {
                 playPause();
                 slider.value = 0F;
@@ -162,7 +162,7 @@ public class CTtimecontrol : MonoBehaviour {
     // UI button control functions
 
 	public void playFwd() {
-		playTimeRef = nowTime();        // for relative time-lapse
+		playTimeRef = nowTime() - 0.001F;        // for relative time-lapse
 		playFactor = 1F;
 
 	}
