@@ -87,8 +87,10 @@ public class ScoreBoard : MonoBehaviour
 //                Debug.Log(name + ", not visible!");
                 return;
             }
-            Vector2 targetPos = mainCamera.WorldToScreenPoint(transform.position);
-            if (targetPos.x < 0 || targetPos.x > Screen.width || targetPos.y < 0 || targetPos.y > Screen.height)
+            Vector3 targetPos = mainCamera.WorldToScreenPoint(transform.position);
+//            if(targetPos.z < 0) Debug.Log(name + ",  targetPos: " + targetPos);
+
+            if (targetPos.x < 0 || targetPos.x > Screen.width || targetPos.y < 0 || targetPos.y > Screen.height || targetPos.z < 0)
             {
 //                Debug.Log(name + ", reject targetPos: " + targetPos);
                 return;
